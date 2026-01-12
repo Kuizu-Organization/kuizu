@@ -5,4 +5,4 @@ lesson more efficiently.
 
 ## Contribution
 
-For guidelines on contribution, please see [CONTRIBUTING.md].
+For guidelines on contribution, please see [Contributing guideline](CONTRIBUTING.md).
