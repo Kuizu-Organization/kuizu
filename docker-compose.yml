@@ -1,38 +1,45 @@
 services:
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: sql-db
+    ports:
+      - "1433:1433"
+    environment:
+      - ACCEPT_EULA=Y
+      - MSSQL_SA_PASSWORD=123456
+      - MSSQL_PID=Developer
+
   backend:
     image: eclipse-temurin:17-jdk
     container_name: spring-backend
     working_dir: /app
-
     ports:
       - "8080:8080"
-
     volumes:
       - ./backend:/app
       - maven-cache:/root/.m2
-
     command: ./mvnw spring-boot:run
-
     environment:
-      SPRING_PROFILES_ACTIVE: dev
+      - SPRING_PROFILES_ACTIVE=dev
+      # Overriding the local properties to point to the 'sqlserver' service
+      - SPRING_DATASOURCE_URL=jdbc:sqlserver://sqlserver:1433;databaseName=kuizu;encrypt=true;trustServerCertificate=true;
+      - SPRING_DATASOURCE_USERNAME=sa
+      - SPRING_DATASOURCE_PASSWORD=123456
+    depends_on:
+      - sqlserver
 
   frontend:
     image: node:20-alpine
     container_name: react-frontend
     working_dir: /app
-
     ports:
       - "5173:5173"
-
     volumes:
       - ./frontend:/app
       - node-modules:/app/node_modules
-
     command: sh -c "npm install && npm run dev"
-
     environment:
-      CHOKIDAR_USEPOLLING: "true"
-
+      - CHOKIDAR_USEPOLLING=true
     depends_on:
       - backend
 
