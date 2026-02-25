@@ -71,8 +71,9 @@ public class AuthService {
     }
 
     public AuthResponse login(LoginRequest request) {
-        User user = userRepository.findByUsername(request.getUsernameOrEmail())
-                .orElseGet(() -> userRepository.findByEmail(request.getUsernameOrEmail())
+        String identifier = request.getUsernameOrEmail().trim();
+        User user = userRepository.findByUsername(identifier)
+                .orElseGet(() -> userRepository.findByEmail(identifier)
                         .orElseThrow(() -> new ApiException("Invalid username or email")));
 
         try {
