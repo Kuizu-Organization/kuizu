@@ -1,19 +1,25 @@
-import { useEffect, useState } from "react";
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import AuthPage from './pages/AuthPage';
 
 function App() {
-  const [message, setMessage] = useState("");
-
-  useEffect(() => {
-    fetch("http://localhost:8080/api/hello")
-      .then(res => res.text())
-      .then(data => setMessage(data));
-  }, []);
-
   return (
-    <div>
-      <h1>React + Spring Boot</h1>
-      <p>{message}</p>
-    </div>
+    <Router>
+      <Routes>
+        <Route path="/auth" element={<AuthPage />} />
+        <Route path="/" element={<Navigate to="/auth" replace />} />
+        {/* Placeholder for dashboard */}
+        <Route path="/dashboard" element={
+          <div style={{ padding: '20px' }}>
+            <h1>Welcome to Kuizu Dashboard!</h1>
+            <button onClick={() => {
+              localStorage.removeItem('token');
+              localStorage.removeItem('user');
+              window.location.href = '/auth';
+            }}>Logout</button>
+          </div>
+        } />
+      </Routes>
+    </Router>
   );
 }
 
