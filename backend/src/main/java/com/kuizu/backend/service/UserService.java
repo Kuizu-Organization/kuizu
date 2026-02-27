@@ -83,6 +83,9 @@ public class UserService {
                 .profilePictureUrl(user.getProfilePictureUrl())
                 .role(user.getRole() != null ? user.getRole().name() : null)
                 .status(user.getStatus() != null ? user.getStatus().name() : null)
+                .locale(user.getLocale())
+                .timezone(user.getTimezone())
+                .preferences(user.getPreferences())
                 .createdAt(user.getCreatedAt())
                 .updatedAt(user.getUpdatedAt())
                 .build();
