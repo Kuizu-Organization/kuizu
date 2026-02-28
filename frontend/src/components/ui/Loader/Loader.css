@@ -1,0 +1,98 @@
+.loader-overlay {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+}
+
+.loader-overlay.full-page {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(2px);
+}
+
+.loader-overlay.inline {
+    width: 100%;
+    height: 100%;
+    min-height: 200px;
+}
+
+.pinwheel-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.loader-sm .pinwheel-svg {
+    width: 32px;
+    height: 32px;
+}
+
+.loader-md .pinwheel-svg {
+    width: 64px;
+    height: 64px;
+}
+
+.loader-lg .pinwheel-svg {
+    width: 120px;
+    height: 120px;
+}
+
+.pinwheel-svg {
+    animation: pinwheel-spin 2s linear infinite;
+    filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.15));
+    border-radius: 50%;
+    padding: 4px;
+}
+
+.pinwheel-effect {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border-radius: 50%;
+    background: radial-gradient(circle at center, transparent 40%, rgba(0, 0, 0, 0.05) 50%, rgba(255, 255, 255, 0.1) 60%, transparent 100%);
+    pointer-events: none;
+    animation: pinwheel-spin 2s linear infinite;
+}
+
+@keyframes pinwheel-spin {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Add a subtle pulsing glow for extra premium feel */
+.pinwheel-container::after {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle at center, rgba(66, 85, 255, 0.1) 0%, transparent 70%);
+    animation: pinwheel-glow 2s ease-in-out infinite;
+    z-index: -1;
+}
+
+@keyframes pinwheel-glow {
+
+    0%,
+    100% {
+        transform: scale(0.8);
+        opacity: 0.3;
+    }
+
+    50% {
+        transform: scale(1.4);
+        opacity: 0.6;
+    }
+}

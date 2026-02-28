@@ -5,3 +5,4 @@ export { default as Card } from './Card/Card';
 export { default as Modal } from './Modal/Modal';
 export { default as Accordion } from './Accordion/Accordion';
 export { default as Tabs } from './Tabs/Tabs';
+export { default as Loader } from './Loader/Loader';

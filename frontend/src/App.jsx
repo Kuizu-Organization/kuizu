@@ -11,11 +11,7 @@ function App() {
         <Route path="/auth" element={<AuthPage />} />
 
         {/* Standard layout pages */}
-        <Route path="/profile" element={
-          <MainLayout>
-            <ProfilePage />
-          </MainLayout>
-        } />
+        <Route path="/profile" element={<ProfilePage />} />
 
         <Route path="/dashboard" element={
           <MainLayout>

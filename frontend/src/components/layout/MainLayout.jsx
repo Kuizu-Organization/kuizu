@@ -2,8 +2,9 @@ import React, { useState, useEffect } from 'react';
 import Navbar from './Navbar/Navbar';
 import Footer from './Footer/Footer';
 import Sidebar from './Sidebar/Sidebar';
+import { Loader } from '../ui';
 
-const MainLayout = ({ children }) => {
+const MainLayout = ({ children, isLoading = false }) => {
     const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(() => {
         const saved = localStorage.getItem('sidebar-collapsed');
         return saved === 'true' ? true : false;
@@ -28,12 +29,24 @@ const MainLayout = ({ children }) => {
                     transition: 'margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                     width: '100%',
                     minHeight: 'calc(100vh - 5rem)',
-                    backgroundColor: 'var(--white)'
+                    backgroundColor: 'var(--white)',
+                    display: 'flex',
+                    flexDirection: 'column'
                 }}>
-                    <main className="main-content" style={{ paddingBottom: '80px' }}>
-                        {children}
+                    <main className="main-content" style={{
+                        flex: 1,
+                        paddingBottom: '80px',
+                        display: isLoading ? 'flex' : 'block',
+                        alignItems: isLoading ? 'center' : 'initial',
+                        justifyContent: isLoading ? 'center' : 'initial'
+                    }}>
+                        {isLoading ? (
+                            <Loader fullPage={false} size="lg" />
+                        ) : (
+                            children
+                        )}
                     </main>
-                    <Footer />
+                    {!isLoading && <Footer />}
                 </div>
             </div>
         </div>
