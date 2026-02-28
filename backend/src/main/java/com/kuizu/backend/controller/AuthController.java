@@ -6,8 +6,10 @@ import com.kuizu.backend.dto.request.RegisterRequest;
 import com.kuizu.backend.dto.request.ResetPasswordRequest;
 import com.kuizu.backend.dto.response.AuthResponse;
 import com.kuizu.backend.service.AuthService;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -22,13 +24,15 @@ public class AuthController {
     private AuthService authService;
 
     @PostMapping("/register")
-    public ResponseEntity<AuthResponse> register(@Valid @RequestBody RegisterRequest request) {
-        return ResponseEntity.ok(authService.register(request));
+    public ResponseEntity<AuthResponse> register(@Valid @RequestBody RegisterRequest request,
+            HttpServletRequest httpRequest) {
+        return ResponseEntity.ok(authService.register(request, httpRequest));
     }
 
     @PostMapping("/login")
-    public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginRequest request) {
-        return ResponseEntity.ok(authService.login(request));
+    public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginRequest request,
+            HttpServletRequest httpRequest) {
+        return ResponseEntity.ok(authService.login(request, httpRequest));
     }
 
     @PostMapping("/forgot-password")
@@ -48,13 +52,17 @@ public class AuthController {
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<Map<String, String>> logout(@RequestHeader("Authorization") String authHeader) {
+    public ResponseEntity<Map<String, String>> logout(
+            @RequestHeader(value = "Authorization", required = false) String authHeader) {
+        Map<String, String> response = new HashMap<>();
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             String token = authHeader.substring(7);
             authService.logout(token);
+            response.put("message", "Logged out successfully");
+            return ResponseEntity.ok(response);
         }
-        Map<String, String> response = new HashMap<>();
-        response.put("message", "Logged out successfully");
-        return ResponseEntity.ok(response);
+        response.put("error", "Unauthorized");
+        response.put("message", "Invalid or missing authorization token");
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
     }
 }

@@ -52,11 +52,15 @@ public class User {
     }
 
     public enum UserStatus {
-        ACTIVE, INACTIVE, SUSPENDED
+        ACTIVE, INACTIVE, SUSPENDED, LOCKED
     }
 
     @Column(name = "last_login_at")
     private LocalDateTime lastLoginAt;
+
+    @Builder.Default
+    @Column(name = "failed_login_attempts")
+    private Integer failedLoginAttempts = 0;
 
     @Column(name = "password_updated_at")
     private LocalDateTime passwordUpdatedAt;
