@@ -2,13 +2,18 @@ import React, { useState, useEffect } from 'react';
 import { Camera, ChevronDown, Plus, Pencil, User as UserIcon, Mail, ShieldCheck, Palette } from 'lucide-react';
 import './ProfilePage.css';
 import { getCurrentUser, updateProfile } from '../api/user';
-import { Button, Card, Input } from '../components/ui';
+import { Button, Card, Input, Modal } from '../components/ui';
 import MainLayout from '../components/layout';
 
 const ProfilePage = () => {
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+
+    // Modal state
+    const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+    const [editingField, setEditingField] = useState(null);
+    const [editValue, setEditValue] = useState('');
 
     // Mock avatars (as seen in the design)
     const avatars = [
@@ -66,17 +71,16 @@ const ProfilePage = () => {
     };
 
     const handleEditField = (field) => {
-        const labels = {
-            displayName: 'Display Name',
-            bio: 'Bio',
-            locale: 'Language',
-            timezone: 'Timezone'
-        };
-        const fieldLabel = labels[field] || field;
-        const newValue = prompt(`Enter new ${fieldLabel}:`, user[field] || '');
-        if (newValue !== null && newValue !== user[field]) {
-            performUpdate({ [field]: newValue });
+        setEditingField(field);
+        setEditValue(user[field] || '');
+        setIsEditModalOpen(true);
+    };
+
+    const handleEditSubmit = async () => {
+        if (editValue !== user[editingField]) {
+            await performUpdate({ [editingField]: editValue });
         }
+        setIsEditModalOpen(false);
     };
 
     const performUpdate = async (data) => {
@@ -95,6 +99,13 @@ const ProfilePage = () => {
         localStorage.setItem('theme', newTheme);
         // Sync theme to backend preferences
         performUpdate({ preferences: JSON.stringify({ theme: newTheme }) });
+    };
+
+    const fieldLabels = {
+        displayName: 'Display Name',
+        bio: 'Bio',
+        locale: 'Language',
+        timezone: 'Timezone'
     };
 
     return (
@@ -203,6 +214,38 @@ const ProfilePage = () => {
                             </div>
                         </Card>
                     </div>
+
+                    {/* Edit Modal */}
+                    <Modal
+                        isOpen={isEditModalOpen}
+                        onClose={() => setIsEditModalOpen(false)}
+                        title={`Edit ${fieldLabels[editingField]}`}
+                        footer={
+                            <>
+                                <Button variant="ghost" onClick={() => setIsEditModalOpen(false)}>Cancel</Button>
+                                <Button variant="primary" onClick={handleEditSubmit}>Save Changes</Button>
+                            </>
+                        }
+                    >
+                        <div className="edit-modal-content">
+                            {editingField === 'bio' ? (
+                                <textarea
+                                    className="edit-textarea"
+                                    value={editValue}
+                                    onChange={(e) => setEditValue(e.target.value)}
+                                    placeholder={`Enter your ${fieldLabels[editingField]}`}
+                                    rows={4}
+                                />
+                            ) : (
+                                <Input
+                                    value={editValue}
+                                    onChange={(e) => setEditValue(e.target.value)}
+                                    placeholder={`Enter your ${fieldLabels[editingField]}`}
+                                    autoFocus
+                                />
+                            )}
+                        </div>
+                    </Modal>
                 </div>
             )}
         </MainLayout>
