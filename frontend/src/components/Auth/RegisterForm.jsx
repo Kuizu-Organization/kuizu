@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
+import { User, Mail, Lock, FileText, Info } from 'lucide-react';
 import { register } from '../../api/auth';
+import { Input, Button } from '../ui';
 import './AuthForm.css';
 
 const RegisterForm = ({ onToggle }) => {
@@ -42,99 +44,76 @@ const RegisterForm = ({ onToggle }) => {
         <form className="auth-form" onSubmit={handleSubmit}>
             {error && <div className="error-msg">{error}</div>}
 
-            <div className="form-group">
-                <label>Username</label>
-                <div className="input-wrapper">
-                    <input
-                        type="text"
-                        placeholder="Choose a username (3-50 chars)"
-                        value={formData.username}
-                        onChange={(e) => setFormData({ ...formData, username: e.target.value })}
-                        required
-                    />
-                </div>
-            </div>
+            <Input
+                label="Username"
+                placeholder="Choose a username (3-50 chars)"
+                value={formData.username}
+                onChange={(e) => setFormData({ ...formData, username: e.target.value })}
+                leftIcon={<User size={18} />}
+                required
+            />
 
-            <div className="form-group">
-                <label>Email</label>
-                <div className="input-wrapper">
-                    <input
-                        type="email"
-                        placeholder="Type your email address"
-                        value={formData.email}
-                        onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                        required
-                    />
-                </div>
-            </div>
+            <Input
+                label="Email"
+                type="email"
+                placeholder="Type your email address"
+                value={formData.email}
+                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                leftIcon={<Mail size={18} />}
+                required
+            />
 
-            <div className="form-group">
-                <label>I am a...</label>
-                <div className="role-selection">
-                    <button
+            <div className="input-container">
+                <label className="input-label">I am a...</label>
+                <div className="role-selection-wrapper">
+                    <Button
                         type="button"
-                        className={`role-btn ${formData.role === 'ROLE_STUDENT' ? 'active' : ''}`}
+                        variant={formData.role === 'ROLE_STUDENT' ? 'primary' : 'secondary'}
+                        className="role-selection-btn"
                         onClick={() => setFormData({ ...formData, role: 'ROLE_STUDENT' })}
                     >
                         Student
-                    </button>
-                    <button
+                    </Button>
+                    <Button
                         type="button"
-                        className={`role-btn ${formData.role === 'ROLE_TEACHER' ? 'active' : ''}`}
+                        variant={formData.role === 'ROLE_TEACHER' ? 'primary' : 'secondary'}
+                        className="role-selection-btn"
                         onClick={() => setFormData({ ...formData, role: 'ROLE_TEACHER' })}
                     >
                         Teacher
-                    </button>
+                    </Button>
                 </div>
             </div>
 
-            <div className="form-group">
-                <label>Display Name (Optional)</label>
-                <div className="input-wrapper">
-                    <input
-                        type="text"
-                        placeholder="Your public name (max 150 chars)"
-                        value={formData.displayName}
-                        onChange={(e) => setFormData({ ...formData, displayName: e.target.value })}
-                    />
-                </div>
-            </div>
+            <Input
+                label="Display Name (Optional)"
+                placeholder="Your public name (max 150 chars)"
+                value={formData.displayName}
+                onChange={(e) => setFormData({ ...formData, displayName: e.target.value })}
+                leftIcon={<Info size={18} />}
+            />
 
-            <div className="form-group">
-                <label>Bio (Optional)</label>
-                <div className="input-wrapper">
-                    <textarea
-                        placeholder="Tell others about yourself (max 500 chars)"
-                        value={formData.bio}
-                        onChange={(e) => setFormData({ ...formData, bio: e.target.value })}
-                    />
-                </div>
-            </div>
-
-            <div className="form-group">
-                <label>Password</label>
-                <div className="input-wrapper">
-                    <input
-                        type="password"
-                        placeholder="Min 8 chars, 1 upper, 1 lower, 1 special"
-                        value={formData.password}
-                        onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                        required
-                    />
-                </div>
-            </div>
+            <Input
+                label="Password"
+                type="password"
+                placeholder="Min 8 chars, 1 upper, 1 lower, 1 special"
+                value={formData.password}
+                onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                leftIcon={<Lock size={18} />}
+                required
+            />
 
             <p className="terms-text">
                 By clicking Sign up, you accept Kuizu's <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>
             </p>
 
-            <button type="submit" className="primary-btn" disabled={loading}>
+            <Button type="submit" isLoading={loading} className="w-full">
                 {loading ? 'Creating account...' : 'Sign up'}
-            </button>
+            </Button>
 
-            <button type="button" className="secondary-btn" onClick={onToggle}>
+            <Button variant="ghost" className="w-full mt-4" onClick={onToggle}>
                 Already have an account? Log in
-            </button>
+            </Button>
         </form>
     );
 };

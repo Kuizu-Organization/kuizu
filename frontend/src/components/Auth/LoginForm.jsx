@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { Eye, EyeOff } from 'lucide-react';
+import { Eye, EyeOff, Mail, Lock } from 'lucide-react';
 import { login } from '../../api/auth';
+import { Input, Button } from '../ui';
 import './AuthForm.css';
 
 const LoginForm = ({ onToggle }) => {
@@ -29,53 +30,51 @@ const LoginForm = ({ onToggle }) => {
         <form className="auth-form" onSubmit={handleSubmit}>
             {error && <div className="error-msg">{error}</div>}
 
-            <div className="form-group">
-                <label>Email or username</label>
-                <div className="input-wrapper">
-                    <input
-                        type="text"
-                        placeholder="Type your email address or your username"
-                        value={formData.identifier}
-                        onChange={(e) => setFormData({ ...formData, identifier: e.target.value })}
-                        required
-                    />
-                </div>
-            </div>
+            <Input
+                label="Email or Username"
+                placeholder="Type your email address or your username"
+                value={formData.identifier}
+                onChange={(e) => setFormData({ ...formData, identifier: e.target.value })}
+                leftIcon={<Mail size={18} />}
+                required
+            />
 
-            <div className="form-group">
+            <div className="input-container">
                 <div className="label-row">
-                    <label>Password</label>
+                    <label className="input-label">Password</label>
                     <a href="/forgot-password" title="Forgot password?">Forgot password?</a>
                 </div>
-                <div className="input-wrapper">
-                    <input
-                        type={showPassword ? "text" : "password"}
-                        placeholder="Type your password"
-                        value={formData.password}
-                        onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                        required
-                    />
-                    <button
-                        type="button"
-                        className="toggle-password"
-                        onClick={() => setShowPassword(!showPassword)}
-                    >
-                        {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
-                    </button>
-                </div>
+                <Input
+                    type={showPassword ? "text" : "password"}
+                    placeholder="Type your password"
+                    value={formData.password}
+                    onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                    leftIcon={<Lock size={18} />}
+                    rightIcon={
+                        <button
+                            type="button"
+                            className="toggle-password-btn"
+                            onClick={() => setShowPassword(!showPassword)}
+                            style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex' }}
+                        >
+                            {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                        </button>
+                    }
+                    required
+                />
             </div>
 
             <p className="terms-text">
                 By clicking Log in, you accept Kuizu's <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>
             </p>
 
-            <button type="submit" className="primary-btn" disabled={loading}>
+            <Button type="submit" isLoading={loading} className="w-full">
                 {loading ? 'Logging in...' : 'Log in'}
-            </button>
+            </Button>
 
-            <button type="button" className="secondary-btn" onClick={onToggle}>
+            <Button variant="ghost" className="w-full mt-4" onClick={onToggle}>
                 New to Kuizu? Create an account
-            </button>
+            </Button>
         </form>
     );
 };
