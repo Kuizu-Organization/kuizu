@@ -196,32 +196,32 @@ public class DataInitializer {
 
             folderRepository.save(teacherFolder);
 
-            // --- User Statistics ---
-            userStatisticRepository.save(UserStatistic.builder()
-                    .user(teacher)
-                    .totalSets(2L)
-                    .totalCards(8L)
-                    .quizzesTaken(0L)
-                    .lastActiveAt(LocalDateTime.now())
-                    .build());
+//            // --- User Statistics ---
+//            userStatisticRepository.save(UserStatistic.builder()
+//                    .user(teacher)
+//                    .totalSets(2L)
+//                    .totalCards(8L)
+//                    .quizzesTaken(0L)
+//                    .lastActiveAt(LocalDateTime.now())
+//                    .build());
+//
+//            userStatisticRepository.save(UserStatistic.builder()
+//                    .user(student1)
+//                    .totalSets(1L)
+//                    .totalCards(0L)
+//                    .quizzesTaken(5L)
+//                    .lastActiveAt(LocalDateTime.now().minusDays(1))
+//                    .build());
 
-            userStatisticRepository.save(UserStatistic.builder()
-                    .user(student1)
-                    .totalSets(1L)
-                    .totalCards(0L)
-                    .quizzesTaken(5L)
-                    .lastActiveAt(LocalDateTime.now().minusDays(1))
-                    .build());
-
-            // --- Flashcard Set Statistic ---
-            flashcardSetStatisticRepository.save(FlashcardSetStatistic.builder()
-                    .flashcardSet(javaBasics)
-                    .setId(javaBasics.getSetId())
-                    .viewCount(150L)
-                    .quizCount(40L)
-                    .retentionRate(new java.math.BigDecimal("85.5"))
-                    .lastViewedAt(LocalDateTime.now())
-                    .build());
+//            // --- Flashcard Set Statistic ---
+//            flashcardSetStatisticRepository.save(FlashcardSetStatistic.builder()
+//                    .flashcardSet(javaBasics)
+//                    .setId(javaBasics.getSetId())
+//                    .viewCount(150L)
+//                    .quizCount(40L)
+//                    .retentionRate(new java.math.BigDecimal("85.5"))
+//                    .lastViewedAt(LocalDateTime.now())
+//                    .build());
 
             // --- Audit Logs ---
             auditLogRepository.save(AuditLog.builder()
