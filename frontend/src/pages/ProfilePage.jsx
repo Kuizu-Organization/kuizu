@@ -36,6 +36,7 @@ const ProfilePage = () => {
         if (newValue !== null && newValue !== user[field]) {
             performUpdate({ [field]: newValue });
         }
+        setIsEditModalOpen(false);
     };
 
     const performUpdate = async (data) => {
@@ -205,6 +206,38 @@ const ProfilePage = () => {
                             </div>
                         </div>
                     </div>
+
+                    {/* Edit Modal */}
+                    <Modal
+                        isOpen={isEditModalOpen}
+                        onClose={() => setIsEditModalOpen(false)}
+                        title={`Edit ${fieldLabels[editingField]}`}
+                        footer={
+                            <>
+                                <Button variant="ghost" onClick={() => setIsEditModalOpen(false)}>Cancel</Button>
+                                <Button variant="primary" onClick={handleEditSubmit}>Save Changes</Button>
+                            </>
+                        }
+                    >
+                        <div className="edit-modal-content">
+                            {editingField === 'bio' ? (
+                                <textarea
+                                    className="edit-textarea"
+                                    value={editValue}
+                                    onChange={(e) => setEditValue(e.target.value)}
+                                    placeholder={`Enter your ${fieldLabels[editingField]}`}
+                                    rows={4}
+                                />
+                            ) : (
+                                <Input
+                                    value={editValue}
+                                    onChange={(e) => setEditValue(e.target.value)}
+                                    placeholder={`Enter your ${fieldLabels[editingField]}`}
+                                    autoFocus
+                                />
+                            )}
+                        </div>
+                    </Modal>
                 </div>
             )}
         </MainLayout>
