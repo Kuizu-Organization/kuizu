@@ -5,6 +5,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 @RestController
 @RequestMapping("/api/classes")
@@ -21,7 +22,7 @@ class ClassController {
     }
 
     @GetMapping("/search")
-    public ResponseEntity<?> getClassesByName(String query) {
+    public ResponseEntity<?> getClassesByName(@RequestParam String query) {
         return ResponseEntity.ok(classService.findClassesByName(query));
     }
 
