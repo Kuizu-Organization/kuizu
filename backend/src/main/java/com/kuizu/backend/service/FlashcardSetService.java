@@ -1,15 +1,14 @@
 package com.kuizu.backend.service;
 
-import com.kuizu.backend.dto.request.CreateFlashcardSetRequest;
+import com.kuizu.backend.dto.request.FlashcardSetRequest;
 import com.kuizu.backend.dto.response.FlashcardSetResponse;
-import com.kuizu.backend.entity.*;
-import com.kuizu.backend.entity.enumeration.Visibility;
-import com.kuizu.backend.entity.enumeration.ModerationStatus;
+import com.kuizu.backend.entity.FlashcardSet;
+import com.kuizu.backend.entity.User;
 import com.kuizu.backend.exception.ApiException;
 import com.kuizu.backend.repository.FlashcardRepository;
 import com.kuizu.backend.repository.FlashcardSetRepository;
 import com.kuizu.backend.repository.UserRepository;
-import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,75 +16,102 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
-@RequiredArgsConstructor
 public class FlashcardSetService {
-    private final FlashcardSetRepository flashcardSetRepository;
-    private final FlashcardRepository flashcardRepository;
-    private final UserRepository userRepository;
 
-    @Transactional
-    public FlashcardSetResponse createFlashcardSet(CreateFlashcardSetRequest request, String username) {
-        User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new ApiException("User not found: " + username));
+    @Autowired
+    private FlashcardSetRepository flashcardSetRepository;
 
-        FlashcardSet flashcardSet = FlashcardSet.builder()
-                .owner(user)
-                .title(request.getTitle())
-                .description(request.getDescription())
-                .visibility(request.getVisibility() != null ? request.getVisibility() : Visibility.PUBLIC)
-                .status(request.getVisibility() == Visibility.PUBLIC ? ModerationStatus.PENDING : ModerationStatus.APPROVED)
-                .isDeleted(false)
-                .version(1)
-                .submittedBy(user.getUserId())
-                .build();
+    @Autowired
+    private FlashcardRepository flashcardRepository;
 
-        if (flashcardSet.getStatus() == ModerationStatus.PENDING) {
-            flashcardSet.setSubmittedAt(java.time.LocalDateTime.now());
-        }
+    @Autowired
+    private UserRepository userRepository;
 
-        flashcardSet = flashcardSetRepository.save(flashcardSet);
-
-        if (request.getFlashcards() != null && !request.getFlashcards().isEmpty()) {
-            FlashcardSet finalSet = flashcardSet;
-            List<Flashcard> flashcards = request.getFlashcards().stream()
-                    .map(item -> Flashcard.builder()
-                            .flashcardSet(finalSet)
-                            .term(item.getTerm())
-                            .definition(item.getDefinition())
-                            .orderIndex(item.getOrderIndex())
-                            .isDeleted(false)
-                            .createdBy(user.getUserId())
-                            .build())
-                    .collect(Collectors.toList());
-            flashcardRepository.saveAll(flashcards);
-        }
-
-        return mapToResponse(flashcardSet);
-    }
-
-    public List<FlashcardSetResponse> getUserSets(String username) {
-        User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new ApiException("User not found: " + username));
-        return flashcardSetRepository.findByOwnerAndIsDeletedFalse(user).stream()
+    public List<FlashcardSetResponse> getAllPublicSets() {
+        return flashcardSetRepository.findByVisibilityAndIsDeletedFalse("PUBLIC")
+                .stream()
                 .map(this::mapToResponse)
                 .collect(Collectors.toList());
     }
 
-    public FlashcardSetResponse getFlashcardSet(Long setId) {
+    public List<FlashcardSetResponse> getSetsByOwner(String username) {
+        User owner = userRepository.findByUsername(username)
+                .orElseThrow(() -> new ApiException("User not found"));
+        return flashcardSetRepository.findByOwnerAndIsDeletedFalse(owner)
+                .stream()
+                .map(this::mapToResponse)
+                .collect(Collectors.toList());
+    }
+
+    public FlashcardSetResponse getSetById(Long setId) {
         FlashcardSet set = flashcardSetRepository.findById(setId)
-                .orElseThrow(() -> new ApiException("Flashcard set not found: " + setId));
+                .filter(s -> s.getIsDeleted() == null || !s.getIsDeleted())
+                .orElseThrow(() -> new ApiException("Flashcard set not found"));
         return mapToResponse(set);
     }
 
+    @Transactional
+    public FlashcardSetResponse createSet(String username, FlashcardSetRequest request) {
+        User owner = userRepository.findByUsername(username)
+                .orElseThrow(() -> new ApiException("User not found"));
+
+        FlashcardSet set = FlashcardSet.builder()
+                .owner(owner)
+                .title(request.getTitle())
+                .description(request.getDescription())
+                .visibility(request.getVisibility() != null ? request.getVisibility() : "PUBLIC")
+                .status("ACTIVE")
+                .isDeleted(false)
+                .version(1)
+                .build();
+
+        set = flashcardSetRepository.save(set);
+        return mapToResponse(set);
+    }
+
+    @Transactional
+    public FlashcardSetResponse updateSet(Long setId, String username, FlashcardSetRequest request) {
+        FlashcardSet set = flashcardSetRepository.findById(setId)
+                .filter(s -> s.getIsDeleted() == null || !s.getIsDeleted())
+                .orElseThrow(() -> new ApiException("Flashcard set not found"));
+
+        if (!set.getOwner().getUsername().equals(username)) {
+            throw new ApiException("You do not have permission to update this set");
+        }
+
+        if (request.getTitle() != null) set.setTitle(request.getTitle());
+        if (request.getDescription() != null) set.setDescription(request.getDescription());
+        if (request.getVisibility() != null) set.setVisibility(request.getVisibility());
+
+        set = flashcardSetRepository.save(set);
+        return mapToResponse(set);
+    }
+
+    @Transactional
+    public void deleteSet(Long setId, String username) {
+        FlashcardSet set = flashcardSetRepository.findById(setId)
+                .filter(s -> s.getIsDeleted() == null || !s.getIsDeleted())
+                .orElseThrow(() -> new ApiException("Flashcard set not found"));
+
+        if (!set.getOwner().getUsername().equals(username)) {
+            throw new ApiException("You do not have permission to delete this set");
+        }
+
+        set.setIsDeleted(true);
+        flashcardSetRepository.save(set);
+    }
+
     private FlashcardSetResponse mapToResponse(FlashcardSet set) {
+        long count = flashcardRepository.countByFlashcardSetAndIsDeletedFalse(set);
         return FlashcardSetResponse.builder()
                 .setId(set.getSetId())
-                .ownerUserId(set.getOwner().getUserId())
+                .ownerId(set.getOwner().getUserId())
                 .ownerDisplayName(set.getOwner().getDisplayName())
                 .title(set.getTitle())
                 .description(set.getDescription())
                 .visibility(set.getVisibility())
-                .flashcardCount(flashcardRepository.findByFlashcardSetAndIsDeletedFalseOrderByOrderIndexAsc(set).size())
+                .status(set.getStatus())
+                .cardCount((int) count)
                 .createdAt(set.getCreatedAt())
                 .updatedAt(set.getUpdatedAt())
                 .build();

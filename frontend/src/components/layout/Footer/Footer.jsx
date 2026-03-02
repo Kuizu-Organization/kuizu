@@ -16,7 +16,7 @@ const Footer = () => {
                 <div className="footer-column">
                     <h5 className="footer-heading">For students</h5>
                     <ul className="footer-list">
-                        <li><a href="/flashcards">Flashcards</a></li>
+                        <li><a href="/flashcard-sets">Flashcards</a></li>
                         <li><a href="/test">Test</a></li>
                         <li><a href="/learn">Learn</a></li>
                         <li><a href="/study-groups">Study groups</a></li>

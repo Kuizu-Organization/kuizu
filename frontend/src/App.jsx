@@ -1,5 +1,6 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import AuthPage from './pages/AuthPage';
+import { BookOpen, Plus } from 'lucide-react';
 import ProfilePage from './pages/ProfilePage';
 import HomePage from './pages/HomePage/HomePage';
 import ProtectedRoute from './components/layout/ProtectedRoute';
@@ -29,6 +30,16 @@ function App() {
             <ProfilePage />
           </ProtectedRoute>
         } />
+
+        {/* Flashcard Set Routes */}
+        <Route path="/flashcard-sets" element={<FlashcardSetsPage />} />
+        <Route path="/flashcard-sets/create" element={<FlashcardSetForm />} />
+        <Route path="/flashcard-sets/edit/:setId" element={<FlashcardSetForm />} />
+        <Route path="/flashcard-sets/:setId" element={<FlashcardSetDetailsPage />} />
+
+        {/* Individual Flashcard Routes */}
+        <Route path="/flashcards/create" element={<FlashcardForm />} />
+        <Route path="/flashcards/edit/:cardId" element={<FlashcardForm />} />
 
         <Route path="/dashboard" element={
           <MainLayout>

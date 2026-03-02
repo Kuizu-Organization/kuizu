@@ -13,14 +13,15 @@ import java.io.Serializable;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class FlashcardSetResponse implements Serializable {
+public class FlashcardSetResponse {
     private Long setId;
-    private String ownerUserId;
+    private String ownerId;
     private String ownerDisplayName;
     private String title;
     private String description;
-    private Visibility visibility;
-    private Integer flashcardCount;
+    private String visibility;
+    private String status;
+    private Integer cardCount;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }
