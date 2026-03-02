@@ -10,9 +10,11 @@ import {
     Menu,
     ChevronLeft
 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import './Sidebar.css';
 
-const Sidebar = ({ isCollapsed, onToggle }) => {
+const Sidebar = ({ isCollapsed, onToggle, activePath = '/dashboard' }) => {
+    const navigate = useNavigate();
     const mainLinks = [
         { icon: <Home size={22} />, label: 'Home', path: '/dashboard' },
         { icon: <Library size={22} />, label: 'Library', path: '/library' },
@@ -31,7 +33,11 @@ const Sidebar = ({ isCollapsed, onToggle }) => {
             <div className="sidebar-sections">
                 <div className="sidebar-section">
                     {mainLinks.map((link, index) => (
-                        <div key={index} className={`sidebar-item ${index === 0 ? 'active' : ''}`} onClick={() => window.location.href = link.path}>
+                        <div
+                            key={index}
+                            className={`sidebar-item ${activePath === link.path ? 'active' : ''}`}
+                            onClick={() => navigate(link.path)}
+                        >
                             <span className="sidebar-icon">{link.icon}</span>
                             {!isCollapsed && <span className="sidebar-label">{link.label}</span>}
                             {!isCollapsed && link.badge && <span className="sidebar-badge">{link.badge}</span>}
@@ -46,7 +52,7 @@ const Sidebar = ({ isCollapsed, onToggle }) => {
                 <div className="sidebar-section">
                     {!isCollapsed && <h6 className="section-title">Get started</h6>}
                     {quickStartLinks.map((link, index) => (
-                        <div key={index} className="sidebar-item" onClick={() => window.location.href = link.path}>
+                        <div key={index} className="sidebar-item" onClick={() => navigate(link.path)}>
                             <span className="sidebar-icon">{link.icon}</span>
                             {!isCollapsed && <span className="sidebar-label">{link.label}</span>}
                         </div>

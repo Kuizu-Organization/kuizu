@@ -3,8 +3,10 @@ import Navbar from './Navbar/Navbar';
 import Footer from './Footer/Footer';
 import Sidebar from './Sidebar/Sidebar';
 import { Loader } from '../ui';
+import { useLocation } from 'react-router-dom';
 
 const MainLayout = ({ children, isLoading = false }) => {
+    const location = useLocation();
     const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(() => {
         const saved = localStorage.getItem('sidebar-collapsed');
         return saved === 'true' ? true : false;
@@ -22,7 +24,7 @@ const MainLayout = ({ children, isLoading = false }) => {
         <div className={`layout-container ${isSidebarCollapsed ? 'sidebar-collapsed' : ''}`}>
             <Navbar isSidebarCollapsed={isSidebarCollapsed} onToggleSidebar={toggleSidebar} />
             <div className="layout-body" style={{ display: 'flex' }}>
-                <Sidebar isCollapsed={isSidebarCollapsed} onToggle={toggleSidebar} />
+                <Sidebar isCollapsed={isSidebarCollapsed} onToggle={toggleSidebar} activePath={location.pathname} />
                 <div className="content-wrapper" style={{
                     flex: 1,
                     marginLeft: isSidebarCollapsed ? '72px' : '240px',

@@ -1,12 +1,19 @@
 import React, { useState } from 'react';
 import { X } from 'lucide-react';
+import { Navigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 import LoginForm from '../components/Auth/LoginForm';
 import RegisterForm from '../components/Auth/RegisterForm';
 import { Button, Tabs } from '../components/ui';
 import './AuthPage.css';
 
 const AuthPage = () => {
+    const { user } = useAuth();
     const [isLogin, setIsLogin] = useState(true);
+
+    if (user) {
+        return <Navigate to="/dashboard" replace />;
+    }
 
     const authTabs = [
         {

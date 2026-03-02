@@ -1,80 +1,26 @@
 import React, { useState, useEffect } from 'react';
 import { Camera, ChevronDown, Plus, Pencil, User as UserIcon, Mail, ShieldCheck, Palette } from 'lucide-react';
 import './ProfilePage.css';
-import { getCurrentUser, updateProfile } from '../api/user';
+import { updateProfile } from '../api/user';
 import { Button, Card, Input } from '../components/ui';
 import MainLayout from '../components/layout';
+import { useAuth } from '../context/AuthContext';
 
 const ProfilePage = () => {
-    const [user, setUser] = useState(null);
-    const [loading, setLoading] = useState(true);
+    const { user, checkAuth, loading: authLoading } = useAuth();
+    const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
-
-    // Mock avatars (as seen in the design)
-    const avatars = [
-        'https://api.dicebear.com/7.x/avataaars/svg?seed=Felix',
-        'https://api.dicebear.com/7.x/avataaars/svg?seed=Aneka',
-        'https://api.dicebear.com/7.x/avataaars/svg?seed=Jack',
-        'https://api.dicebear.com/7.x/avataaars/svg?seed=Luna',
-        'https://api.dicebear.com/7.x/avataaars/svg?seed=Bear',
-        'https://api.dicebear.com/7.x/avataaars/svg?seed=Tiger',
-        'https://api.dicebear.com/7.x/avataaars/svg?seed=Bunny',
-        'https://api.dicebear.com/7.x/avataaars/svg?seed=Panda',
-        'https://api.dicebear.com/7.x/avataaars/svg?seed=Fox',
-        'https://api.dicebear.com/7.x/avataaars/svg?seed=Koala',
-        'https://api.dicebear.com/7.x/avataaars/svg?seed=Penguin',
-        'https://api.dicebear.com/7.x/avataaars/svg?seed=Owl',
-        'https://api.dicebear.com/7.x/avataaars/svg?seed=Cat',
-    ];
-
     const [theme, setTheme] = useState(() => localStorage.getItem('theme') || 'Light');
-
-    useEffect(() => {
-        fetchUserData();
-    }, []);
-
-    const fetchUserData = async () => {
-        try {
-            setLoading(true);
-            const userData = await getCurrentUser();
-            setUser(userData);
-
-            // Sync theme from backend if possible
-            if (userData.preferences) {
-                try {
-                    const prefs = JSON.parse(userData.preferences);
-                    if (prefs.theme && prefs.theme !== theme) {
-                        setTheme(prefs.theme);
-                        localStorage.setItem('theme', prefs.theme);
-                    }
-                } catch (e) {
-                    console.error('Failed to parse preferences:', e);
-                }
-            }
-
-            // Sync with local storage if needed
-            localStorage.setItem('user', JSON.stringify(userData));
-        } catch (err) {
-            console.error('Error fetching user data:', err);
-            setError('Could not load profile. Please try again.');
-
-            // Fallback to localStorage if API fails
-            const storedUser = localStorage.getItem('user');
-            if (storedUser) {
-                setUser(JSON.parse(storedUser));
-            }
-        } finally {
-            setLoading(false);
-        }
-    };
 
     const handleUpdateAvatar = async (url) => {
         try {
-            const updatedUser = await updateProfile({ profilePictureUrl: url });
-            setUser(updatedUser);
-            localStorage.setItem('user', JSON.stringify(updatedUser));
+            setLoading(true);
+            await updateProfile({ profilePictureUrl: url });
+            await checkAuth(); // Sync global state
         } catch (err) {
             alert('Failed to update avatar');
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -94,11 +40,13 @@ const ProfilePage = () => {
 
     const performUpdate = async (data) => {
         try {
-            const updatedUser = await updateProfile(data);
-            setUser(updatedUser);
-            localStorage.setItem('user', JSON.stringify(updatedUser));
+            setLoading(true);
+            await updateProfile(data);
+            await checkAuth(); // Sync global state
         } catch (err) {
             alert('Update failed');
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -110,12 +58,28 @@ const ProfilePage = () => {
         performUpdate({ preferences: JSON.stringify({ theme: newTheme }) });
     };
 
+    const avatars = [
+        'https://api.dicebear.com/7.x/avataaars/svg?seed=Felix',
+        'https://api.dicebear.com/7.x/avataaars/svg?seed=Aneka',
+        'https://api.dicebear.com/7.x/avataaars/svg?seed=Jack',
+        'https://api.dicebear.com/7.x/avataaars/svg?seed=Luna',
+        'https://api.dicebear.com/7.x/avataaars/svg?seed=Bear',
+        'https://api.dicebear.com/7.x/avataaars/svg?seed=Tiger',
+        'https://api.dicebear.com/7.x/avataaars/svg?seed=Bunny',
+        'https://api.dicebear.com/7.x/avataaars/svg?seed=Panda',
+        'https://api.dicebear.com/7.x/avataaars/svg?seed=Fox',
+        'https://api.dicebear.com/7.x/avataaars/svg?seed=Koala',
+        'https://api.dicebear.com/7.x/avataaars/svg?seed=Penguin',
+        'https://api.dicebear.com/7.x/avataaars/svg?seed=Owl',
+        'https://api.dicebear.com/7.x/avataaars/svg?seed=Cat',
+    ];
+
     return (
-        <MainLayout isLoading={loading}>
+        <MainLayout isLoading={authLoading || loading}>
             {error ? (
                 <div className="profile-container" style={{ textAlign: 'center', padding: '100px 0' }}>
                     <p style={{ color: 'var(--error)', fontSize: '1.2rem', fontWeight: '600' }}>{error}</p>
-                    <Button variant="outline" onClick={fetchUserData} style={{ marginTop: '20px' }}>Try Again</Button>
+                    <Button variant="outline" onClick={checkAuth} style={{ marginTop: '20px' }}>Try Again</Button>
                 </div>
             ) : (
                 <div className="profile-container">
