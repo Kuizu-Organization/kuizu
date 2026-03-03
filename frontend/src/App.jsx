@@ -3,6 +3,8 @@ import AuthPage from './pages/AuthPage';
 import ProfilePage from './pages/ProfilePage';
 import HomePage from './pages/HomePage';
 import ProtectedRoute from './components/layout/ProtectedRoute';
+import FoldersPage from './pages/FoldersPage';
+import FolderDetailPage from './pages/FolderDetailPage';
 
 import MainLayout from './components/layout';
 
