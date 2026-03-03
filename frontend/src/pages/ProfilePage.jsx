@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Camera, ChevronDown, Plus, Pencil, User as UserIcon, Mail, ShieldCheck, Palette } from 'lucide-react';
 import './ProfilePage.css';
 import { updateProfile } from '../api/user';
-import { Button, Card, Input } from '../components/ui';
+import { Button, Card, Input, Modal } from '../components/ui';
 import MainLayout from '../components/layout';
 import { useAuth } from '../context/AuthContext';
 
@@ -11,6 +11,16 @@ const ProfilePage = () => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
     const [theme, setTheme] = useState(() => localStorage.getItem('theme') || 'Light');
+    const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+    const [editingField, setEditingField] = useState('');
+    const [editValue, setEditValue] = useState('');
+
+    const fieldLabels = {
+        displayName: 'Display Name',
+        bio: 'Bio',
+        locale: 'Location',
+        timezone: 'Timezone'
+    };
 
     const handleUpdateAvatar = async (url) => {
         try {
@@ -25,16 +35,14 @@ const ProfilePage = () => {
     };
 
     const handleEditField = (field) => {
-        const labels = {
-            displayName: 'Display Name',
-            bio: 'Bio',
-            locale: 'Location',
-            timezone: 'Timezone'
-        };
-        const fieldLabel = labels[field] || field;
-        const newValue = prompt(`Enter new ${fieldLabel}:`, user[field] || '');
-        if (newValue !== null && newValue !== user[field]) {
-            performUpdate({ [field]: newValue });
+        setEditingField(field);
+        setEditValue(user[field] || '');
+        setIsEditModalOpen(true);
+    };
+
+    const handleEditSubmit = async () => {
+        if (editValue !== user[editingField]) {
+            await performUpdate({ [editingField]: editValue });
         }
         setIsEditModalOpen(false);
     };
