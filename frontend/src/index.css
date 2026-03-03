@@ -10,6 +10,8 @@
   --input-bg: #f6f7fb;
   --white: #ffffff;
   --error: #ff725e;
+  --success: #10b981;
+  --info: #4255ff;
 }
 
 * {
