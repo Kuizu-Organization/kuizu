@@ -55,6 +55,7 @@
 .gradient-text {
     background: linear-gradient(135deg, var(--primary) 0%, #a8a1ff 100%);
     -webkit-background-clip: text;
+    background-clip: text;
     -webkit-text-fill-color: transparent;
 }
 
@@ -68,6 +69,7 @@
 
 .hero-actions {
     display: flex;
+    flex-wrap: wrap;
     gap: 16px;
     margin-bottom: 60px;
 }
@@ -135,6 +137,12 @@
     padding: 24px;
     display: flex;
     flex-direction: column;
+}
+
+.card-content-skeleton {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
 }
 
 .card-header {
@@ -359,6 +367,11 @@
 
     .hero-stats {
         justify-content: center;
+    }
+
+    .hero-visual {
+        width: 100%;
+        min-height: 280px;
     }
 
     .features-grid {
