@@ -1,0 +1,232 @@
+.home-container {
+    min-height: 100vh;
+    background: #fff;
+    color: var(--text-dark);
+    overflow-x: hidden;
+}
+
+.home-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 24px 80px;
+    max-width: 1440px;
+    margin: 0 auto;
+}
+
+.logo {
+    font-size: 28px;
+    font-weight: 800;
+    color: var(--primary);
+    letter-spacing: -1px;
+    cursor: pointer;
+}
+
+.header-actions {
+    display: flex;
+    gap: 16px;
+}
+
+/* Hero Section */
+.hero {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 80px 80px 120px;
+    max-width: 1440px;
+    margin: 0 auto;
+    gap: 40px;
+}
+
+.hero-content {
+    flex: 1;
+    max-width: 640px;
+    text-align: left;
+}
+
+.badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(66, 85, 255, 0.08);
+    color: var(--primary);
+    padding: 8px 16px;
+    border-radius: 100px;
+    font-size: 14px;
+    font-weight: 700;
+    margin-bottom: 24px;
+}
+
+.hero-content h1 {
+    font-size: 72px;
+    line-height: 1.1;
+    font-weight: 800;
+    margin-bottom: 24px;
+    letter-spacing: -2px;
+}
+
+.hero-content h1 span {
+    color: var(--primary);
+    background: linear-gradient(135deg, var(--primary), #a8a1ff);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.hero-content p {
+    font-size: 20px;
+    line-height: 1.6;
+    color: var(--text-light);
+    margin-bottom: 40px;
+}
+
+.hero-btns {
+    display: flex;
+    gap: 20px;
+}
+
+/* Hero Visual */
+.hero-visual {
+    flex: 1;
+    position: relative;
+    height: 500px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.hero-glow {
+    position: absolute;
+    width: 400px;
+    height: 400px;
+    background: radial-gradient(circle, rgba(66, 85, 255, 0.15) 0%, transparent 70%);
+    z-index: 1;
+}
+
+.visual-card {
+    background: white;
+    border-radius: 24px;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.08);
+    padding: 32px;
+    position: absolute;
+    z-index: 2;
+    transition: transform 0.5s ease;
+}
+
+.visual-card:hover {
+    transform: translateY(-10px);
+}
+
+.visual-card-1 {
+    width: 240px;
+    height: 200px;
+    left: 20%;
+    top: 15%;
+    transform: rotate(-8deg);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    color: var(--primary);
+}
+
+.visual-line {
+    height: 8px;
+    background: var(--input-bg);
+    border-radius: 4px;
+    margin-top: 20px;
+    width: 100%;
+}
+
+.visual-line.short {
+    width: 60%;
+    margin-top: 10px;
+}
+
+.visual-card-2 {
+    width: 180px;
+    height: 180px;
+    right: 20%;
+    bottom: 20%;
+    transform: rotate(12deg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #ffb830;
+    box-shadow: 0 15px 40px rgba(255, 184, 48, 0.15);
+}
+
+/* Features */
+.features {
+    display: flex;
+    justify-content: space-between;
+    padding: 80px;
+    max-width: 1280px;
+    margin: 0 auto 120px;
+    gap: 40px;
+    background: var(--input-bg);
+    border-radius: 48px;
+}
+
+.feature {
+    flex: 1;
+    text-align: left;
+}
+
+.feature-icon {
+    width: 56px;
+    height: 56px;
+    background: var(--white);
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--primary);
+    margin-bottom: 24px;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
+}
+
+.feature h3 {
+    font-size: 24px;
+    font-weight: 700;
+    margin-bottom: 12px;
+}
+
+.feature p {
+    font-size: 16px;
+    line-height: 1.6;
+    color: var(--text-light);
+}
+
+@media (max-width: 1024px) {
+    .home-header {
+        padding: 24px 40px;
+    }
+
+    .hero {
+        flex-direction: column;
+        padding: 60px 40px;
+        text-align: center;
+    }
+
+    .hero-content {
+        text-align: center;
+    }
+
+    .hero-btns {
+        justify-content: center;
+    }
+
+    .hero-visual {
+        display: none;
+    }
+
+    .features {
+        flex-direction: column;
+        padding: 40px;
+        margin: 0 20px 80px;
+    }
+
+    .hero-content h1 {
+        font-size: 48px;
+    }
+}

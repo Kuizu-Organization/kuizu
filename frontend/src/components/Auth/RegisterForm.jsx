@@ -16,6 +16,7 @@ const RegisterForm = ({ onToggle }) => {
         role: 'ROLE_STUDENT'
     });
     const [error, setError] = useState('');
+    const [loading, setLoading] = useState(false);
     const { login } = useAuth();
     const navigate = useNavigate();
 
@@ -33,7 +34,7 @@ const RegisterForm = ({ onToggle }) => {
         setError('');
         try {
             const data = await registerApi(formData);
-            login(data, data.token);
+            await login(data, data.token);
             navigate('/dashboard');
         } catch (err) {
             setError(err.response?.data?.message || 'Something went wrong. Please try again.');

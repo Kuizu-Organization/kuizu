@@ -18,10 +18,10 @@ public class UpdateProfileRequest {
     @URL(message = "Invalid profile picture URL")
     private String profilePictureUrl;
 
-    @Pattern(regexp = "^[a-z]{2}([-_][A-Z]{2})?$", message = "Invalid locale format (e.g., 'en' or 'en-US')")
+    @Pattern(regexp = "^[A-Za-z\\s,\\-().]{2,100}$", message = "Invalid location format")
     private String locale;
 
-    @Pattern(regexp = "^[A-Za-z_]+(/[A-Za-z_\\-]+)*$", message = "Invalid timezone format (e.g., 'UTC' or 'Asia/Ho_Chi_Minh')")
+    @Pattern(regexp = "^[A-Za-z0-9_\\-\\+/]{2,100}$", message = "Invalid timezone format")
     private String timezone;
 
     private String preferences;

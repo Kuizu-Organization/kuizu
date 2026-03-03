@@ -65,10 +65,10 @@ public class User {
     @Column(name = "password_updated_at")
     private LocalDateTime passwordUpdatedAt;
 
-    @Column(length = 10)
+    @Column(length = 100)
     private String locale;
 
-    @Column(length = 50)
+    @Column(length = 100)
     private String timezone;
 
     @Column(columnDefinition = "TEXT")

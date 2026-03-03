@@ -23,7 +23,7 @@ const LoginForm = ({ onToggle }) => {
         setError('');
         try {
             const data = await loginApi(formData.identifier, formData.password);
-            login(data, data.token);
+            await login(data, data.token);
             navigate(from, { replace: true });
         } catch (err) {
             setError(err.response?.data?.message || 'Invalid email or password');

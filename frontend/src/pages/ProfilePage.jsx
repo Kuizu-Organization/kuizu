@@ -28,7 +28,7 @@ const ProfilePage = () => {
         const labels = {
             displayName: 'Display Name',
             bio: 'Bio',
-            locale: 'Language',
+            locale: 'Location',
             timezone: 'Timezone'
         };
         const fieldLabel = labels[field] || field;
@@ -156,12 +156,12 @@ const ProfilePage = () => {
                                 </div>
                             </div>
 
-                            {/* Locale */}
+                            {/* Locale (Location) */}
                             <div className="settings-group">
                                 <div className="field-row">
                                     <div className="field-info">
-                                        <h4>Language</h4>
-                                        <p>{user?.locale || 'English'}</p>
+                                        <h4>Location</h4>
+                                        <p>{user?.locale || 'Set your location'}</p>
                                     </div>
                                     <Button variant="ghost" size="sm" onClick={() => handleEditField('locale')}>Edit</Button>
                                 </div>
@@ -172,9 +172,23 @@ const ProfilePage = () => {
                                 <div className="field-row">
                                     <div className="field-info">
                                         <h4>Timezone</h4>
-                                        <p>{user?.timezone || 'UTC'}</p>
+                                        <p>Your current time zone settings</p>
                                     </div>
-                                    <Button variant="ghost" size="sm" onClick={() => handleEditField('timezone')}>Edit</Button>
+                                    <select
+                                        className="timezone-select"
+                                        value={user?.timezone || 'UTC'}
+                                        onChange={(e) => performUpdate({ timezone: e.target.value })}
+                                        disabled={loading}
+                                    >
+                                        <option value="UTC">UTC (GMT+0)</option>
+                                        <option value="Asia/Ho_Chi_Minh">Vietnam (GMT+7)</option>
+                                        <option value="Asia/Tokyo">Japan (GMT+9)</option>
+                                        <option value="Asia/Singapore">Singapore (GMT+8)</option>
+                                        <option value="Europe/London">London (GMT+0/1)</option>
+                                        <option value="Europe/Paris">Paris (GMT+1/2)</option>
+                                        <option value="America/New_York">New York (GMT-5/4)</option>
+                                        <option value="America/Los_Angeles">Los Angeles (GMT-8/7)</option>
+                                    </select>
                                 </div>
                             </div>
 

@@ -44,10 +44,14 @@ export const AuthProvider = ({ children }) => {
         }
     };
 
-    const login = (userData, token) => {
+    const login = async (userData, token) => {
         localStorage.setItem('token', token);
-        localStorage.setItem('user', JSON.stringify(userData));
+        // We set the initial minimal user data from the auth response
         setUser(userData);
+        localStorage.setItem('user', JSON.stringify(userData));
+
+        // Then immediately fetch the full profile to populate all fields
+        await checkAuth();
     };
 
     const logout = () => {
