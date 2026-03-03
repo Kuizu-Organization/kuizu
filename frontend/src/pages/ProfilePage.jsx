@@ -5,10 +5,14 @@ import { updateProfile } from '../api/user';
 import { Button, Card, Input, Modal } from '../components/ui';
 import MainLayout from '../components/layout';
 import { useAuth } from '../context/AuthContext';
+import { useToast } from '../context/ToastContext';
+
 
 const ProfilePage = () => {
     const { user, checkAuth, loading: authLoading } = useAuth();
+    const toast = useToast();
     const [loading, setLoading] = useState(false);
+
     const [error, setError] = useState(null);
     const [theme, setTheme] = useState(() => localStorage.getItem('theme') || 'Light');
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -27,9 +31,11 @@ const ProfilePage = () => {
             setLoading(true);
             await updateProfile({ profilePictureUrl: url });
             await checkAuth(); // Sync global state
+            toast.success('Avatar updated successfully');
         } catch (err) {
-            alert('Failed to update avatar');
+            toast.error('Failed to update avatar');
         } finally {
+
             setLoading(false);
         }
     };
@@ -52,9 +58,11 @@ const ProfilePage = () => {
             setLoading(true);
             await updateProfile(data);
             await checkAuth(); // Sync global state
+            toast.success('Profile updated successfully');
         } catch (err) {
-            alert('Update failed');
+            toast.error('Update failed');
         } finally {
+
             setLoading(false);
         }
     };

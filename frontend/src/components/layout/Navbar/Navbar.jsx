@@ -3,11 +3,21 @@ import { Search, Plus, ChevronDown, Menu } from 'lucide-react';
 import { Button } from '../../ui';
 import './Navbar.css';
 import { useAuth } from '../../../context/AuthContext';
+import { useToast } from '../../../context/ToastContext';
 import { useNavigate } from 'react-router-dom';
+
 
 const Navbar = ({ isSidebarCollapsed, onToggleSidebar }) => {
     const { user, logout } = useAuth();
     const navigate = useNavigate();
+    const toast = useToast();
+
+    const handleLogout = () => {
+        logout();
+        toast.info('Logged out successfully');
+        navigate('/auth');
+    };
+
 
     return (
         <nav className="navbar">
@@ -55,10 +65,11 @@ const Navbar = ({ isSidebarCollapsed, onToggleSidebar }) => {
                                 className="nav-avatar"
                                 onClick={() => navigate('/profile')}
                             />
-                            <Button variant="ghost" size="sm" onClick={logout} className="logout-compact-btn">
+                            <Button variant="ghost" size="sm" onClick={handleLogout} className="logout-compact-btn">
                                 Log Out
                             </Button>
                         </div>
+
                     ) : (
                         <Button
                             variant="primary"

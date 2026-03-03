@@ -3,7 +3,9 @@ import { Eye, EyeOff, Mail, Lock } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { login as loginApi } from '../../api/auth';
 import { useAuth } from '../../context/AuthContext';
+import { useToast } from '../../context/ToastContext';
 import { Input, Button } from '../ui';
+
 import './AuthForm.css';
 
 const LoginForm = ({ onToggle }) => {
@@ -11,6 +13,8 @@ const LoginForm = ({ onToggle }) => {
     const [formData, setFormData] = useState({ identifier: '', password: '' });
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
+    const toast = useToast();
+
 
     const { login } = useAuth();
     const navigate = useNavigate();
@@ -24,18 +28,20 @@ const LoginForm = ({ onToggle }) => {
         try {
             const data = await loginApi(formData.identifier, formData.password);
             await login(data, data.token);
+            toast.success('Welcome back!');
             navigate(from, { replace: true });
         } catch (err) {
-            setError(err.response?.data?.message || 'Invalid email or password');
+            const msg = err.response?.data?.message || 'Invalid email or password';
+            setError(msg);
+            toast.error(msg);
         } finally {
+
             setLoading(false);
         }
     };
 
     return (
         <form className="auth-form" onSubmit={handleSubmit}>
-            {error && <div className="error-msg">{error}</div>}
-
             <Input
                 label="Email or Username"
                 placeholder="Type your email address or your username"

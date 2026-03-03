@@ -127,16 +127,6 @@
     font-size: 0.875rem;
 }
 
-.error-msg {
-    background: #fffafa;
-    border-left: 4px solid var(--error);
-    padding: 12px 16px;
-    color: var(--error);
-    font-size: 0.875rem;
-    margin-bottom: 20px;
-    border-radius: 4px;
-}
-
 .role-selection {
     display: flex;
     gap: 12px;
