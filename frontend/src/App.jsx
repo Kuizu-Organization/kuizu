@@ -1,7 +1,7 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import AuthPage from './pages/AuthPage';
 import ProfilePage from './pages/ProfilePage';
-import HomePage from './pages/HomePage';
+// import HomePage from './pages/HomePage';
 import ProtectedRoute from './components/layout/ProtectedRoute';
 
 import MainLayout from './components/layout';
@@ -11,6 +11,8 @@ import { HomePage } from './pages';
 // Placeholders for deleted pages
 const AuthPage = () => <div style={{ padding: '20px' }}>Auth Page Placeholder</div>;
 const ProfilePage = () => <div style={{ padding: '20px' }}>Profile Page Placeholder</div>;
+
+const HomePage = () => <div style={{ padding: '20px' }}>Home Page Placeholder</div>;
 
 function App() {
   return (
