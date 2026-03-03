@@ -1,10 +1,12 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import AuthPage from './pages/AuthPage';
 import ProfilePage from './pages/ProfilePage';
-import HomePage from './pages/HomePage';
+// import HomePage from './pages/HomePage';
 import ProtectedRoute from './components/layout/ProtectedRoute';
 
 import MainLayout from './components/layout';
+
+const HomePage = () => <div style={{ padding: '20px' }}>Home Page Placeholder</div>;
 
 function App() {
   return (
