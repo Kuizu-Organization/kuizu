@@ -50,7 +50,7 @@ const Sidebar = ({ isCollapsed, onToggle, activePath = '/dashboard' }) => {
                 <div className="sidebar-divider"></div>
 
                 <div className="sidebar-section">
-                    {!isCollapsed && <h6 className="section-title">Get started</h6>}
+                    {!isCollapsed && <h6 className="sidebar-title">Get started</h6>}
                     {quickStartLinks.map((link, index) => (
                         <div key={index} className="sidebar-item" onClick={() => navigate(link.path)}>
                             <span className="sidebar-icon">{link.icon}</span>

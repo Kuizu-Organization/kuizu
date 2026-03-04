@@ -17,11 +17,11 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.security.SecureRandom;
 import java.time.LocalDateTime;
 import java.util.Base64;
-import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class AuthService {
@@ -56,14 +56,16 @@ public class AuthService {
             throw new ApiException("Email already exists");
         }
 
-        User.UserRole role;
-        try {
-            role = User.UserRole.valueOf(request.getRole().toUpperCase());
-            if (role == User.UserRole.ROLE_ADMIN) {
-                throw new ApiException("Cannot register as Admin");
+        User.UserRole userRole = User.UserRole.ROLE_STUDENT;
+        if (request.getRole() != null) {
+            try {
+                userRole = User.UserRole.valueOf(request.getRole());
+                if (userRole == User.UserRole.ROLE_ADMIN) {
+                    throw new ApiException("Cannot register as Admin");
+                }
+            } catch (IllegalArgumentException e) {
+                throw new ApiException("Invalid role selected");
             }
-        } catch (IllegalArgumentException e) {
-            throw new ApiException("Invalid role");
         }
 
         User user = User.builder()
@@ -72,7 +74,7 @@ public class AuthService {
                 .passwordHash(passwordEncoder.encode(request.getPassword()))
                 .displayName(request.getDisplayName())
                 .bio(request.getBio())
-                .role(role)
+                .role(userRole)
                 .status(User.UserStatus.ACTIVE)
                 .build();
 

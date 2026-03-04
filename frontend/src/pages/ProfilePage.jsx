@@ -85,8 +85,14 @@ const ProfilePage = () => {
             return;
         }
 
-        if (passwordData.newPassword.length < 6) {
-            toast.error('Password must be at least 6 characters');
+        if (passwordData.newPassword.length < 8) {
+            toast.error('Password must be at least 8 characters');
+            return;
+        }
+
+        const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+=!]).*$/;
+        if (!passwordRegex.test(passwordData.newPassword)) {
+            toast.error('Password must contain at least one uppercase letter, one lowercase letter, and one special character (@#$%^&+=!)');
             return;
         }
 
@@ -143,7 +149,7 @@ const ProfilePage = () => {
 
                     <div className="profile-section">
                         <span className="section-label">Personal Information</span>
-                        <div className="settings-card">
+                        <Card className="settings-card">
                             {/* Profile Picture */}
                             <div className="settings-group">
                                 <h3 className="group-title">Profile Picture</h3>
@@ -259,7 +265,49 @@ const ProfilePage = () => {
                                     </div>
                                 </div>
                             </div>
-                        </div>
+
+                            {/* Account Status */}
+                            <div className="settings-group">
+                                <div className="field-row">
+                                    <div className="field-info">
+                                        <h4>Account Status</h4>
+                                        <p style={{ color: user?.status === 'ACTIVE' ? 'var(--primary)' : 'var(--error)' }}>
+                                            {user?.status || 'Unknown'}
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Last Login */}
+                            <div className="settings-group">
+                                <div className="field-row">
+                                    <div className="field-info">
+                                        <h4>Last Login</h4>
+                                        <p>{user?.lastLoginAt ? new Date(user.lastLoginAt).toLocaleString(undefined, {
+                                            year: 'numeric',
+                                            month: 'short',
+                                            day: 'numeric',
+                                            hour: '2-digit',
+                                            minute: '2-digit'
+                                        }) : 'Never'}</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Joined Date */}
+                            <div className="settings-group">
+                                <div className="field-row">
+                                    <div className="field-info">
+                                        <h4>Joined On</h4>
+                                        <p>{user?.createdAt ? new Date(user.createdAt).toLocaleDateString(undefined, {
+                                            year: 'numeric',
+                                            month: 'long',
+                                            day: 'numeric'
+                                        }) : 'N/A'}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </Card>
                     </div>
 
                     <div className="profile-section">
@@ -343,7 +391,7 @@ const ProfilePage = () => {
                                     type="password"
                                     value={passwordData.newPassword}
                                     onChange={(e) => setPasswordData({ ...passwordData, newPassword: e.target.value })}
-                                    placeholder="Enter new password (min 6 chars)"
+                                    placeholder="Enter new password (min 8 chars, 1 upper, 1 lower, 1 special)"
                                 />
                             </div>
                             <div className="password-input-group" style={{ marginTop: '16px' }}>
