@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import com.kuizu.backend.dto.request.JoinClassRequest;
 import com.kuizu.backend.dto.request.CreateClassRequest;
 import com.kuizu.backend.dto.request.UpdateClassRequest;
+import com.kuizu.backend.dto.request.JoinRequestAction;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import java.security.Principal;
@@ -119,6 +120,18 @@ class ClassController {
         
         Map<String, String> response = new HashMap<>();
         response.put("message", "Member removed successfully");
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/{classId}/join-requests/{requestId}/process")
+    public ResponseEntity<?> processJoinRequest(@PathVariable Long classId, @PathVariable Long requestId, @RequestBody JoinRequestAction action, Principal principal) {
+        if (principal == null) {
+            return ResponseEntity.status(401).build();
+        }
+        classService.processJoinRequest(classId, requestId, action, principal.getName());
+        
+        Map<String, String> response = new HashMap<>();
+        response.put("message", "Join request processed successfully");
         return ResponseEntity.ok(response);
     }
 }

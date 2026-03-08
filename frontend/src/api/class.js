@@ -49,3 +49,8 @@ export const removeMember = async (classId, userId) => {
     const response = await api.delete(`/classes/${classId}/members/${userId}`);
     return response.data;
 };
+
+export const processJoinRequest = async (classId, requestId, status) => {
+    const response = await api.post(`/classes/${classId}/join-requests/${requestId}/process`, { status });
+    return response.data;
+};

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { getClassDetails, leaveClass, getClassJoinCode, deleteClass, removeMember } from '../../api/class';
+import { getClassDetails, leaveClass, getClassJoinCode, deleteClass, removeMember, processJoinRequest } from '../../api/class';
 import { Button } from '../../components/ui';
 import { Users, File, Calendar, Share2, MoreVertical, Copy, Check, Trash2 } from 'lucide-react';
 import JoinClassModal from '../../components/Class/JoinClassModal';
@@ -115,6 +115,40 @@ const ClassDetailPage = () => {
             alert("Failed to remove the member. Please try again.");
         } finally {
             setIsRemoving(false);
+        }
+    };
+
+    const handleProcessJoinRequest = async (requestId, status) => {
+        try {
+            await processJoinRequest(classId, requestId, status);
+            
+            // Find the request to get user info if accepted
+            const request = classData.joinRequests.find(r => r.requestId === requestId);
+            
+            // Update local state
+            setClassData(prev => {
+                const updatedRequests = prev.joinRequests.filter(r => r.requestId !== requestId);
+                let updatedMembers = prev.members;
+                
+                if (status === 'ACCEPTED' && request) {
+                    const newMember = {
+                        userId: request.userId,
+                        displayName: request.displayName,
+                        role: 'MEMBER',
+                        joinedAt: new Date().toISOString()
+                    };
+                    updatedMembers = [...prev.members, newMember];
+                }
+                
+                return {
+                    ...prev,
+                    joinRequests: updatedRequests,
+                    members: updatedMembers
+                };
+            });
+        } catch (err) {
+            console.error(`Failed to ${status.toLowerCase()} join request:`, err);
+            alert(`Failed to ${status.toLowerCase()} the join request. Please try again.`);
         }
     };
 
@@ -364,8 +398,8 @@ const ClassDetailPage = () => {
                                                 </div>
                                             )}
                                             <div className="request-actions">
-                                                <Button variant="primary" size="sm">Accept</Button>
-                                                <Button variant="outline" size="sm">Decline</Button>
+                                                <Button variant="primary" size="sm" onClick={() => handleProcessJoinRequest(request.requestId, 'ACCEPTED')}>Accept</Button>
+                                                <Button variant="outline" size="sm" onClick={() => handleProcessJoinRequest(request.requestId, 'REJECTED')}>Decline</Button>
                                             </div>
                                         </div>
                                     ))}

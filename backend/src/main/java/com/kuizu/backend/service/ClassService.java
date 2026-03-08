@@ -12,6 +12,7 @@ import com.kuizu.backend.entity.ClassMember;
 import com.kuizu.backend.entity.User;
 import com.kuizu.backend.dto.request.CreateClassRequest;
 import com.kuizu.backend.dto.request.UpdateClassRequest;
+import com.kuizu.backend.dto.request.JoinRequestAction;
 import java.util.UUID;
 import com.kuizu.backend.repository.ClassJoinRequestRepository;
 import com.kuizu.backend.repository.ClassMemberRepository;
@@ -322,5 +323,52 @@ public class ClassService {
                 .orElseThrow(() -> new ApiException("User is not a member of this class"));
 
         classMemberRepository.delete(member);
+    }
+
+    public void processJoinRequest(Long classId, Long requestId, JoinRequestAction action, String requesterUsername) {
+        User requester = userRepository.findByUsername(requesterUsername)
+                .orElseThrow(() -> new ApiException("User not found: " + requesterUsername));
+        
+        Class clazz = classRepository.findByClassId(classId)
+                .orElseThrow(() -> new ApiException("Class not found: " + classId));
+
+        if (!clazz.getOwner().getUserId().equals(requester.getUserId())) {
+            throw new ApiException("Only the class owner can process join requests");
+        }
+
+        ClassJoinRequest request = classJoinRequestRepository.findById(requestId)
+                .orElseThrow(() -> new ApiException("Join request not found: " + requestId));
+
+        if (!request.getClazz().getClassId().equals(classId)) {
+            throw new ApiException("Join request does not belong to this class");
+        }
+
+        if (!"PENDING".equals(request.getStatus())) {
+            throw new ApiException("Join request has already been processed");
+        }
+
+        String status = action.getStatus();
+        if ("ACCEPTED".equalsIgnoreCase(status)) {
+            request.setStatus("ACCEPTED");
+            
+            // Add user as member
+            ClassMember member = ClassMember.builder()
+                    .id(new ClassMember.ClassMemberId(clazz.getClassId(), request.getUser().getUserId()))
+                    .clazz(clazz)
+                    .user(request.getUser())
+                    .role("MEMBER")
+                    .joinedBy(requester.getUserId())
+                    .build();
+            
+            classMemberRepository.save(member);
+        } else if ("REJECTED".equalsIgnoreCase(status)) {
+            request.setStatus("REJECTED");
+        } else {
+            throw new ApiException("Invalid status: " + status);
+        }
+
+        request.setRespondedAt(java.time.LocalDateTime.now());
+        request.setRespondedBy(requester.getUserId());
+        classJoinRequestRepository.save(request);
     }
 }
