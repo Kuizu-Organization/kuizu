@@ -263,3 +263,202 @@
         position: static;
     }
 }
+/* Tabs styling */
+.class-tabs {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 32px;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 1px;
+}
+
+.tab-btn {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 24px;
+    background: none;
+    border: none;
+    border-bottom: 2px solid transparent;
+    color: var(--text-light);
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border-radius: 8px 8px 0 0;
+}
+
+.tab-btn:hover {
+    color: var(--primary);
+    background-color: var(--input-bg);
+}
+
+.tab-btn.active {
+    color: var(--primary);
+    border-bottom-color: var(--primary);
+    background-color: rgba(66, 85, 255, 0.05);
+}
+
+.tab-count, .tab-badge {
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 10px;
+}
+
+.tab-count {
+    background-color: var(--border-color);
+    color: var(--text-light);
+}
+
+.tab-badge {
+    background-color: var(--primary);
+    color: var(--white);
+}
+
+/* Members styling */
+.members-header, .requests-header {
+    margin-bottom: 24px;
+}
+
+.members-header h2, .requests-header h2 {
+    font-family: 'Outfit', sans-serif;
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--text-dark);
+    margin: 0;
+}
+
+.members-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 16px;
+}
+
+.member-card {
+    background: var(--white);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    padding: 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.member-avatar {
+    width: 40px;
+    height: 40px;
+    background: var(--primary-gradient);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 16px;
+}
+
+.member-info {
+    flex: 1;
+}
+
+.member-name {
+    margin: 0;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text-dark);
+}
+
+.member-role {
+    font-size: 11px;
+    text-transform: uppercase;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    padding: 2px 6px;
+    border-radius: 4px;
+}
+
+.member-role.owner {
+    background-color: #fef3c7;
+    color: #92400e;
+}
+
+.member-role.member {
+    background-color: #f3f4f6;
+    color: #4b5563;
+}
+
+/* Join Requests styling */
+.requests-container {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.request-card {
+    background: var(--white);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    padding: 24px;
+}
+
+.request-user {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 16px;
+}
+
+.user-avatar {
+    width: 48px;
+    height: 48px;
+    background: #e5e7eb;
+    color: #4b5563;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 18px;
+}
+
+.user-name {
+    margin: 0;
+    font-size: 17px;
+    font-weight: 600;
+    color: var(--text-dark);
+}
+
+.request-time {
+    margin: 4px 0 0 0;
+    font-size: 13px;
+    color: var(--text-light);
+}
+
+.request-message {
+    background: var(--input-bg);
+    padding: 16px;
+    border-radius: 12px;
+    margin-bottom: 20px;
+}
+
+.request-message p {
+    margin: 0;
+    font-size: 15px;
+    font-style: italic;
+    color: var(--text-dark);
+    line-height: 1.5;
+}
+
+.request-actions {
+    display: flex;
+    gap: 12px;
+}
+
+.empty-requests {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--text-light);
+    background: var(--background);
+    border: 2px dashed var(--border-color);
+    border-radius: 20px;
+}

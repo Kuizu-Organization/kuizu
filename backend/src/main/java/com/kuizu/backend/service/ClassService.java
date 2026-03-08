@@ -2,6 +2,8 @@ package com.kuizu.backend.service;
 
 import com.kuizu.backend.dto.response.ClassInfoResponse;
 import com.kuizu.backend.dto.response.ClassMaterialResponse;
+import com.kuizu.backend.dto.response.ClassMemberResponse;
+import com.kuizu.backend.dto.response.ClassJoinRequestResponse;
 import com.kuizu.backend.dto.response.ClassResponse;
 import com.kuizu.backend.entity.Class;
 import com.kuizu.backend.exception.ApiException;
@@ -37,6 +39,10 @@ public class ClassService {
 
     public ClassInfoResponse findClassById(Long classId, String username) {
         Class clazz = classRepository.findByClassId(classId).orElseThrow(() -> new ApiException("Class not found with id: " + classId));
+        return convertToClassInfoResponse(clazz, username);
+    }
+
+    private ClassInfoResponse convertToClassInfoResponse(Class clazz, String username) {
         List<ClassMaterialResponse> classMaterialResponseList = clazz.getClassMaterials()
                 .stream()
                 .map(m -> new ClassMaterialResponse(
@@ -52,8 +58,40 @@ public class ClassService {
             User user = userRepository.findByUsername(username).orElse(null);
             if (user != null) {
                 isOwner = clazz.getOwner().getUserId().equals(user.getUserId());
-                isMember = classMemberRepository.existsById(new ClassMember.ClassMemberId(classId, user.getUserId()));
+                isMember = classMemberRepository.existsById(new ClassMember.ClassMemberId(clazz.getClassId(), user.getUserId()));
             }
+        }
+
+        List<ClassMemberResponse> members = null;
+        List<ClassJoinRequestResponse> joinRequests = null;
+
+        if (isOwner) {
+            members = clazz.getClassMembers().stream()
+                    .map(m -> new ClassMemberResponse(
+                            m.getUser().getUserId(),
+                            m.getUser().getDisplayName(),
+                            m.getRole(),
+                            m.getJoinedAt()
+                    )).toList();
+            
+            members = new java.util.ArrayList<>(members);
+            // Add owner to the members list as well for display
+            members.add(0, new ClassMemberResponse(
+                clazz.getOwner().getUserId(),
+                clazz.getOwner().getDisplayName(),
+                "OWNER",
+                null // Owner doesn't have joinedAt in ClassMember
+            ));
+
+            joinRequests = classJoinRequestRepository.findByClazzAndStatus(clazz, "PENDING").stream()
+                    .map(r -> new ClassJoinRequestResponse(
+                            r.getRequestId(),
+                            r.getUser().getUserId(),
+                            r.getUser().getDisplayName(),
+                            r.getMessage(),
+                            r.getStatus(),
+                            r.getRequestedAt()
+                    )).toList();
         }
 
         return new ClassInfoResponse(
@@ -62,23 +100,31 @@ public class ClassService {
                 clazz.getOwner().getDisplayName(),
                 clazz.getClassName(),
                 clazz.getDescription(),
+                clazz.getVisibility(),
                 classMaterialResponseList,
                 isMember,
-                isOwner
+                isOwner,
+                members,
+                joinRequests
         );
     }
 
     public List<ClassResponse> findClassesByName(String name) {
         return classRepository.findByClassNameContainingIgnoreCase(name)
                 .stream()
-                .map(c -> new ClassResponse(
-                        c.getClassId(),
-                        c.getOwner().getUserId(),
-                        c.getOwner().getDisplayName(),
-                        c.getClassName(),
-                        c.getDescription()
-                ))
+                .map(this::convertToClassResponse)
                 .toList();
+    }
+
+    private ClassResponse convertToClassResponse(Class c) {
+        return new ClassResponse(
+                c.getClassId(),
+                c.getOwner().getUserId(),
+                c.getOwner().getDisplayName(),
+                c.getClassName(),
+                c.getDescription(),
+                c.getVisibility()
+        );
     }
 
     public List<ClassResponse> getUserClasses(String username) {
@@ -95,17 +141,11 @@ public class ClassService {
         allClasses.addAll(joinedClasses);
         
         return allClasses.stream()
-                .map(c -> new ClassResponse(
-                        c.getClassId(),
-                        c.getOwner().getUserId(),
-                        c.getOwner().getDisplayName(),
-                        c.getClassName(),
-                        c.getDescription()
-                ))
+                .map(this::convertToClassResponse)
                 .toList();
     }
 
-    public ClassResponse createClass(CreateClassRequest request, String username) {
+    public ClassInfoResponse createClass(CreateClassRequest request, String username) {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new ApiException("User not found: " + username));
 
@@ -126,13 +166,7 @@ public class ClassService {
 
         newClass = classRepository.save(newClass);
 
-        return new ClassResponse(
-                newClass.getClassId(),
-                newClass.getOwner().getUserId(),
-                newClass.getOwner().getDisplayName(),
-                newClass.getClassName(),
-                newClass.getDescription()
-        );
+        return convertToClassInfoResponse(newClass, username);
     }
 
     private String generateJoinCode() {
@@ -226,7 +260,7 @@ public class ClassService {
         return clazz.getJoinCode();
     }
 
-    public ClassResponse updateClass(Long classId, UpdateClassRequest request, String username) {
+    public ClassInfoResponse updateClass(Long classId, UpdateClassRequest request, String username) {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new ApiException("User not found: " + username));
         
@@ -251,12 +285,6 @@ public class ClassService {
 
         clazz = classRepository.save(clazz);
 
-        return new ClassResponse(
-                clazz.getClassId(),
-                clazz.getOwner().getUserId(),
-                clazz.getOwner().getDisplayName(),
-                clazz.getClassName(),
-                clazz.getDescription()
-        );
+        return convertToClassInfoResponse(clazz, username);
     }
 }
