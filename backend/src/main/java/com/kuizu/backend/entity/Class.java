@@ -6,6 +6,8 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "classes")
@@ -56,4 +58,16 @@ public class Class {
     @UpdateTimestamp
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
+
+    @OneToMany(mappedBy = "clazz")
+    @Builder.Default
+    private List<ClassMember> classMembers = new ArrayList<>();
+
+    @OneToMany(mappedBy = "clazz")
+    @Builder.Default
+    private List<ClassMaterial> classMaterials = new ArrayList<>();
+
+    @OneToMany(mappedBy = "clazz")
+    @Builder.Default
+    private List<ClassJoinRequest> classJoinRequests = new ArrayList<>();
 }

@@ -5,6 +5,7 @@ import './Navbar.css';
 import { useAuth } from '../../../context/AuthContext';
 import { useToast } from '../../../context/ToastContext';
 import { useNavigate } from 'react-router-dom';
+import { searchClasses } from '../../../api/class';
 
 
 const Navbar = ({ isSidebarCollapsed, onToggleSidebar }) => {
@@ -12,12 +13,51 @@ const Navbar = ({ isSidebarCollapsed, onToggleSidebar }) => {
     const navigate = useNavigate();
     const toast = useToast();
 
+    const [searchQuery, setSearchQuery] = useState('');
+    const [searchResults, setSearchResults] = useState([]);
+    const [isSearching, setIsSearching] = useState(false);
+    const [showDropdown, setShowDropdown] = useState(false);
+
+    useEffect(() => {
+        const delayDebounceFn = setTimeout(async () => {
+            if (searchQuery.trim().length > 1) {
+                setIsSearching(true);
+                try {
+                    const results = await searchClasses(searchQuery);
+                    setSearchResults(results);
+                    setShowDropdown(true);
+                } catch (error) {
+                    console.error('Search failed:', error);
+                } finally {
+                    setIsSearching(false);
+                }
+            } else {
+                setSearchResults([]);
+                setShowDropdown(false);
+            }
+        }, 300);
+
+        return () => clearTimeout(delayDebounceFn);
+    }, [searchQuery]);
+
     const handleLogout = () => {
         logout();
         toast.info('Logged out successfully');
         navigate('/auth');
     };
 
+    const handleResultClick = (classId) => {
+        setShowDropdown(false);
+        setSearchQuery('');
+        navigate(`/classes/${classId}`);
+    };
+
+    const handleSearchKeyDown = (e) => {
+        if (e.key === 'Enter' && searchQuery.trim().length > 0) {
+            setShowDropdown(false);
+            navigate(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
+        }
+    };
 
     return (
         <nav className="navbar">
@@ -46,9 +86,34 @@ const Navbar = ({ isSidebarCollapsed, onToggleSidebar }) => {
                         <Search size={18} className="search-icon" />
                         <input
                             type="text"
-                            placeholder="Search for sets, textbooks, questions"
+                            placeholder="Search for classes..."
                             className="nav-search-input"
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            onKeyDown={handleSearchKeyDown}
+                            onFocus={() => { if (searchResults.length > 0) setShowDropdown(true); }}
+                            onBlur={() => setTimeout(() => setShowDropdown(false), 200)}
                         />
+                        {showDropdown && (
+                            <div className="search-dropdown">
+                                {isSearching ? (
+                                    <div className="search-dropdown-item search-dropdown-message">Searching...</div>
+                                ) : searchResults.length > 0 ? (
+                                    searchResults.map(cls => (
+                                        <div 
+                                            key={cls.classId} 
+                                            className="search-dropdown-item"
+                                            onClick={() => handleResultClick(cls.classId)}
+                                        >
+                                            <div className="search-item-title">{cls.className}</div>
+                                            <div className="search-item-owner">by {cls.ownerDisplayName}</div>
+                                        </div>
+                                    ))
+                                ) : (
+                                    <div className="search-dropdown-item search-dropdown-message">No classes found</div>
+                                )}
+                            </div>
+                        )}
                     </div>
                 </div>
 

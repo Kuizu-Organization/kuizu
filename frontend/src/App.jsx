@@ -3,6 +3,9 @@ import AuthPage from './pages/AuthPage';
 import ProfilePage from './pages/ProfilePage';
 import HomePage from './pages/HomePage/HomePage';
 import ProtectedRoute from './components/layout/ProtectedRoute';
+import DashboardPage from './pages/DashboardPage/DashboardPage';
+import ClassDetailPage from './pages/ClassDetailPage/ClassDetailPage';
+import SearchPage from './pages/SearchPage/SearchPage';
 
 import MainLayout from './components/layout';
 
@@ -23,10 +26,23 @@ function App() {
         <Route path="/dashboard" element={
           <MainLayout>
             <ProtectedRoute>
-              <div style={{ padding: '40px', maxWidth: '1440px', margin: '0 auto' }}>
-                <h1 style={{ fontSize: '32px', marginBottom: '24px' }}>Welcome back to Kuizu!</h1>
-                {/* Other dashboard components would go here */}
-              </div>
+              <DashboardPage />
+            </ProtectedRoute>
+          </MainLayout>
+        } />
+        
+        <Route path="/classes/:classId" element={
+          <MainLayout>
+            <ProtectedRoute>
+              <ClassDetailPage />
+            </ProtectedRoute>
+          </MainLayout>
+        } />
+
+        <Route path="/search" element={
+          <MainLayout>
+            <ProtectedRoute>
+              <SearchPage />
             </ProtectedRoute>
           </MainLayout>
         } />
