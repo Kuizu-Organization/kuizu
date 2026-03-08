@@ -3,8 +3,8 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { getClassDetails, leaveClass, getClassJoinCode } from '../../api/class';
 import { Button } from '../../components/ui';
 import { Users, File, Calendar, Share2, MoreVertical, Copy, Check } from 'lucide-react';
-import JoinClassModal from '../../components/common/JoinClassModal';
-import LeaveClassModal from '../../components/common/LeaveClassModal';
+import JoinClassModal from '../../components/Class/JoinClassModal';
+import LeaveClassModal from '../../components/Class/LeaveClassModal';
 import './ClassDetailPage.css';
 
 const ClassDetailPage = () => {
@@ -112,7 +112,7 @@ const ClassDetailPage = () => {
                     </div>
                     <h1 className="class-title">{classData.className}</h1>
                     <p className="class-owner">Created by <strong>{classData.ownerDisplayName}</strong></p>
-                    
+
                     <div className="class-actions">
                         {(classData?.isOwner || classData?.isMember || localIsMember) && (
                             <Button
@@ -161,7 +161,7 @@ const ClassDetailPage = () => {
                     <section className="class-info-card">
                         <h3>About this class</h3>
                         <p className="class-description">{classData.description || "No description provided."}</p>
-                        
+
                         <div className="class-meta-list">
                             <div className="meta-item">
                                 <Users size={16} />
@@ -180,7 +180,7 @@ const ClassDetailPage = () => {
                         <h2>Class Materials</h2>
                         <Button variant="outline" size="sm">Add Material</Button>
                     </div>
-                    
+
                     {classData.classMaterials && classData.classMaterials.length > 0 ? (
                         <div className="materials-grid">
                             {classData.classMaterials.map(material => (
@@ -206,7 +206,7 @@ const ClassDetailPage = () => {
                 </div>
             </main>
 
-            <JoinClassModal 
+            <JoinClassModal
                 isOpen={isJoinModalOpen}
                 onClose={() => setIsJoinModalOpen(false)}
                 classId={classId}

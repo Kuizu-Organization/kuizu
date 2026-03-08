@@ -5,7 +5,7 @@ import { useToast } from '../../context/ToastContext';
 import './JoinClassModal.css';
 
 const JoinClassModal = ({ isOpen, onClose, classId, onJoinSuccess }) => {
-    const { showToast } = useToast();
+    const toast = useToast();
     const [joinOption, setJoinOption] = useState('code'); // 'code' or 'request'
     const [joinCode, setJoinCode] = useState('');
     const [requestMessage, setRequestMessage] = useState('');
@@ -13,29 +13,29 @@ const JoinClassModal = ({ isOpen, onClose, classId, onJoinSuccess }) => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        
+
         setIsSubmitting(true);
         try {
             const requestData = {
                 joinCode: joinOption === 'code' ? joinCode : null,
                 message: joinOption === 'request' ? requestMessage : null
             };
-            
+
             await joinClass(classId, requestData);
-            
+
             if (joinOption === 'code') {
-                showToast('Successfully joined the class!', 'success');
+                toast.success('Successfully joined the class!');
                 onJoinSuccess(true); // true indicates they are now a member
             } else {
-                showToast('Join request sent successfully!', 'success');
+                toast.success('Join request sent successfully!');
                 onJoinSuccess(false); // false indicates request is pending
             }
-            
+
             onClose();
-            
+
         } catch (error) {
             console.error('Failed to join class:', error);
-            showToast(error.response?.data?.message || 'Failed to join class', 'error');
+            toast.error(error.response?.data?.message || 'Failed to join class');
         } finally {
             setIsSubmitting(false);
         }
@@ -46,9 +46,9 @@ const JoinClassModal = ({ isOpen, onClose, classId, onJoinSuccess }) => {
             <Button variant="outline" onClick={onClose} disabled={isSubmitting}>
                 Cancel
             </Button>
-            <Button 
-                variant="primary" 
-                onClick={handleSubmit} 
+            <Button
+                variant="primary"
+                onClick={handleSubmit}
                 disabled={isSubmitting || (joinOption === 'code' && !joinCode.trim()) || (joinOption === 'request' && !requestMessage.trim())}
                 isLoading={isSubmitting}
             >
@@ -58,16 +58,16 @@ const JoinClassModal = ({ isOpen, onClose, classId, onJoinSuccess }) => {
     );
 
     return (
-        <Modal 
-            isOpen={isOpen} 
-            onClose={onClose} 
-            title="Join Class" 
+        <Modal
+            isOpen={isOpen}
+            onClose={onClose}
+            title="Join Class"
             size="md"
             footer={footer}
         >
             <div className="join-class-content">
                 <div className="join-options">
-                    <div 
+                    <div
                         className={`join-option-card ${joinOption === 'code' ? 'active' : ''}`}
                         onClick={() => setJoinOption('code')}
                     >
@@ -79,8 +79,8 @@ const JoinClassModal = ({ isOpen, onClose, classId, onJoinSuccess }) => {
                             <p>Enter the class join code to get instant access.</p>
                         </div>
                     </div>
-                    
-                    <div 
+
+                    <div
                         className={`join-option-card ${joinOption === 'request' ? 'active' : ''}`}
                         onClick={() => setJoinOption('request')}
                     >
@@ -98,7 +98,7 @@ const JoinClassModal = ({ isOpen, onClose, classId, onJoinSuccess }) => {
                     {joinOption === 'code' ? (
                         <div className="form-group slide-in">
                             <label>Class Code</label>
-                            <Input 
+                            <Input
                                 placeholder="Enter join code (e.g. jf8h3k)"
                                 value={joinCode}
                                 onChange={(e) => setJoinCode(e.target.value)}

@@ -8,6 +8,8 @@ import com.kuizu.backend.exception.ApiException;
 import com.kuizu.backend.entity.ClassJoinRequest;
 import com.kuizu.backend.entity.ClassMember;
 import com.kuizu.backend.entity.User;
+import com.kuizu.backend.dto.request.CreateClassRequest;
+import java.util.UUID;
 import com.kuizu.backend.repository.ClassJoinRequestRepository;
 import com.kuizu.backend.repository.ClassMemberRepository;
 import com.kuizu.backend.repository.ClassRepository;
@@ -100,6 +102,40 @@ public class ClassService {
                         c.getDescription()
                 ))
                 .toList();
+    }
+
+    public ClassResponse createClass(CreateClassRequest request, String username) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new ApiException("User not found: " + username));
+
+        if (user.getRole() != User.UserRole.ROLE_TEACHER && user.getRole() != User.UserRole.ROLE_ADMIN) {
+            throw new ApiException("Only teachers or administrators can create classes");
+        }
+
+        String joinCode = generateJoinCode();
+
+        Class newClass = Class.builder()
+                .owner(user)
+                .className(request.getClassName())
+                .description(request.getDescription())
+                .visibility(request.getVisibility() != null ? request.getVisibility() : "PUBLIC")
+                .status("ACTIVE")
+                .joinCode(joinCode)
+                .build();
+
+        newClass = classRepository.save(newClass);
+
+        return new ClassResponse(
+                newClass.getClassId(),
+                newClass.getOwner().getUserId(),
+                newClass.getOwner().getDisplayName(),
+                newClass.getClassName(),
+                newClass.getDescription()
+        );
+    }
+
+    private String generateJoinCode() {
+        return UUID.randomUUID().toString().substring(0, 8).toUpperCase();
     }
 
     public void joinClass(Long classId, String username, String joinCode, String message) {

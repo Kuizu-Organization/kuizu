@@ -5,6 +5,11 @@ export const getMyClasses = async () => {
     return response.data;
 };
 
+export const createClass = async (classData) => {
+    const response = await api.post('/classes', classData);
+    return response.data;
+};
+
 export const getClassDetails = async (classId) => {
     const response = await api.get(`/classes/${classId}`);
     return response.data;
