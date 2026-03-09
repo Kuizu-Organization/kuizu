@@ -16,7 +16,9 @@ import {
     BookOpen,
     GraduationCap,
     History as HistoryIcon,
-    FileCheck
+    FileCheck,
+    BarChart3,
+    Activity
 } from 'lucide-react';
 import './AdminDashboard.css';
 
