@@ -13,6 +13,12 @@ import ComingSoonPage from './pages/ComingSoonPage';
 import FoldersPage from './pages/FoldersPage/FoldersPage';
 import FolderDetailPage from './pages/FolderDetailPage/FolderDetailPage';
 import ForgotPasswordPage from './pages/ForgotPasswordPage/ForgotPasswordPage';
+import FlashcardSetsPage from './pages/FlashcardSetsPage';
+import FlashcardSetDetailsPage from './pages/FlashcardSetDetailsPage';
+import FlashcardSetForm from './pages/FlashcardSetForm';
+import FlashcardForm from './pages/FlashcardForm';
+import QuizPage from './pages/QuizPage';
+import QuizResultPage from './pages/QuizResultPage';
 
 import MainLayout from './components/layout';
 
@@ -40,6 +46,10 @@ function App() {
         {/* Individual Flashcard Routes */}
         <Route path="/flashcards/create" element={<FlashcardForm />} />
         <Route path="/flashcards/edit/:cardId" element={<FlashcardForm />} />
+
+        {/* Study and Quiz Routes */}
+        <Route path="/quiz/:setId" element={<QuizPage />} />
+        <Route path="/quiz/results/:resultId" element={<QuizResultPage />} />
 
         <Route path="/dashboard" element={
           <MainLayout>

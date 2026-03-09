@@ -1,0 +1,141 @@
+.result-page-container {
+    max-width: 900px;
+    margin: 40px auto;
+    padding: 0 20px;
+}
+
+.result-header {
+    margin-bottom: 30px;
+}
+
+.result-summary-section {
+    margin-bottom: 40px;
+}
+
+.summary-card {
+    display: flex;
+    align-items: center;
+    padding: 40px;
+    gap: 40px;
+}
+
+.circular-progress {
+    width: 180px;
+    height: 180px;
+    border-radius: 50%;
+    background: conic-gradient(var(--primary) var(--progress), var(--bg-secondary) 0deg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+
+.inner-circle {
+    width: 150px;
+    height: 150px;
+    background: var(--card-bg);
+    border-radius: 50%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.percentage {
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: var(--text-primary);
+}
+
+.fraction {
+    font-size: 1.1rem;
+    color: var(--text-secondary);
+}
+
+.summary-info h2 {
+    font-size: 2rem;
+    margin-bottom: 12px;
+}
+
+.summary-info p {
+    color: var(--text-secondary);
+    margin-bottom: 24px;
+    font-size: 1.1rem;
+}
+
+.result-actions {
+    display: flex;
+    gap: 12px;
+}
+
+.items-breakdown h2 {
+    margin-bottom: 20px;
+    font-size: 1.5rem;
+}
+
+.items-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.review-item {
+    display: flex;
+    gap: 20px;
+    padding: 24px;
+    border-left: 6px solid transparent;
+}
+
+.review-item.correct {
+    border-left-color: #22c55e;
+}
+
+.review-item.incorrect {
+    border-left-color: #ef4444;
+}
+
+.status-marker {
+    display: flex;
+    align-items: center;
+}
+
+.review-item.correct .status-marker {
+    color: #22c55e;
+}
+
+.review-item.incorrect .status-marker {
+    color: #ef4444;
+}
+
+.item-content {
+    flex: 1;
+}
+
+.item-term {
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin-bottom: 8px;
+}
+
+.item-definition {
+    color: var(--text-secondary);
+}
+
+.item-definition .label {
+    display: block;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 4px;
+}
+
+@media (max-width: 640px) {
+    .summary-card {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .result-actions {
+        flex-direction: column;
+    }
+}

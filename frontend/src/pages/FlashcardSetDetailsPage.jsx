@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { ChevronLeft, Play, Plus, Pencil, Trash2, User, Layers } from 'lucide-react';
 import './FlashcardSetDetailsPage.css';
 import { getFlashcardSetById, getFlashcardsBySetId, deleteFlashcard } from '../api/flashcards';
+import { getStudyProgress, resetStudyProgress } from '../api/study';
 import { Button, Card, Loader } from '../components/ui';
 import MainLayout from '../components/layout';
 
@@ -11,6 +12,7 @@ const FlashcardSetDetailsPage = () => {
     const navigate = useNavigate();
     const [set, setSet] = useState(null);
     const [cards, setCards] = useState([]);
+    const [progress, setProgress] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
@@ -21,12 +23,14 @@ const FlashcardSetDetailsPage = () => {
     const fetchData = async () => {
         try {
             setLoading(true);
-            const [setData, cardsData] = await Promise.all([
+            const [setData, cardsData, progressData] = await Promise.all([
                 getFlashcardSetById(setId),
-                getFlashcardsBySetId(setId)
+                getFlashcardsBySetId(setId),
+                getStudyProgress(setId)
             ]);
             setSet(setData);
             setCards(cardsData);
+            setProgress(progressData);
         } catch (err) {
             console.error('Error fetching data:', err);
             setError('Could not load set details.');
@@ -42,6 +46,19 @@ const FlashcardSetDetailsPage = () => {
                 setCards(cards.filter(c => c.cardId !== cardId));
             } catch (err) {
                 alert('Failed to delete card');
+            }
+        }
+    };
+
+    const handleResetProgress = async () => {
+        if (window.confirm('Are you sure you want to reset your study progress for this set?')) {
+            try {
+                await resetStudyProgress(setId);
+                const progressData = await getStudyProgress(setId);
+                setProgress(progressData);
+                alert('Progress reset successfully');
+            } catch (err) {
+                alert('Failed to reset progress');
             }
         }
     };
@@ -75,9 +92,14 @@ const FlashcardSetDetailsPage = () => {
                     </div>
 
                     <div className="set-actions">
-                        <Button className="play-btn" size="lg">
+                        <Button
+                            className="play-btn"
+                            size="lg"
+                            onClick={() => navigate(`/quiz/${setId}`, { state: { cards } })}
+                            disabled={cards.length < 2}
+                        >
                             <Play size={20} fill="currentColor" />
-                            Study Now
+                            Take Quiz
                         </Button>
                         <Button
                             variant="outline"
@@ -89,6 +111,36 @@ const FlashcardSetDetailsPage = () => {
                         </Button>
                     </div>
                 </div>
+
+                {progress && (
+                    <div className="progress-section">
+                        <Card className="progress-card">
+                            <div className="progress-summary">
+                                <div className="progress-text">
+                                    <h3>Your Progress</h3>
+                                    <div className="progress-stats">
+                                        <span className="stat mastered">Mastered: {progress.masteredCards}</span>
+                                        <span className="stat learning">Learning: {progress.learningCards}</span>
+                                        <span className="stat new">New: {progress.newCards}</span>
+                                    </div>
+                                </div>
+                                <div className="progress-action">
+                                    <Button variant="ghost" size="sm" onClick={handleResetProgress}>
+                                        <Trash2 size={16} />
+                                        Reset Progress
+                                    </Button>
+                                </div>
+                            </div>
+                            <div className="progress-bar-container">
+                                <div
+                                    className="progress-bar-fill"
+                                    style={{ width: `${progress.progressPercentage}%` }}
+                                ></div>
+                                <span className="progress-percentage">{Math.round(progress.progressPercentage)}%</span>
+                            </div>
+                        </Card>
+                    </div>
+                )}
 
                 <div className="cards-section">
                     <div className="section-header">
