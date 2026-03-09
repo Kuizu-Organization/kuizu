@@ -32,13 +32,56 @@ function App() {
           </MainLayout>
         } />
 
-        <Route path="/admin/dashboard" element={
-          <MainLayout>
+        <Route path="/admin/users" element={
+          <MainLayout activePath="/admin/users">
             <ProtectedRoute allowedRoles={['ROLE_ADMIN']}>
               <AdminDashboard />
             </ProtectedRoute>
           </MainLayout>
         } />
+
+        <Route path="/admin/submissions/flashcards" element={
+          <MainLayout activePath="/admin/submissions/flashcards">
+            <ProtectedRoute allowedRoles={['ROLE_ADMIN']}>
+              <AdminDashboard />
+            </ProtectedRoute>
+          </MainLayout>
+        } />
+
+        <Route path="/admin/submissions/classes" element={
+          <MainLayout activePath="/admin/submissions/classes">
+            <ProtectedRoute allowedRoles={['ROLE_ADMIN']}>
+              <AdminDashboard />
+            </ProtectedRoute>
+          </MainLayout>
+        } />
+
+        <Route path="/admin/history" element={
+          <MainLayout activePath="/admin/history">
+            <ProtectedRoute allowedRoles={['ROLE_ADMIN']}>
+              <AdminDashboard />
+            </ProtectedRoute>
+          </MainLayout>
+        } />
+
+        <Route path="/admin/stats/flashcards" element={
+          <MainLayout activePath="/admin/stats/flashcards">
+            <ProtectedRoute allowedRoles={['ROLE_ADMIN']}>
+              <AdminDashboard />
+            </ProtectedRoute>
+          </MainLayout>
+        } />
+
+        <Route path="/admin/stats/system" element={
+          <MainLayout activePath="/admin/stats/system">
+            <ProtectedRoute allowedRoles={['ROLE_ADMIN']}>
+              <AdminDashboard />
+            </ProtectedRoute>
+          </MainLayout>
+        } />
+
+        {/* Legacy redirect */}
+        <Route path="/admin/dashboard" element={<Navigate to="/admin/users" replace />} />
 
         <Route path="/classes/:classId" element={
           <MainLayout>

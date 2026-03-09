@@ -13,7 +13,12 @@ import java.util.Optional;
 @Repository
 public interface ClassRepository extends JpaRepository<Class, Long> {
     Optional<Class> findByClassId(Long classId);
+
     List<Class> findByOwner(User owner);
+
     Optional<Class> findByJoinCode(String joinCode);
+
     List<Class> findByClassNameContainingIgnoreCase(String name);
+
+    List<Class> findByStatus(String status);
 }

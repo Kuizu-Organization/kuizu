@@ -69,6 +69,53 @@
     color: var(--text-dark);
 }
 
+.admin-tabs-section {
+    margin-top: 20px;
+}
+
+.admin-tabs-section .tabs-header {
+    border-bottom: 2px solid var(--border-color);
+    margin-bottom: 40px;
+    gap: 32px;
+}
+
+.admin-tabs-section .tab-btn {
+    padding: 12px 16px;
+    font-weight: 600;
+    font-size: 15px;
+    color: var(--text-light);
+    border-bottom: 3px solid transparent;
+    transition: all 0.2s ease;
+}
+
+.admin-tabs-section .tab-btn.active {
+    color: var(--primary);
+    border-bottom-color: var(--primary);
+    background: transparent;
+}
+
+.tab-label-inner {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.admin-tab-content {
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
 .admin-layout-full {
     width: 100%;
 }

@@ -10,5 +10,8 @@ import java.util.List;
 @Repository
 public interface FlashcardSetRepository extends JpaRepository<FlashcardSet, Long> {
     List<FlashcardSet> findByOwnerAndIsDeletedFalse(User owner);
+
     List<FlashcardSet> findByVisibilityAndIsDeletedFalse(String visibility);
+
+    List<FlashcardSet> findByStatusAndIsDeletedFalse(String status);
 }
