@@ -37,7 +37,6 @@ const MainLayout = ({ children, isLoading = false }) => {
                 }}>
                     <main className="main-content" style={{
                         flex: 1,
-                        paddingBottom: '80px',
                         display: isLoading ? 'flex' : 'block',
                         alignItems: isLoading ? 'center' : 'initial',
                         justifyContent: isLoading ? 'center' : 'initial'

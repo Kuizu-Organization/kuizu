@@ -63,11 +63,6 @@ const Navbar = ({ isSidebarCollapsed, onToggleSidebar }) => {
         <nav className="navbar">
             <div className="navbar-content">
                 <div className="navbar-left">
-                    {onToggleSidebar && (
-                        <button className="sidebar-toggle-nav" onClick={onToggleSidebar}>
-                            <Menu size={24} />
-                        </button>
-                    )}
                     <div className="navbar-logo" onClick={() => navigate('/dashboard')}>Kuizu</div>
                     <div className="navbar-links">
                         <div className="nav-dropdown">
@@ -100,8 +95,8 @@ const Navbar = ({ isSidebarCollapsed, onToggleSidebar }) => {
                                     <div className="search-dropdown-item search-dropdown-message">Searching...</div>
                                 ) : searchResults.length > 0 ? (
                                     searchResults.map(cls => (
-                                        <div 
-                                            key={cls.classId} 
+                                        <div
+                                            key={cls.classId}
                                             className="search-dropdown-item"
                                             onClick={() => handleResultClick(cls.classId)}
                                         >

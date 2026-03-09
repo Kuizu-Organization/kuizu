@@ -11,15 +11,29 @@ import {
     ChevronLeft
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { Button, ComingSoonModal } from '../../ui';
 import './Sidebar.css';
 
 const Sidebar = ({ isCollapsed, onToggle, activePath = '/dashboard' }) => {
     const navigate = useNavigate();
+    const [isComingSoonOpen, setIsComingSoonOpen] = useState(false);
+    const [currentFeature, setCurrentFeature] = useState('');
+
+    const implementedRoutes = ['/dashboard', '/profile', '/search', '/auth', '/'];
+
+    const handleNavigation = (path, label) => {
+        // Special check for dynamic class route
+        if (implementedRoutes.includes(path) || path.startsWith('/classes/')) {
+            navigate(path);
+        } else {
+            setCurrentFeature(label);
+            setIsComingSoonOpen(true);
+        }
+    };
+
     const mainLinks = [
         { icon: <Home size={22} />, label: 'Home', path: '/dashboard' },
         { icon: <Library size={22} />, label: 'Library', path: '/library' },
-        // { icon: <Users size={22} />, label: 'Expert solutions', path: '/solutions', badge: 'New' },
-        // { icon: <Bell size={22} />, label: 'Notifications', path: '/notifications', count: 1 },
     ];
 
     const quickStartLinks = [
@@ -36,7 +50,7 @@ const Sidebar = ({ isCollapsed, onToggle, activePath = '/dashboard' }) => {
                         <div
                             key={index}
                             className={`sidebar-item ${activePath === link.path ? 'active' : ''}`}
-                            onClick={() => navigate(link.path)}
+                            onClick={() => handleNavigation(link.path, link.label)}
                         >
                             <span className="sidebar-icon">{link.icon}</span>
                             {!isCollapsed && <span className="sidebar-label">{link.label}</span>}
@@ -52,7 +66,7 @@ const Sidebar = ({ isCollapsed, onToggle, activePath = '/dashboard' }) => {
                 <div className="sidebar-section">
                     {!isCollapsed && <h6 className="sidebar-title">Get started</h6>}
                     {quickStartLinks.map((link, index) => (
-                        <div key={index} className="sidebar-item" onClick={() => navigate(link.path)}>
+                        <div key={index} className="sidebar-item" onClick={() => handleNavigation(link.path, link.label)}>
                             <span className="sidebar-icon">{link.icon}</span>
                             {!isCollapsed && <span className="sidebar-label">{link.label}</span>}
                         </div>
@@ -60,14 +74,18 @@ const Sidebar = ({ isCollapsed, onToggle, activePath = '/dashboard' }) => {
                 </div>
             </div>
 
-            {!isCollapsed && (
-                <div className="sidebar-footer">
-                    <button className="collapse-tab" onClick={onToggle}>
-                        <ChevronLeft size={20} />
-                        <span>Collapse</span>
-                    </button>
-                </div>
-            )}
+            <div className={`sidebar-footer ${isCollapsed ? 'collapsed' : ''}`}>
+                <button className="collapse-tab" onClick={onToggle}>
+                    {isCollapsed ? <Menu size={20} /> : <ChevronLeft size={20} />}
+                    {!isCollapsed && <span>Collapse</span>}
+                </button>
+            </div>
+
+            <ComingSoonModal
+                isOpen={isComingSoonOpen}
+                onClose={() => setIsComingSoonOpen(false)}
+                featureName={currentFeature}
+            />
         </aside>
     );
 };

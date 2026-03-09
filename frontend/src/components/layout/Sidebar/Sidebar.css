@@ -123,6 +123,11 @@
     border-top: 1px solid var(--border-color);
 }
 
+.sidebar-footer.collapsed .collapse-tab {
+    justify-content: center;
+    padding: 12px 0;
+}
+
 .collapse-tab {
     width: 100%;
     display: flex;
