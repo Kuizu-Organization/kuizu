@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Search, Plus, ChevronDown, Menu, Book, Zap, Users, GraduationCap, Palette, Languages, Calculator, FlaskConical, Layout, BookOpen, Folder } from 'lucide-react';
-import { Button, Dropdown } from '../../ui';
+import { Button, Dropdown, SearchBar } from '../../ui';
 import './Navbar.css';
 import { useAuth } from '../../../context/AuthContext';
 import { useToast } from '../../../context/ToastContext';
@@ -13,32 +13,15 @@ const Navbar = ({ isSidebarCollapsed, onToggleSidebar }) => {
     const navigate = useNavigate();
     const toast = useToast();
 
-    const [searchQuery, setSearchQuery] = useState('');
-    const [searchResults, setSearchResults] = useState([]);
-    const [isSearching, setIsSearching] = useState(false);
-    const [showDropdown, setShowDropdown] = useState(false);
-
-    useEffect(() => {
-        const delayDebounceFn = setTimeout(async () => {
-            if (searchQuery.trim().length > 1) {
-                setIsSearching(true);
-                try {
-                    const results = await searchClasses(searchQuery);
-                    setSearchResults(results);
-                    setShowDropdown(true);
-                } catch (error) {
-                    console.error('Search failed:', error);
-                } finally {
-                    setIsSearching(false);
-                }
-            } else {
-                setSearchResults([]);
-                setShowDropdown(false);
-            }
-        }, 300);
-
-        return () => clearTimeout(delayDebounceFn);
-    }, [searchQuery]);
+    const handleSearchInput = async (query) => {
+        const results = await searchClasses(query);
+        return results.map(cls => ({
+            id: cls.classId,
+            title: cls.className,
+            subtitle: `by ${cls.ownerDisplayName}`,
+            original: cls
+        }));
+    };
 
     const handleLogout = () => {
         logout();
@@ -46,17 +29,12 @@ const Navbar = ({ isSidebarCollapsed, onToggleSidebar }) => {
         navigate('/auth');
     };
 
-    const handleResultClick = (classId) => {
-        setShowDropdown(false);
-        setSearchQuery('');
-        navigate(`/classes/${classId}`);
+    const handleResultClick = (result) => {
+        navigate(`/classes/${result.id}`);
     };
 
-    const handleSearchKeyDown = (e) => {
-        if (e.key === 'Enter' && searchQuery.trim().length > 0) {
-            setShowDropdown(false);
-            navigate(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
-        }
+    const handleSearchEnter = (query) => {
+        navigate(`/search?q=${encodeURIComponent(query)}`);
     };
 
     const studyToolsItems = [
@@ -110,39 +88,12 @@ const Navbar = ({ isSidebarCollapsed, onToggleSidebar }) => {
                 </div>
 
                 <div className="navbar-center">
-                    <div className="search-wrapper">
-                        <Search size={18} className="search-icon" />
-                        <input
-                            type="text"
-                            placeholder="Search for classes..."
-                            className="nav-search-input"
-                            value={searchQuery}
-                            onChange={(e) => setSearchQuery(e.target.value)}
-                            onKeyDown={handleSearchKeyDown}
-                            onFocus={() => { if (searchResults.length > 0) setShowDropdown(true); }}
-                            onBlur={() => setTimeout(() => setShowDropdown(false), 200)}
-                        />
-                        {showDropdown && (
-                            <div className="search-dropdown">
-                                {isSearching ? (
-                                    <div className="search-dropdown-item search-dropdown-message">Searching...</div>
-                                ) : searchResults.length > 0 ? (
-                                    searchResults.map(cls => (
-                                        <div
-                                            key={cls.classId}
-                                            className="search-dropdown-item"
-                                            onClick={() => handleResultClick(cls.classId)}
-                                        >
-                                            <div className="search-item-title">{cls.className}</div>
-                                            <div className="search-item-owner">by {cls.ownerDisplayName}</div>
-                                        </div>
-                                    ))
-                                ) : (
-                                    <div className="search-dropdown-item search-dropdown-message">No classes found</div>
-                                )}
-                            </div>
-                        )}
-                    </div>
+                    <SearchBar
+                        onSearch={handleSearchInput}
+                        onResultClick={handleResultClick}
+                        onEnter={handleSearchEnter}
+                        placeholder="Search for classes..."
+                    />
                 </div>
 
                 <div className="navbar-right">

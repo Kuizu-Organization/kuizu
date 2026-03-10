@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { getMyClasses } from '../../api/class';
 import CreateClassModal from '../../components/Class/CreateClassModal';
 import { useAuth } from '../../context/AuthContext';
-import { Button, Card, Loader, ComingSoonModal } from '../../components/ui';
+import { Button, Card, Loader, ComingSoonModal, EmptyState, ItemCard } from '../../components/ui';
 import './DashboardPage.css';
 
 const DashboardPage = () => {
@@ -69,10 +69,10 @@ const DashboardPage = () => {
                     </div>
                 </div>
 
-                <div className="empty-state">
-                    <p>No flashcard sets yet. Start creating your first set!</p>
-                    <Button variant="primary" onClick={() => toggleComingSoon('Flashcard creation')}>Create Flashcard Set</Button>
-                </div>
+                <EmptyState
+                    description="No flashcard sets yet. Start creating your first set!"
+                    action={<Button variant="primary" onClick={() => toggleComingSoon('Flashcard creation')}>Create Flashcard Set</Button>}
+                />
             </section>
 
             {/* Folders Section */}
@@ -85,10 +85,10 @@ const DashboardPage = () => {
                     </div>
                 </div>
 
-                <div className="empty-state">
-                    <p>Organize your sets into folders for better study flow.</p>
-                    <Button variant="outline" onClick={() => toggleComingSoon('Folder creation')}>Create Folder</Button>
-                </div>
+                <EmptyState
+                    description="Organize your sets into folders for better study flow."
+                    action={<Button variant="outline" onClick={() => toggleComingSoon('Folder creation')}>Create Folder</Button>}
+                />
             </section>
 
             {/* Classes Section */}
@@ -106,29 +106,21 @@ const DashboardPage = () => {
                 {classes.length > 0 ? (
                     <div className="dashboard-grid">
                         {classes.map(cls => (
-                            <Card
+                            <ItemCard
                                 key={cls.classId}
-                                className="dashboard-item-card"
                                 onClick={() => handleClassClick(cls.classId)}
-                            >
-                                <div className="card-header-custom">
-                                    <h3 className="card-title-custom">{cls.className}</h3>
-                                    <span className="badge-custom">Class</span>
-                                </div>
-                                <div className="card-body-custom">
-                                    <p className="card-description-custom">{cls.description || 'No description provided.'}</p>
-                                </div>
-                                <div className="card-footer-custom">
-                                    <span className="owner-text">by {cls.ownerDisplayName}</span>
-                                </div>
-                            </Card>
+                                title={cls.className}
+                                badge="Class"
+                                description={cls.description || 'No description provided.'}
+                                footerText={`by ${cls.ownerDisplayName}`}
+                            />
                         ))}
                     </div>
                 ) : (
-                    <div className="empty-state">
-                        <p>You haven't joined any classes yet.</p>
-                        <Button variant="primary" onClick={() => toggleComingSoon('Explore Classes')}>Explore Classes</Button>
-                    </div>
+                    <EmptyState
+                        description="You haven't joined any classes yet."
+                        action={<Button variant="primary" onClick={() => toggleComingSoon('Explore Classes')}>Explore Classes</Button>}
+                    />
                 )}
             </section>
 

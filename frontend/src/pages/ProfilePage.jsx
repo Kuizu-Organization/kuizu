@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Camera, ChevronDown, Plus, Pencil, User as UserIcon, Mail, ShieldCheck, Palette, Lock } from 'lucide-react';
 import './ProfilePage.css';
 import { updateProfile, changePassword } from '../api/user';
-import { Button, Card, Input, Modal, Dropdown } from '../components/ui';
+import { Button, Card, Input, Modal, Dropdown, Textarea } from '../components/ui';
 import MainLayout from '../components/layout';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
@@ -348,8 +348,7 @@ const ProfilePage = () => {
                     >
                         <div className="edit-modal-content">
                             {editingField === 'bio' ? (
-                                <textarea
-                                    className="edit-textarea"
+                                <Textarea
                                     value={editValue}
                                     onChange={(e) => setEditValue(e.target.value)}
                                     placeholder={`Enter your ${fieldLabels[editingField]}`}
@@ -379,33 +378,29 @@ const ProfilePage = () => {
                         }
                     >
                         <div className="edit-modal-content">
-                            <div className="password-input-group">
-                                <label className="input-label">Current Password</label>
-                                <Input
-                                    type="password"
-                                    value={passwordData.oldPassword}
-                                    onChange={(e) => setPasswordData({ ...passwordData, oldPassword: e.target.value })}
-                                    placeholder="Enter current password"
-                                />
-                            </div>
-                            <div className="password-input-group" style={{ marginTop: '16px' }}>
-                                <label className="input-label">New Password</label>
-                                <Input
-                                    type="password"
-                                    value={passwordData.newPassword}
-                                    onChange={(e) => setPasswordData({ ...passwordData, newPassword: e.target.value })}
-                                    placeholder="Enter new password (min 8 chars, 1 upper, 1 lower, 1 special)"
-                                />
-                            </div>
-                            <div className="password-input-group" style={{ marginTop: '16px' }}>
-                                <label className="input-label">Confirm New Password</label>
-                                <Input
-                                    type="password"
-                                    value={passwordData.confirmPassword}
-                                    onChange={(e) => setPasswordData({ ...passwordData, confirmPassword: e.target.value })}
-                                    placeholder="Confirm new password"
-                                />
-                            </div>
+                            <Input
+                                label="Current Password"
+                                type="password"
+                                value={passwordData.oldPassword}
+                                onChange={(e) => setPasswordData({ ...passwordData, oldPassword: e.target.value })}
+                                placeholder="Enter current password"
+                            />
+                            <Input
+                                style={{ marginTop: '16px' }}
+                                label="New Password"
+                                type="password"
+                                value={passwordData.newPassword}
+                                onChange={(e) => setPasswordData({ ...passwordData, newPassword: e.target.value })}
+                                placeholder="Enter new password (min 8 chars, 1 upper, 1 lower, 1 special)"
+                            />
+                            <Input
+                                style={{ marginTop: '16px' }}
+                                label="Confirm New Password"
+                                type="password"
+                                value={passwordData.confirmPassword}
+                                onChange={(e) => setPasswordData({ ...passwordData, confirmPassword: e.target.value })}
+                                placeholder="Confirm new password"
+                            />
                         </div>
                     </Modal>
                 </div>

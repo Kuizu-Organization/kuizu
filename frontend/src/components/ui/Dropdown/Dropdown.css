@@ -160,3 +160,41 @@
 .item-label {
     flex: 1;
 }
+
+.dropdown-field-container {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.dropdown-form-label {
+    font-family: 'Outfit', sans-serif;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--text-light);
+    margin-bottom: 4px;
+}
+
+.has-error {
+    border-color: var(--error) !important;
+    background-color: #fffaf9 !important;
+}
+
+.has-error.active {
+    box-shadow: 0 0 0 4px rgba(255, 114, 94, 0.1) !important;
+}
+
+.dropdown-error {
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: var(--error);
+    margin-top: 4px;
+}
+
+.dropdown-help-text {
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: var(--text-light);
+    margin-top: 4px;
+}
