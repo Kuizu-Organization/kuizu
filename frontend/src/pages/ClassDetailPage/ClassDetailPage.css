@@ -6,8 +6,15 @@
 }
 
 @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 /* Header Section */
@@ -37,7 +44,6 @@
 }
 
 .class-title {
-    font-family: 'Outfit', sans-serif;
     font-size: 48px;
     font-weight: 800;
     color: var(--text-dark);
@@ -101,12 +107,8 @@
 }
 
 .class-info-card h3 {
-    font-family: 'Inter', sans-serif;
-    font-size: 18px;
-    font-weight: 700;
     margin-top: 0;
     margin-bottom: 16px;
-    color: var(--text-dark);
 }
 
 .class-description {
@@ -146,10 +148,6 @@
 }
 
 .materials-header h2 {
-    font-family: 'Outfit', sans-serif;
-    font-size: 28px;
-    font-weight: 700;
-    color: var(--text-dark);
     margin: 0;
 }
 
@@ -220,8 +218,6 @@
 
 .empty-materials h3 {
     margin: 0 0 8px 0;
-    color: var(--text-dark);
-    font-size: 20px;
 }
 
 .empty-materials p {
@@ -250,19 +246,25 @@
 }
 
 @keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
 }
 
 @media (max-width: 1024px) {
     .class-main-content {
         grid-template-columns: 1fr;
     }
-    
+
     .class-info-card {
         position: static;
     }
 }
+
 /* Tabs styling */
 .class-tabs {
     display: flex;
@@ -299,7 +301,8 @@
     background-color: rgba(66, 85, 255, 0.05);
 }
 
-.tab-count, .tab-badge {
+.tab-count,
+.tab-badge {
     font-size: 11px;
     padding: 2px 8px;
     border-radius: 10px;
@@ -316,15 +319,13 @@
 }
 
 /* Members styling */
-.members-header, .requests-header {
+.members-header,
+.requests-header {
     margin-bottom: 24px;
 }
 
-.members-header h2, .requests-header h2 {
-    font-family: 'Outfit', sans-serif;
-    font-size: 24px;
-    font-weight: 700;
-    color: var(--text-dark);
+.members-header h2,
+.requests-header h2 {
     margin: 0;
 }
 

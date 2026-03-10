@@ -2,16 +2,10 @@
     max-width: 800px;
     margin: 40px auto;
     padding: 0 24px;
-    font-family: 'Outfit', sans-serif;
 }
 
 .profile-title {
-    font-family: 'Outfit', sans-serif;
-    font-size: 3rem;
-    font-weight: 700;
     margin-bottom: 32px;
-    color: var(--text-dark);
-    letter-spacing: -1px;
 }
 
 .profile-section {
@@ -19,21 +13,10 @@
 }
 
 .section-label {
-    font-size: 0.875rem;
-    font-weight: 700;
-    color: var(--text-light);
     margin-bottom: 20px;
     display: block;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-}
-
-.settings-card {
-    background: var(--white);
-    border: 1px solid var(--border-color);
-    border-radius: 20px;
-    overflow: hidden;
-    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
+    color: var(--text-light);
+    /* Override default label color */
 }
 
 .settings-group {
@@ -46,9 +29,6 @@
 }
 
 .group-title {
-    font-size: 1.125rem;
-    font-weight: 600;
-    color: var(--text-dark);
     margin-bottom: 24px;
 }
 
@@ -127,43 +107,17 @@
 }
 
 .field-info h4 {
-    font-size: 0.875rem;
-    font-weight: 600;
     margin: 0 0 8px 0;
-    color: var(--text-light);
-    letter-spacing: 0.5px;
 }
 
 .field-info p {
-    font-size: 1.125rem;
-    font-weight: 500;
     margin: 0;
-    color: var(--text-dark);
 }
 
 .bio-text {
-    font-size: 1rem !important;
-    line-height: 1.6;
-    color: var(--text-dark);
     white-space: pre-wrap;
 }
 
-.edit-btn {
-    background: none;
-    border: none;
-    color: var(--primary);
-    font-weight: 700;
-    font-size: 0.875rem;
-    cursor: pointer;
-    padding: 8px 16px;
-    border-radius: 8px;
-    transition: all 0.2s;
-}
-
-.edit-btn:hover {
-    background: var(--input-bg);
-    color: var(--primary-hover);
-}
 
 .account-type-badge {
     background: var(--input-bg);
@@ -173,19 +127,8 @@
     display: flex;
     align-items: center;
     gap: 10px;
-    font-size: 1rem;
-    font-weight: 600;
-    color: var(--text-dark);
     border: 2px solid transparent;
 }
-
-
-.theme-selector {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
 
 @media (max-width: 768px) {
     .profile-title {
@@ -201,10 +144,6 @@
         align-items: flex-start;
     }
 
-    .edit-btn {
-        padding-left: 0;
-        margin-top: 8px;
-    }
 }
 
 .edit-modal-content {

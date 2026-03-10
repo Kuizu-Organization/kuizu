@@ -5,12 +5,7 @@
 }
 
 .dashboard-title {
-    font-family: 'Outfit', sans-serif;
-    font-size: 32px;
-    font-weight: 700;
-    color: var(--text-dark);
     margin-bottom: 40px;
-    letter-spacing: -0.5px;
 }
 
 .dashboard-section {
@@ -25,10 +20,6 @@
 }
 
 .dashboard-section-header h2 {
-    font-family: 'Outfit', sans-serif;
-    font-size: 22px;
-    font-weight: 700;
-    color: var(--text-dark);
     margin: 0;
 }
 
@@ -42,15 +33,4 @@
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
     gap: 24px;
-}
-
-.coming-soon-content {
-    text-align: center;
-    padding: 20px 0;
-}
-
-.coming-soon-content p {
-    color: var(--text-light);
-    font-size: 16px;
-    line-height: 1.6;
 }

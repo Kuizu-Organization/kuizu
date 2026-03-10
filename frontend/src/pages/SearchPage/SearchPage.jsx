@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { searchClasses } from '../../api/class';
 import { Search, BookOpen, Users } from 'lucide-react';
+import { Loader, EmptyState, ItemCard } from '../../components/ui';
 import './SearchPage.css';
 
 const SearchPage = () => {
@@ -46,38 +47,34 @@ const SearchPage = () => {
 
             <main className="search-results-section">
                 {isLoading ? (
-                    <div className="search-loading">
-                        <div className="spinner"></div>
+                    <div className="search-loading-container">
+                        <Loader fullPage={false} />
                         <p>Searching for classes...</p>
                     </div>
                 ) : results.length > 0 ? (
                     <div className="search-results-grid">
                         {results.map(cls => (
-                            <div 
-                                key={cls.classId} 
-                                className="search-result-card"
+                            <ItemCard
+                                key={cls.classId}
                                 onClick={() => navigate(`/classes/${cls.classId}`)}
-                            >
-                                <div className="result-card-header">
-                                    <h3 className="result-card-title">{cls.className}</h3>
-                                    <span className="result-card-badge">Class</span>
-                                </div>
-                                <p className="result-card-description">{cls.description || 'No description provided.'}</p>
-                                <div className="result-card-footer">
+                                title={cls.className}
+                                badge="Class"
+                                description={cls.description || 'No description provided.'}
+                                footerText={
                                     <div className="result-meta">
                                         <Users size={14} />
                                         <span>Owner: {cls.ownerDisplayName}</span>
                                     </div>
-                                </div>
-                            </div>
+                                }
+                            />
                         ))}
                     </div>
                 ) : (
-                    <div className="empty-search-state">
-                        <BookOpen size={48} className="empty-search-icon" />
-                        <h2>No classes found</h2>
-                        <p>We couldn't find any classes matching "{query}". Try adjusting your search keywords.</p>
-                    </div>
+                    <EmptyState
+                        icon={BookOpen}
+                        title="No classes found"
+                        description={`We couldn't find any classes matching "${query}". Try adjusting your search keywords.`}
+                    />
                 )}
             </main>
         </div>

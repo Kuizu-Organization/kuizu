@@ -159,7 +159,7 @@ const ProfilePage = () => {
 
                     <div className="profile-section">
                         <span className="section-label">Personal Information</span>
-                        <Card className="settings-card">
+                        <Card>
                             {/* Profile Picture */}
                             <div className="settings-group">
                                 <h3 className="group-title">Profile Picture</h3>
@@ -191,7 +191,7 @@ const ProfilePage = () => {
                                         <h4>Display Name</h4>
                                         <p>{user?.displayName || 'Set your display name'}</p>
                                     </div>
-                                    <button className="edit-btn" onClick={() => handleEditField('displayName')}>Edit</button>
+                                    <Button variant="ghost" size="sm" onClick={() => handleEditField('displayName')}>Edit</Button>
                                 </div>
                             </div>
 
@@ -202,7 +202,7 @@ const ProfilePage = () => {
                                         <h4>Bio</h4>
                                         <p className="bio-text">{user?.bio || 'Add a bio to your profile'}</p>
                                     </div>
-                                    <button className="edit-btn" onClick={() => handleEditField('bio')}>Edit</button>
+                                    <Button variant="ghost" size="sm" onClick={() => handleEditField('bio')}>Edit</Button>
                                 </div>
                             </div>
 

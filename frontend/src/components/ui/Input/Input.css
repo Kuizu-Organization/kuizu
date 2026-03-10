@@ -7,10 +7,6 @@
 }
 
 .input-label {
-    font-family: 'Outfit', sans-serif;
-    font-size: 0.875rem;
-    font-weight: 600;
-    color: var(--text-light);
     margin-bottom: 4px;
 }
 
@@ -27,9 +23,6 @@
     background-color: var(--input-bg);
     border: 2px solid transparent;
     border-radius: 12px;
-    font-family: 'Outfit', sans-serif;
-    font-size: 1rem;
-    color: var(--text-dark);
     transition: all 0.2s ease;
     outline: none;
 }

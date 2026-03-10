@@ -22,11 +22,7 @@
 }
 
 .item-card-title {
-    font-size: 18px;
-    font-weight: 600;
-    color: var(--text-dark);
     margin: 0;
-    line-height: 1.4;
 }
 
 .item-card-badge {
@@ -46,9 +42,6 @@
 }
 
 .item-card-description {
-    color: var(--text-light);
-    font-size: 14px;
-    line-height: 1.6;
     margin: 0;
     display: -webkit-box;
     line-clamp: 3;
