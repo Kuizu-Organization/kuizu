@@ -34,6 +34,43 @@ h4,
 h5,
 h6 {
   font-family: 'Outfit', sans-serif;
+  color: var(--text-dark);
+}
+
+h1 {
+  font-size: 2.25rem;
+  font-weight: 700;
+  letter-spacing: -1px;
+}
+
+h2 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+}
+
+h3 {
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+h4 {
+  font-size: 1.125rem;
+  font-weight: 600;
+}
+
+p {
+  color: var(--text-light);
+  line-height: 1.6;
+  font-weight: 500;
+}
+
+label,
+.label {
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--text-dark);
+  letter-spacing: 0.5px;
 }
 
 button {
@@ -43,8 +80,11 @@ button {
   transition: all 0.2s ease;
 }
 
-input {
+input,
+textarea {
   font-family: 'Outfit', sans-serif;
+  font-size: 1rem;
+  color: var(--text-dark);
 }
 
 .auth-container {

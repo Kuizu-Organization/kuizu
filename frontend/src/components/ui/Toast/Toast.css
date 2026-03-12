@@ -24,7 +24,6 @@
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08), 0 4px 8px rgba(0, 0, 0, 0.04);
     border: 1px solid var(--border-color);
     color: var(--text-dark);
-    font-family: 'Outfit', sans-serif;
     font-weight: 500;
     pointer-events: auto;
     animation: toast-slide-up 0.4s cubic-bezier(0.16, 1, 0.3, 1);

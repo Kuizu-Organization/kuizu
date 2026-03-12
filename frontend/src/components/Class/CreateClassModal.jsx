@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Modal, Button, Input } from '../ui';
+import { Modal, Button, Input, Dropdown, Textarea } from '../ui';
 import { createClass } from '../../api/class';
 import { useToast } from '../../context/ToastContext';
 import './CreateClassModal.css';
@@ -10,6 +10,11 @@ const CreateClassModal = ({ isOpen, onClose, onCreateSuccess }) => {
     const [description, setDescription] = useState('');
     const [visibility, setVisibility] = useState('PUBLIC');
     const [isSubmitting, setIsSubmitting] = useState(false);
+
+    const visibilityOptions = [
+        { label: 'Public', value: 'PUBLIC' },
+        { label: 'Private', value: 'PRIVATE' },
+    ];
 
     const handleSubmit = async (e) => {
         if (e) e.preventDefault();
@@ -78,44 +83,38 @@ const CreateClassModal = ({ isOpen, onClose, onCreateSuccess }) => {
         >
             <div className="create-class-content">
                 <form onSubmit={handleSubmit}>
-                    <div className="form-group slide-in">
-                        <label>Class Name *</label>
-                        <Input
-                            placeholder="e.g. Introduction to Computer Science"
-                            value={className}
-                            onChange={(e) => setClassName(e.target.value)}
-                            autoFocus
-                            required
-                        />
-                    </div>
+                    <Input
+                        className="slide-in"
+                        label="Class Name *"
+                        placeholder="e.g. Introduction to Computer Science"
+                        value={className}
+                        onChange={(e) => setClassName(e.target.value)}
+                        autoFocus
+                        required
+                    />
 
-                    <div className="form-group slide-in" style={{ animationDelay: '0.1s' }}>
-                        <label>Description (Optional)</label>
-                        <textarea
-                            className="create-class-textarea"
-                            placeholder="What is this class about?"
-                            value={description}
-                            onChange={(e) => setDescription(e.target.value)}
-                            rows={4}
-                        ></textarea>
-                    </div>
+                    <Textarea
+                        className="slide-in"
+                        style={{ animationDelay: '0.1s' }}
+                        label="Description (Optional)"
+                        placeholder="What is this class about?"
+                        value={description}
+                        onChange={(e) => setDescription(e.target.value)}
+                        rows={4}
+                    />
 
-                    <div className="form-group slide-in" style={{ animationDelay: '0.2s' }}>
-                        <label>Visibility</label>
-                        <select
-                            className="create-class-select"
-                            value={visibility}
-                            onChange={(e) => setVisibility(e.target.value)}
-                        >
-                            <option value="PUBLIC">Public</option>
-                            <option value="PRIVATE">Private</option>
-                        </select>
-                        <p className="help-text">
-                            {visibility === 'PUBLIC'
-                                ? 'Anyone can find and request to join this class.'
-                                : 'Only people with the join code can find and join this class.'}
-                        </p>
-                    </div>
+                    <Dropdown
+                        className="slide-in w-full"
+                        style={{ animationDelay: '0.2s' }}
+                        formLabel="Visibility"
+                        variant="select"
+                        label={visibilityOptions.find(opt => opt.value === visibility).label}
+                        items={visibilityOptions}
+                        onItemClick={(item) => setVisibility(item.value)}
+                        helpText={visibility === 'PUBLIC'
+                            ? 'Anyone can find and request to join this class.'
+                            : 'Only people with the join code can find and join this class.'}
+                    />
                 </form>
             </div>
         </Modal>

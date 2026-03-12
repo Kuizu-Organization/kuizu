@@ -2,16 +2,10 @@
     max-width: 800px;
     margin: 40px auto;
     padding: 0 24px;
-    font-family: 'Outfit', sans-serif;
 }
 
 .profile-title {
-    font-family: 'Outfit', sans-serif;
-    font-size: 3rem;
-    font-weight: 700;
     margin-bottom: 32px;
-    color: var(--text-dark);
-    letter-spacing: -1px;
 }
 
 .profile-section {
@@ -19,21 +13,10 @@
 }
 
 .section-label {
-    font-size: 0.875rem;
-    font-weight: 700;
-    color: var(--text-light);
     margin-bottom: 20px;
     display: block;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-}
-
-.settings-card {
-    background: var(--white);
-    border: 1px solid var(--border-color);
-    border-radius: 20px;
-    overflow: hidden;
-    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
+    color: var(--text-light);
+    font-weight: 600;
 }
 
 .settings-group {
@@ -46,9 +29,6 @@
 }
 
 .group-title {
-    font-size: 1.125rem;
-    font-weight: 600;
-    color: var(--text-dark);
     margin-bottom: 24px;
 }
 
@@ -57,7 +37,14 @@
     flex-wrap: wrap;
     gap: 16px;
     align-items: center;
+    transition: opacity 0.3s ease;
 }
+
+.avatar-selection.submitting {
+    opacity: 0.6;
+    pointer-events: none;
+}
+
 
 .avatar-main {
     width: 96px;
@@ -120,45 +107,19 @@
 }
 
 .field-info h4 {
-    font-size: 0.875rem;
-    font-weight: 600;
     margin: 0 0 8px 0;
-    color: var(--text-light);
-    letter-spacing: 0.5px;
 }
 
 .field-info p {
-    font-size: 1.125rem;
-    font-weight: 500;
     margin: 0;
-    color: var(--text-dark);
 }
 
 .bio-text {
-    font-size: 1rem !important;
-    line-height: 1.6;
-    color: var(--text-dark);
     white-space: pre-wrap;
 }
 
-.edit-btn {
-    background: none;
-    border: none;
-    color: var(--primary);
-    font-weight: 700;
-    font-size: 0.875rem;
-    cursor: pointer;
-    padding: 8px 16px;
-    border-radius: 8px;
-    transition: all 0.2s;
-}
 
-.edit-btn:hover {
-    background: var(--input-bg);
-    color: var(--primary-hover);
-}
-
-.account-type-badge {
+.account-type-badge, .account-status-badge {
     background: var(--input-bg);
     height: 48px;
     padding: 0 20px;
@@ -166,59 +127,18 @@
     display: flex;
     align-items: center;
     gap: 10px;
-    font-size: 1rem;
-    font-weight: 600;
-    color: var(--text-dark);
     border: 2px solid transparent;
-}
-
-.dropdown-container {
-    background: var(--input-bg);
-    height: 48px;
-    padding: 0 20px;
-    border-radius: 8px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    font-size: 1rem;
     font-weight: 600;
-    color: var(--text-dark);
-    border: 2px solid transparent;
-    transition: all 0.2s;
 }
 
-.dropdown-container:hover {
-    background: var(--white);
-    border-color: var(--primary);
+.account-status-badge.active {
+    color: var(--success);
+    background-color: rgba(16, 185, 129, 0.1);
 }
 
-.theme-selector {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.timezone-select {
-    background: var(--input-bg);
-    border: 2px solid transparent;
-    border-radius: 8px;
-    height: 42px;
-    padding: 0 12px;
-    font-family: inherit;
-    font-size: 0.9375rem;
-    font-weight: 600;
-    color: var(--text-dark);
-    cursor: pointer;
-    transition: all 0.2s;
-    min-width: 180px;
-}
-
-.timezone-select:focus {
-    outline: none;
-    border-color: var(--primary);
-    background: var(--white);
-    box-shadow: 0 0 0 4px rgba(66, 85, 255, 0.1);
+.account-status-badge.banned, .account-status-badge.inactive {
+    color: var(--error);
+    background-color: rgba(255, 114, 94, 0.1);
 }
 
 @media (max-width: 768px) {
@@ -235,47 +155,10 @@
         align-items: flex-start;
     }
 
-    .edit-btn {
-        padding-left: 0;
-        margin-top: 8px;
-    }
 }
 
 .edit-modal-content {
     display: flex;
     flex-direction: column;
     gap: 16px;
-}
-
-.edit-textarea {
-    width: 100%;
-    padding: 12px 16px;
-    border-radius: 12px;
-    border: 1px solid var(--border-color);
-    background: var(--input-bg);
-    font-size: 1rem;
-    color: var(--text-dark);
-    resize: vertical;
-    min-height: 120px;
-    transition: all 0.2s;
-}
-
-.edit-textarea:focus {
-    outline: none;
-    border-color: var(--primary);
-    background: var(--white);
-    box-shadow: 0 0 0 4px rgba(66, 85, 255, 0.1);
-}
-
-.password-input-group {
-    display: flex;
-    flex-direction: column;
-}
-
-.input-label {
-    font-size: 0.875rem;
-    font-weight: 600;
-    color: var(--text-light);
-    margin-bottom: 8px;
-    display: block;
 }

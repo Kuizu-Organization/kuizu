@@ -57,7 +57,6 @@
 }
 
 .checkbox-label {
-    font-family: 'Outfit', sans-serif;
     font-size: 0.9375rem;
     font-weight: 500;
     color: var(--text-dark);
