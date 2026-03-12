@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Search, Plus, ChevronDown, Menu } from 'lucide-react';
-import { Button } from '../../ui';
+import { Search, Plus, ChevronDown, Menu, Book, Zap, Users, GraduationCap, Palette, Languages, Calculator, FlaskConical, Layout, BookOpen, Folder } from 'lucide-react';
+import { Button, Dropdown, SearchBar } from '../../ui';
 import './Navbar.css';
 import { useAuth } from '../../../context/AuthContext';
 import { useToast } from '../../../context/ToastContext';
@@ -13,32 +13,15 @@ const Navbar = ({ isSidebarCollapsed, onToggleSidebar }) => {
     const navigate = useNavigate();
     const toast = useToast();
 
-    const [searchQuery, setSearchQuery] = useState('');
-    const [searchResults, setSearchResults] = useState([]);
-    const [isSearching, setIsSearching] = useState(false);
-    const [showDropdown, setShowDropdown] = useState(false);
-
-    useEffect(() => {
-        const delayDebounceFn = setTimeout(async () => {
-            if (searchQuery.trim().length > 1) {
-                setIsSearching(true);
-                try {
-                    const results = await searchClasses(searchQuery);
-                    setSearchResults(results);
-                    setShowDropdown(true);
-                } catch (error) {
-                    console.error('Search failed:', error);
-                } finally {
-                    setIsSearching(false);
-                }
-            } else {
-                setSearchResults([]);
-                setShowDropdown(false);
-            }
-        }, 300);
-
-        return () => clearTimeout(delayDebounceFn);
-    }, [searchQuery]);
+    const handleSearchInput = async (query) => {
+        const results = await searchClasses(query);
+        return results.map(cls => ({
+            id: cls.classId,
+            title: cls.className,
+            subtitle: `by ${cls.ownerDisplayName}`,
+            original: cls
+        }));
+    };
 
     const handleLogout = () => {
         logout();
@@ -46,16 +29,40 @@ const Navbar = ({ isSidebarCollapsed, onToggleSidebar }) => {
         navigate('/auth');
     };
 
-    const handleResultClick = (classId) => {
-        setShowDropdown(false);
-        setSearchQuery('');
-        navigate(`/classes/${classId}`);
+    const handleResultClick = (result) => {
+        navigate(`/classes/${result.id}`);
     };
 
-    const handleSearchKeyDown = (e) => {
-        if (e.key === 'Enter' && searchQuery.trim().length > 0) {
-            setShowDropdown(false);
-            navigate(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
+    const handleSearchEnter = (query) => {
+        navigate(`/search?q=${encodeURIComponent(query)}`);
+    };
+
+    const studyToolsItems = [
+        { label: 'Flashcard', icon: <Book size={16} /> },
+        { label: 'Quiz', icon: <Zap size={16} /> },
+        { label: 'Class', icon: <Users size={16} /> },
+    ];
+
+    const subjectItems = [
+        { label: 'Exams', icon: <GraduationCap size={16} /> },
+        { label: 'Arts and Humanities', icon: <Palette size={16} /> },
+        { label: 'Languages', icon: <Languages size={16} /> },
+        { label: 'Mathematics', icon: <Calculator size={16} /> },
+        { label: 'Science', icon: <FlaskConical size={16} /> },
+        { label: 'Others', icon: <Layout size={16} /> },
+    ];
+
+    const createItems = [
+        { label: 'Flashcard Set', icon: <BookOpen size={16} />, path: '/create/flashcards' },
+        { label: 'Folder', icon: <Folder size={16} />, path: '/create/folder' },
+        { label: 'Class', icon: <GraduationCap size={16} />, path: '/create/class' },
+    ];
+
+    const handleDropdownItemClick = (item) => {
+        if (item.path) {
+            navigate(item.path);
+        } else {
+            navigate(`/search?q=${encodeURIComponent(item.label)}`);
         }
     };
 
@@ -65,58 +72,40 @@ const Navbar = ({ isSidebarCollapsed, onToggleSidebar }) => {
                 <div className="navbar-left">
                     <div className="navbar-logo" onClick={() => navigate('/dashboard')}>Kuizu</div>
                     <div className="navbar-links">
-                        <div className="nav-dropdown">
-                            <span>Study Tools</span>
-                            <ChevronDown size={14} strokeWidth={3} />
-                        </div>
-                        <div className="nav-dropdown">
-                            <span>Subjects</span>
-                            <ChevronDown size={14} strokeWidth={3} />
-                        </div>
+                        <Dropdown
+                            label="Study Tools"
+                            items={studyToolsItems}
+                            onItemClick={handleDropdownItemClick}
+                            variant="nav"
+                        />
+                        <Dropdown
+                            label="Subjects"
+                            items={subjectItems}
+                            onItemClick={handleDropdownItemClick}
+                            variant="nav"
+                        />
                     </div>
                 </div>
 
                 <div className="navbar-center">
-                    <div className="search-wrapper">
-                        <Search size={18} className="search-icon" />
-                        <input
-                            type="text"
-                            placeholder="Search for classes..."
-                            className="nav-search-input"
-                            value={searchQuery}
-                            onChange={(e) => setSearchQuery(e.target.value)}
-                            onKeyDown={handleSearchKeyDown}
-                            onFocus={() => { if (searchResults.length > 0) setShowDropdown(true); }}
-                            onBlur={() => setTimeout(() => setShowDropdown(false), 200)}
-                        />
-                        {showDropdown && (
-                            <div className="search-dropdown">
-                                {isSearching ? (
-                                    <div className="search-dropdown-item search-dropdown-message">Searching...</div>
-                                ) : searchResults.length > 0 ? (
-                                    searchResults.map(cls => (
-                                        <div
-                                            key={cls.classId}
-                                            className="search-dropdown-item"
-                                            onClick={() => handleResultClick(cls.classId)}
-                                        >
-                                            <div className="search-item-title">{cls.className}</div>
-                                            <div className="search-item-owner">by {cls.ownerDisplayName}</div>
-                                        </div>
-                                    ))
-                                ) : (
-                                    <div className="search-dropdown-item search-dropdown-message">No classes found</div>
-                                )}
-                            </div>
-                        )}
-                    </div>
+                    <SearchBar
+                        onSearch={handleSearchInput}
+                        onResultClick={handleResultClick}
+                        onEnter={handleSearchEnter}
+                        placeholder="Search for classes..."
+                    />
                 </div>
 
                 <div className="navbar-right">
-                    <button className="create-btn" onClick={() => navigate('/create')}>
+                    <Dropdown
+                        items={createItems}
+                        onItemClick={handleDropdownItemClick}
+                        variant="create-pill"
+                        showChevron={false}
+                    >
                         <Plus size={20} strokeWidth={3} />
                         <span>Create</span>
-                    </button>
+                    </Dropdown>
                     {user ? (
                         <div className="nav-profile-section">
                             <img

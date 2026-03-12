@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Camera, ChevronDown, Plus, Pencil, User as UserIcon, Mail, ShieldCheck, Palette, Lock } from 'lucide-react';
 import './ProfilePage.css';
 import { updateProfile, changePassword } from '../api/user';
-import { Button, Card, Input, Modal } from '../components/ui';
+import { Button, Card, Input, Modal, Dropdown, Textarea } from '../components/ui';
 import MainLayout from '../components/layout';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
@@ -12,6 +12,7 @@ const ProfilePage = () => {
     const { user, checkAuth, loading: authLoading } = useAuth();
     const toast = useToast();
     const [loading, setLoading] = useState(false);
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
     const [error, setError] = useState(null);
     const [theme, setTheme] = useState(() => localStorage.getItem('theme') || 'Light');
@@ -35,15 +36,14 @@ const ProfilePage = () => {
 
     const handleUpdateAvatar = async (url) => {
         try {
-            setLoading(true);
+            setIsSubmitting(true);
             await updateProfile({ profilePictureUrl: url });
             await checkAuth(); // Sync global state
             toast.success('Avatar updated successfully');
         } catch (err) {
             toast.error('Failed to update avatar');
         } finally {
-
-            setLoading(false);
+            setIsSubmitting(false);
         }
     };
 
@@ -62,15 +62,14 @@ const ProfilePage = () => {
 
     const performUpdate = async (data) => {
         try {
-            setLoading(true);
+            setIsSubmitting(true);
             await updateProfile(data);
             await checkAuth(); // Sync global state
             toast.success('Profile updated successfully');
         } catch (err) {
             toast.error('Update failed');
         } finally {
-
-            setLoading(false);
+            setIsSubmitting(false);
         }
     };
 
@@ -97,7 +96,7 @@ const ProfilePage = () => {
         }
 
         try {
-            setLoading(true);
+            setIsSubmitting(true);
             await changePassword({
                 oldPassword: passwordData.oldPassword,
                 newPassword: passwordData.newPassword
@@ -108,7 +107,7 @@ const ProfilePage = () => {
         } catch (err) {
             toast.error(err.response?.data?.message || 'Failed to change password');
         } finally {
-            setLoading(false);
+            setIsSubmitting(false);
         }
     };
 
@@ -119,6 +118,17 @@ const ProfilePage = () => {
         // Sync theme to backend preferences
         performUpdate({ preferences: JSON.stringify({ theme: newTheme }) });
     };
+
+    const timezoneOptions = [
+        { label: 'UTC (GMT+0)', value: 'UTC' },
+        { label: 'Vietnam (GMT+7)', value: 'Asia/Ho_Chi_Minh' },
+        { label: 'Japan (GMT+9)', value: 'Asia/Tokyo' },
+        { label: 'Singapore (GMT+8)', value: 'Asia/Singapore' },
+        { label: 'London (GMT+0/1)', value: 'Europe/London' },
+        { label: 'Paris (GMT+1/2)', value: 'Europe/Paris' },
+        { label: 'New York (GMT-5/4)', value: 'America/New_York' },
+        { label: 'Los Angeles (GMT-8/7)', value: 'America/Los_Angeles' },
+    ];
 
     const avatars = [
         'https://api.dicebear.com/7.x/avataaars/svg?seed=Felix',
@@ -149,11 +159,11 @@ const ProfilePage = () => {
 
                     <div className="profile-section">
                         <span className="section-label">Personal Information</span>
-                        <Card className="settings-card">
+                        <Card>
                             {/* Profile Picture */}
                             <div className="settings-group">
                                 <h3 className="group-title">Profile Picture</h3>
-                                <div className="avatar-selection">
+                                <div className={`avatar-selection ${isSubmitting ? 'submitting' : ''}`}>
                                     <img
                                         src={user?.profilePictureUrl || avatars[0]}
                                         alt="Profile"
@@ -165,7 +175,7 @@ const ProfilePage = () => {
                                             src={url}
                                             alt={`Option ${index}`}
                                             className={`avatar-option ${user?.profilePictureUrl === url ? 'selected' : ''}`}
-                                            onClick={() => handleUpdateAvatar(url)}
+                                            onClick={() => !isSubmitting && handleUpdateAvatar(url)}
                                         />
                                     ))}
                                     <div className="avatar-add">
@@ -181,7 +191,7 @@ const ProfilePage = () => {
                                         <h4>Display Name</h4>
                                         <p>{user?.displayName || 'Set your display name'}</p>
                                     </div>
-                                    <button className="edit-btn" onClick={() => handleEditField('displayName')}>Edit</button>
+                                    <Button variant="ghost" size="sm" onClick={() => handleEditField('displayName')}>Edit</Button>
                                 </div>
                             </div>
 
@@ -192,7 +202,7 @@ const ProfilePage = () => {
                                         <h4>Bio</h4>
                                         <p className="bio-text">{user?.bio || 'Add a bio to your profile'}</p>
                                     </div>
-                                    <button className="edit-btn" onClick={() => handleEditField('bio')}>Edit</button>
+                                    <Button variant="ghost" size="sm" onClick={() => handleEditField('bio')}>Edit</Button>
                                 </div>
                             </div>
 
@@ -236,21 +246,13 @@ const ProfilePage = () => {
                                         <h4>Timezone</h4>
                                         <p>Your current time zone settings</p>
                                     </div>
-                                    <select
-                                        className="timezone-select"
-                                        value={user?.timezone || 'UTC'}
-                                        onChange={(e) => performUpdate({ timezone: e.target.value })}
-                                        disabled={loading}
-                                    >
-                                        <option value="UTC">UTC (GMT+0)</option>
-                                        <option value="Asia/Ho_Chi_Minh">Vietnam (GMT+7)</option>
-                                        <option value="Asia/Tokyo">Japan (GMT+9)</option>
-                                        <option value="Asia/Singapore">Singapore (GMT+8)</option>
-                                        <option value="Europe/London">London (GMT+0/1)</option>
-                                        <option value="Europe/Paris">Paris (GMT+1/2)</option>
-                                        <option value="America/New_York">New York (GMT-5/4)</option>
-                                        <option value="America/Los_Angeles">Los Angeles (GMT-8/7)</option>
-                                    </select>
+                                    <Dropdown
+                                        variant="select"
+                                        label={timezoneOptions.find(opt => opt.value === (user?.timezone || 'UTC'))?.label || 'UTC (GMT+0)'}
+                                        items={timezoneOptions}
+                                        onItemClick={(item) => performUpdate({ timezone: item.value })}
+                                        className="timezone-dropdown"
+                                    />
                                 </div>
                             </div>
 
@@ -271,9 +273,9 @@ const ProfilePage = () => {
                                 <div className="field-row">
                                     <div className="field-info">
                                         <h4>Account Status</h4>
-                                        <p style={{ color: user?.status === 'ACTIVE' ? 'var(--primary)' : 'var(--error)' }}>
-                                            {user?.status || 'Unknown'}
-                                        </p>
+                                    </div>
+                                    <div className={`account-status-badge ${user?.status?.toLowerCase() || 'unknown'}`}>
+                                        {user?.status || 'Unknown'}
                                     </div>
                                 </div>
                             </div>
@@ -338,15 +340,14 @@ const ProfilePage = () => {
                         title={`Edit ${fieldLabels[editingField]}`}
                         footer={
                             <>
-                                <Button variant="ghost" onClick={() => setIsEditModalOpen(false)}>Cancel</Button>
-                                <Button variant="primary" onClick={handleEditSubmit}>Save Changes</Button>
+                                <Button variant="ghost" onClick={() => setIsEditModalOpen(false)} disabled={isSubmitting}>Cancel</Button>
+                                <Button variant="primary" onClick={handleEditSubmit} isLoading={isSubmitting}>Save Changes</Button>
                             </>
                         }
                     >
                         <div className="edit-modal-content">
                             {editingField === 'bio' ? (
-                                <textarea
-                                    className="edit-textarea"
+                                <Textarea
                                     value={editValue}
                                     onChange={(e) => setEditValue(e.target.value)}
                                     placeholder={`Enter your ${fieldLabels[editingField]}`}
@@ -370,39 +371,35 @@ const ProfilePage = () => {
                         title="Change Password"
                         footer={
                             <>
-                                <Button variant="ghost" onClick={() => setIsPasswordModalOpen(false)}>Cancel</Button>
-                                <Button variant="primary" onClick={handlePasswordSubmit}>Update Password</Button>
+                                <Button variant="ghost" onClick={() => setIsPasswordModalOpen(false)} disabled={isSubmitting}>Cancel</Button>
+                                <Button variant="primary" onClick={handlePasswordSubmit} isLoading={isSubmitting}>Update Password</Button>
                             </>
                         }
                     >
                         <div className="edit-modal-content">
-                            <div className="password-input-group">
-                                <label className="input-label">Current Password</label>
-                                <Input
-                                    type="password"
-                                    value={passwordData.oldPassword}
-                                    onChange={(e) => setPasswordData({ ...passwordData, oldPassword: e.target.value })}
-                                    placeholder="Enter current password"
-                                />
-                            </div>
-                            <div className="password-input-group" style={{ marginTop: '16px' }}>
-                                <label className="input-label">New Password</label>
-                                <Input
-                                    type="password"
-                                    value={passwordData.newPassword}
-                                    onChange={(e) => setPasswordData({ ...passwordData, newPassword: e.target.value })}
-                                    placeholder="Enter new password (min 8 chars, 1 upper, 1 lower, 1 special)"
-                                />
-                            </div>
-                            <div className="password-input-group" style={{ marginTop: '16px' }}>
-                                <label className="input-label">Confirm New Password</label>
-                                <Input
-                                    type="password"
-                                    value={passwordData.confirmPassword}
-                                    onChange={(e) => setPasswordData({ ...passwordData, confirmPassword: e.target.value })}
-                                    placeholder="Confirm new password"
-                                />
-                            </div>
+                            <Input
+                                label="Current Password"
+                                type="password"
+                                value={passwordData.oldPassword}
+                                onChange={(e) => setPasswordData({ ...passwordData, oldPassword: e.target.value })}
+                                placeholder="Enter current password"
+                            />
+                            <Input
+                                style={{ marginTop: '16px' }}
+                                label="New Password"
+                                type="password"
+                                value={passwordData.newPassword}
+                                onChange={(e) => setPasswordData({ ...passwordData, newPassword: e.target.value })}
+                                placeholder="Enter new password (min 8 chars, 1 upper, 1 lower, 1 special)"
+                            />
+                            <Input
+                                style={{ marginTop: '16px' }}
+                                label="Confirm New Password"
+                                type="password"
+                                value={passwordData.confirmPassword}
+                                onChange={(e) => setPasswordData({ ...passwordData, confirmPassword: e.target.value })}
+                                placeholder="Confirm new password"
+                            />
                         </div>
                     </Modal>
                 </div>

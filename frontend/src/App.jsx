@@ -7,6 +7,7 @@ import DashboardPage from './pages/DashboardPage/DashboardPage';
 import AdminDashboard from './pages/Admin/AdminDashboard';
 import ClassDetailPage from './pages/ClassDetailPage/ClassDetailPage';
 import SearchPage from './pages/SearchPage/SearchPage';
+import ComingSoonPage from './pages/ComingSoonPage';
 
 import MainLayout from './components/layout';
 
@@ -98,6 +99,9 @@ function App() {
             </ProtectedRoute>
           </MainLayout>
         } />
+
+        {/* Catch-all route for missing pages */}
+        <Route path="*" element={<ComingSoonPage />} />
       </Routes>
     </Router>
   );

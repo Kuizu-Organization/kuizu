@@ -40,13 +40,8 @@ const Sidebar = ({ isCollapsed, onToggle, activePath = '/dashboard' }) => {
     ];
 
     const handleNavigation = (path, label) => {
-        // Special check for dynamic class route
-        if (implementedRoutes.includes(path) || path.startsWith('/classes/')) {
-            navigate(path);
-        } else {
-            setCurrentFeature(label);
-            setIsComingSoonOpen(true);
-        }
+        // If the path is not implemented, our catch-all route will handle it
+        navigate(path);
     };
 
     const mainLinks = [
@@ -125,12 +120,6 @@ const Sidebar = ({ isCollapsed, onToggle, activePath = '/dashboard' }) => {
                     {!isCollapsed && <span>Collapse</span>}
                 </button>
             </div>
-
-            <ComingSoonModal
-                isOpen={isComingSoonOpen}
-                onClose={() => setIsComingSoonOpen(false)}
-                featureName={currentFeature}
-            />
         </aside>
     );
 };

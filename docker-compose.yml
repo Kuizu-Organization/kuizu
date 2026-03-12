@@ -1,41 +1,40 @@
 services:
   backend:
-    image: eclipse-temurin:17-jdk
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
     container_name: spring-backend
-    working_dir: /app
-
     ports:
       - "8080:8080"
-
-    volumes:
-      - ./backend:/app
-      - maven-cache:/root/.m2
-
-    command: ./mvnw spring-boot:run
-
-    environment:
-      SPRING_PROFILES_ACTIVE: dev
+    develop:
+      watch:
+        - path: ./backend/src
+          action: sync
+          target: /app/src
+        - path: ./backend/pom.xml
+          action: rebuild
+        - path: ./backend/.mvn
+          action: rebuild
+        - path: ./backend/mvnw
+          action: rebuild
 
   frontend:
-    image: node:20-alpine
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
     container_name: react-frontend
-    working_dir: /app
-
     ports:
       - "5173:5173"
-
-    volumes:
-      - ./frontend:/app
-      - node-modules:/app/node_modules
-
-    command: sh -c "npm install && npm run dev"
-
-    environment:
-      CHOKIDAR_USEPOLLING: "true"
-
+    develop:
+      watch:
+        - path: ./frontend/src
+          action: sync
+          target: /app/src
+          ignore:
+            - node_modules/
+        - path: ./frontend/package.json
+          action: rebuild
+        - path: ./frontend/vite.config.js
+          action: rebuild
     depends_on:
       - backend
-
-volumes:
-  maven-cache:
-  node-modules:

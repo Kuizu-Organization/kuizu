@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Modal, Button, Input } from '../ui';
+import { Modal, Button, Input, Textarea } from '../ui';
 import { joinClass } from '../../api/class';
 import { useToast } from '../../context/ToastContext';
 import './JoinClassModal.css';
@@ -96,28 +96,25 @@ const JoinClassModal = ({ isOpen, onClose, classId, onJoinSuccess }) => {
 
                 <div className="join-form-area">
                     {joinOption === 'code' ? (
-                        <div className="form-group slide-in">
-                            <label>Class Code</label>
-                            <Input
-                                placeholder="Enter join code (e.g. jf8h3k)"
-                                value={joinCode}
-                                onChange={(e) => setJoinCode(e.target.value)}
-                                autoFocus
-                            />
-                        </div>
+                        <Input
+                            className="slide-in"
+                            label="Class Code"
+                            placeholder="Enter join code (e.g. jf8h3k)"
+                            value={joinCode}
+                            onChange={(e) => setJoinCode(e.target.value)}
+                            autoFocus
+                        />
                     ) : (
-                        <div className="form-group slide-in">
-                            <label>Request Message</label>
-                            <textarea
-                                className="request-textarea"
-                                placeholder="Hi, I'd like to join this class..."
-                                value={requestMessage}
-                                onChange={(e) => setRequestMessage(e.target.value)}
-                                rows={4}
-                                autoFocus
-                            ></textarea>
-                            <p className="help-text">This message will be sent to the class owner.</p>
-                        </div>
+                        <Textarea
+                            className="slide-in"
+                            label="Request Message"
+                            placeholder="Hi, I'd like to join this class..."
+                            value={requestMessage}
+                            onChange={(e) => setRequestMessage(e.target.value)}
+                            rows={4}
+                            autoFocus
+                            helpText="This message will be sent to the class owner."
+                        />
                     )}
                 </div>
             </div>

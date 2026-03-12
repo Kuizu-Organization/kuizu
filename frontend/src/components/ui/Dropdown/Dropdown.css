@@ -1,0 +1,199 @@
+.dropdown-container {
+    position: relative;
+    display: inline-block;
+}
+
+.dropdown-container.w-full {
+    display: block;
+    width: 100%;
+}
+
+.dropdown-trigger {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    user-select: none;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Navbar Variant */
+.dropdown-trigger.nav {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text-dark);
+    padding: 8px 12px;
+    border-radius: 8px;
+}
+
+.dropdown-trigger.nav:hover,
+.dropdown-trigger.nav.active {
+    background-color: var(--input-bg);
+    color: var(--primary);
+}
+
+/* Create Pill Variant (Navbar right) */
+.dropdown-trigger.create-pill {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    background: transparent;
+    color: var(--primary);
+    font-weight: 700;
+    font-size: 15px;
+    padding: 10px 16px;
+    border-radius: 50px;
+}
+
+.dropdown-trigger.create-pill:hover,
+.dropdown-trigger.create-pill.active {
+    background-color: rgba(66, 85, 255, 0.08);
+}
+
+/* Field/Select Variant (Profile style) */
+.dropdown-trigger.field,
+.dropdown-trigger.select {
+    background: var(--input-bg);
+    height: 48px;
+    padding: 0 20px;
+    border-radius: 12px;
+    border: 2px solid transparent;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-dark);
+    min-width: 180px;
+    justify-content: space-between;
+}
+
+.dropdown-trigger.field:hover,
+.dropdown-trigger.field.active,
+.dropdown-trigger.select:hover,
+.dropdown-trigger.select.active {
+    background: var(--white);
+    border-color: var(--primary);
+    box-shadow: 0 0 0 4px rgba(66, 85, 255, 0.1);
+}
+
+.dropdown-container.w-full .dropdown-trigger {
+    width: 100%;
+}
+
+.dropdown-label {
+    flex: 1;
+    text-align: left;
+}
+
+.dropdown-chevron {
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    color: var(--text-light);
+}
+
+.dropdown-trigger:hover .dropdown-chevron,
+.dropdown-trigger.active .dropdown-chevron {
+    color: var(--primary);
+}
+
+.dropdown-chevron.rotate {
+    transform: rotate(180deg);
+}
+
+.dropdown-menu {
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 0;
+    min-width: 220px;
+    background-color: var(--white);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.12);
+    overflow: hidden;
+    z-index: 2000;
+    padding: 6px;
+    animation: dropdownSlideIn 0.2s ease-out;
+}
+
+@keyframes dropdownSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.dropdown-item {
+    padding: 10px 14px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+    border-radius: 8px;
+    transition: all 0.2s;
+    color: var(--text-dark);
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.dropdown-item:hover {
+    background-color: var(--input-bg);
+    color: var(--primary);
+}
+
+.item-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-light);
+    width: 20px;
+}
+
+.dropdown-item:hover .item-icon {
+    color: var(--primary);
+}
+
+.item-label {
+    flex: 1;
+}
+
+.dropdown-field-container {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.dropdown-form-label {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--text-light);
+    margin-bottom: 4px;
+}
+
+.has-error {
+    border-color: var(--error) !important;
+    background-color: #fffaf9 !important;
+}
+
+.has-error.active {
+    box-shadow: 0 0 0 4px rgba(255, 114, 94, 0.1) !important;
+}
+
+.dropdown-error {
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: var(--error);
+    margin-top: 4px;
+}
+
+.dropdown-help-text {
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: var(--text-light);
+    margin-top: 4px;
+}
