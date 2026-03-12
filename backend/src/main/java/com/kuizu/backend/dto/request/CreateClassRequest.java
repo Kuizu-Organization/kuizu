@@ -5,6 +5,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import com.kuizu.backend.entity.enumeration.Visibility;
+
 @Data
 @Builder
 @NoArgsConstructor
@@ -12,5 +14,5 @@ import lombok.NoArgsConstructor;
 public class CreateClassRequest {
     private String className;
     private String description;
-    private String visibility;
+    private Visibility visibility;
 }

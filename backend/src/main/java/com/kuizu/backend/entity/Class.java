@@ -1,5 +1,8 @@
 package com.kuizu.backend.entity;
 
+import com.kuizu.backend.entity.enumeration.Visibility;
+import com.kuizu.backend.entity.enumeration.ModerationStatus;
+
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -36,11 +39,13 @@ public class Class {
     @Column(name = "join_code", length = 50)
     private String joinCode;
 
+    @Enumerated(EnumType.STRING)
     @Column(length = 20)
-    private String visibility;
+    private Visibility visibility;
 
+    @Enumerated(EnumType.STRING)
     @Column(length = 20)
-    private String status;
+    private ModerationStatus status;
 
     @Column(name = "submitted_at")
     private LocalDateTime submittedAt;
@@ -50,6 +55,12 @@ public class Class {
 
     @Column(name = "moderated_at")
     private LocalDateTime moderatedAt;
+
+    @Column(name = "moderation_notes", columnDefinition = "TEXT")
+    private String moderationNotes;
+
+    @Column(name = "submitted_by", length = 36)
+    private String submittedBy;
 
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)

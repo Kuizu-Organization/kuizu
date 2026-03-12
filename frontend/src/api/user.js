@@ -24,3 +24,8 @@ export const updateUserStatus = async (userId, status) => {
   const response = await api.patch(`/users/${userId}/status?status=${status}`);
   return response.data;
 };
+
+export const updateUserRole = async (userId, role) => {
+  const response = await api.patch(`/users/${userId}/role?role=${role}`);
+  return response.data;
+};

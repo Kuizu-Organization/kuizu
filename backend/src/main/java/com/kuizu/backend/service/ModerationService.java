@@ -1,18 +1,27 @@
 package com.kuizu.backend.service;
 
+import com.kuizu.backend.dto.request.ModerationRequest;
 import com.kuizu.backend.dto.response.ClassSubmissionResponse;
+import com.kuizu.backend.dto.response.FlashcardResponse;
 import com.kuizu.backend.dto.response.FlashcardSetSubmissionResponse;
 import com.kuizu.backend.dto.response.ModerationHistoryResponse;
+import com.kuizu.backend.entity.*;
 import com.kuizu.backend.entity.Class;
-import com.kuizu.backend.entity.FlashcardSet;
-import com.kuizu.backend.entity.ModerationHistory;
+import com.kuizu.backend.entity.Class;
+import com.kuizu.backend.entity.enumeration.ModerationStatus;
 import com.kuizu.backend.repository.ClassRepository;
+import com.kuizu.backend.repository.FlashcardRepository;
 import com.kuizu.backend.repository.FlashcardSetRepository;
 import com.kuizu.backend.repository.ModerationHistoryRepository;
+import com.kuizu.backend.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -22,24 +31,39 @@ public class ModerationService {
     private final FlashcardSetRepository flashcardSetRepository;
     private final ClassRepository classRepository;
     private final ModerationHistoryRepository moderationHistoryRepository;
+    private final UserRepository userRepository;
+    private final FlashcardRepository flashcardRepository;
 
     @Autowired
     public ModerationService(FlashcardSetRepository flashcardSetRepository,
             ClassRepository classRepository,
-            ModerationHistoryRepository moderationHistoryRepository) {
+            ModerationHistoryRepository moderationHistoryRepository,
+            UserRepository userRepository,
+            FlashcardRepository flashcardRepository) {
         this.flashcardSetRepository = flashcardSetRepository;
         this.classRepository = classRepository;
         this.moderationHistoryRepository = moderationHistoryRepository;
+        this.userRepository = userRepository;
+        this.flashcardRepository = flashcardRepository;
     }
 
     public List<FlashcardSetSubmissionResponse> getPendingFlashcardSets() {
-        return flashcardSetRepository.findByStatusAndIsDeletedFalse("PENDING").stream()
+        return flashcardSetRepository.findByStatusAndIsDeletedFalse(ModerationStatus.PENDING).stream()
                 .map(this::mapToFlashcardSetSubmissionResponse)
                 .collect(Collectors.toList());
     }
 
+    private FlashcardResponse mapToFlashcardResponse(Flashcard card) {
+        return FlashcardResponse.builder()
+                .cardId(card.getCardId())
+                .term(card.getTerm())
+                .definition(card.getDefinition())
+                .orderIndex(card.getOrderIndex())
+                .build();
+    }
+
     public List<ClassSubmissionResponse> getPendingClasses() {
-        return classRepository.findByStatus("PENDING").stream()
+        return classRepository.findByStatus(ModerationStatus.PENDING).stream()
                 .map(this::mapToClassSubmissionResponse)
                 .collect(Collectors.toList());
     }
@@ -50,7 +74,80 @@ public class ModerationService {
                 .collect(Collectors.toList());
     }
 
+    @Transactional
+    public void approveFlashcardSet(Long setId, ModerationRequest request) {
+        FlashcardSet set = flashcardSetRepository.findById(setId)
+                .orElseThrow(() -> new RuntimeException("Flashcard set not found"));
+        User moderator = getCurrentUser();
+        set.setStatus(ModerationStatus.APPROVED);
+        set.setModeratedBy(moderator.getUserId());
+        set.setModeratedAt(LocalDateTime.now());
+        set.setModerationNotes(request.getNotes());
+        flashcardSetRepository.save(set);
+        logModerationAction(moderator, "SET", setId, "APPROVE", request.getNotes());
+    }
+
+    @Transactional
+    public void rejectFlashcardSet(Long setId, ModerationRequest request) {
+        FlashcardSet set = flashcardSetRepository.findById(setId)
+                .orElseThrow(() -> new RuntimeException("Flashcard set not found"));
+        User moderator = getCurrentUser();
+        set.setStatus(ModerationStatus.REJECTED);
+        set.setModeratedBy(moderator.getUserId());
+        set.setModeratedAt(LocalDateTime.now());
+        set.setModerationNotes(request.getNotes());
+        flashcardSetRepository.save(set);
+        logModerationAction(moderator, "SET", setId, "REJECT", request.getNotes());
+    }
+
+    @Transactional
+    public void approveClass(Long classId, ModerationRequest request) {
+        Class cls = classRepository.findById(classId)
+                .orElseThrow(() -> new RuntimeException("Class not found"));
+        User moderator = getCurrentUser();
+        cls.setStatus(ModerationStatus.ACTIVE);
+        cls.setModeratedBy(moderator.getUserId());
+        cls.setModeratedAt(LocalDateTime.now());
+        cls.setModerationNotes(request.getNotes());
+        classRepository.save(cls);
+        logModerationAction(moderator, "CLASS", classId, "APPROVE", request.getNotes());
+    }
+
+    @Transactional
+    public void rejectClass(Long classId, ModerationRequest request) {
+        Class cls = classRepository.findById(classId)
+                .orElseThrow(() -> new RuntimeException("Class not found"));
+        User moderator = getCurrentUser();
+        cls.setStatus(ModerationStatus.REJECTED);
+        cls.setModeratedBy(moderator.getUserId());
+        cls.setModeratedAt(LocalDateTime.now());
+        cls.setModerationNotes(request.getNotes());
+        classRepository.save(cls);
+        logModerationAction(moderator, "CLASS", classId, "REJECT", request.getNotes());
+    }
+
+    private User getCurrentUser() {
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        return userRepository.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+    }
+
+    private void logModerationAction(User moderator, String entityType, Long entityId, String action, String notes) {
+        ModerationHistory history = ModerationHistory.builder()
+                .moderator(moderator)
+                .entityType(entityType)
+                .entityId(entityId)
+                .action(action)
+                .notes(notes)
+                .build();
+        moderationHistoryRepository.save(history);
+    }
+
     private FlashcardSetSubmissionResponse mapToFlashcardSetSubmissionResponse(FlashcardSet set) {
+        List<FlashcardResponse> flashcards = flashcardRepository.findByFlashcardSetAndIsDeletedFalseOrderByOrderIndexAsc(set).stream()
+                .map(this::mapToFlashcardResponse)
+                .collect(Collectors.toList());
+
         return FlashcardSetSubmissionResponse.builder()
                 .setId(set.getSetId())
                 .ownerUsername(set.getOwner() != null ? set.getOwner().getUsername() : null)
@@ -59,6 +156,7 @@ public class ModerationService {
                 .description(set.getDescription())
                 .visibility(set.getVisibility())
                 .submittedAt(set.getSubmittedAt())
+                .flashcards(flashcards)
                 .build();
     }
 

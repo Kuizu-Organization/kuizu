@@ -5,14 +5,10 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import com.kuizu.backend.entity.enumeration.Visibility;
-
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class UpdateClassRequest {
-    private String className;
-    private String description;
-    private Visibility visibility;
+public class ModerationRequest {
+    private String notes;
 }

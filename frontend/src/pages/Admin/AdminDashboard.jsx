@@ -1,7 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { getAllUsers, updateUserStatus } from '../../api/user';
-import { getPendingFlashcardSets, getPendingClasses, getModerationHistory } from '../../api/moderation';
+import { getAllUsers, updateUserStatus, updateUserRole } from '../../api/user';
+import { 
+    getPendingFlashcardSets, 
+    getPendingClasses, 
+    getModerationHistory,
+    approveFlashcardSet,
+    rejectFlashcardSet,
+    approveClass,
+    rejectClass
+} from '../../api/moderation';
 import { Button, Card, Loader, Badge, Modal, Tabs } from '../../components/ui';
 import { useToast } from '../../context/ToastContext';
 import {
@@ -18,7 +26,12 @@ import {
     History as HistoryIcon,
     FileCheck,
     BarChart3,
-    Activity
+    Activity,
+    CheckCircle,
+    XCircle,
+    MessageSquare,
+    Eye,
+    Shield
 } from 'lucide-react';
 import './AdminDashboard.css';
 
@@ -51,8 +64,16 @@ const AdminDashboard = () => {
     // -- SUBMISSIONS STATE --
     const [pendingSets, setPendingSets] = useState([]);
     const [isSetsLoading, setIsSetsLoading] = useState(false);
+    const [selectedSet, setSelectedSet] = useState(null);
+    const [isSetModalOpen, setIsSetModalOpen] = useState(false);
+    
     const [pendingClasses, setPendingClasses] = useState([]);
     const [isClassesLoading, setIsClassesLoading] = useState(false);
+    const [selectedClass, setSelectedClass] = useState(null);
+    const [isClassModalOpen, setIsClassModalOpen] = useState(false);
+
+    const [moderationNotes, setModerationNotes] = useState('');
+    const [isProcessingModeration, setIsProcessingModeration] = useState(false);
 
     // -- HISTORY STATE --
     const [modHistory, setModHistory] = useState([]);
@@ -115,6 +136,29 @@ const AdminDashboard = () => {
         }
     };
 
+    const handleModeration = async (entityType, entityId, action) => {
+        try {
+            setIsProcessingModeration(true);
+            if (entityType === 'SET') {
+                if (action === 'APPROVE') await approveFlashcardSet(entityId, moderationNotes);
+                else await rejectFlashcardSet(entityId, moderationNotes);
+                setPendingSets(prev => prev.filter(s => s.setId !== entityId));
+                setIsSetModalOpen(false);
+            } else if (entityType === 'CLASS') {
+                if (action === 'APPROVE') await approveClass(entityId, moderationNotes);
+                else await rejectClass(entityId, moderationNotes);
+                setPendingClasses(prev => prev.filter(c => c.classId !== entityId));
+                setIsClassModalOpen(false);
+            }
+            toast.success(`${entityType === 'SET' ? 'Flashcard set' : 'Class'} ${action === 'APPROVE' ? 'approved' : 'rejected'} successfully`);
+            setModerationNotes('');
+        } catch (error) {
+            toast.error(`Failed to ${action.toLowerCase()} ${entityType.toLowerCase()}`);
+        } finally {
+            setIsProcessingModeration(false);
+        }
+    };
+
     const handleUserStatusUpdate = async (userId, currentStatus) => {
         const newStatus = currentStatus === 'SUSPENDED' ? 'ACTIVE' : 'SUSPENDED';
         try {
@@ -125,6 +169,20 @@ const AdminDashboard = () => {
             toast.success(`User ${updatedUser.status === 'SUSPENDED' ? 'suspended' : 'activated'} successfully`);
         } catch (error) {
             toast.error("Failed to update user status");
+        } finally {
+            setIsUpdatingUser(null);
+        }
+    };
+
+    const handleUserRoleUpdate = async (userId, newRole) => {
+        try {
+            setIsUpdatingUser(userId);
+            const updatedUser = await updateUserRole(userId, newRole);
+            setUsers(prev => prev.map(u => u.userId === userId ? updatedUser : u));
+            if (selectedUser?.userId === userId) setSelectedUser(updatedUser);
+            toast.success(`User role updated to ${newRole.replace('ROLE_', '')} successfully`);
+        } catch (error) {
+            toast.error("Failed to update user role");
         } finally {
             setIsUpdatingUser(null);
         }
@@ -264,7 +322,16 @@ const AdminDashboard = () => {
                                                 <td>{set.ownerDisplayName} (@{set.ownerUsername})</td>
                                                 <td><Badge variant="outline">{set.visibility}</Badge></td>
                                                 <td>{formatDate(set.submittedAt)}</td>
-                                                <td><Button variant="ghost" size="sm">View Set</Button></td>
+                                                <td>
+                                                    <Button 
+                                                        variant="ghost" 
+                                                        size="sm" 
+                                                        onClick={() => { setSelectedSet(set); setIsSetModalOpen(true); }}
+                                                        className="flex items-center gap-1"
+                                                    >
+                                                        <Eye size={14} /> View
+                                                    </Button>
+                                                </td>
                                             </tr>
                                         )) : (
                                             <tr><td colSpan="5" className="text-center py-10 text-slate-400">No pending flashcard sets found.</td></tr>
@@ -309,7 +376,16 @@ const AdminDashboard = () => {
                                                 <td>{cls.ownerDisplayName || 'N/A'}</td>
                                                 <td><code>{cls.joinCode}</code></td>
                                                 <td>{formatDate(cls.submittedAt)}</td>
-                                                <td><Button variant="ghost" size="sm">View Class</Button></td>
+                                                <td>
+                                                    <Button 
+                                                        variant="ghost" 
+                                                        size="sm" 
+                                                        onClick={() => { setSelectedClass(cls); setIsClassModalOpen(true); }}
+                                                        className="flex items-center gap-1"
+                                                    >
+                                                        <Eye size={14} /> View
+                                                    </Button>
+                                                </td>
                                             </tr>
                                         )) : (
                                             <tr><td colSpan="5" className="text-center py-10 text-slate-400">No pending classes found.</td></tr>
@@ -450,7 +526,22 @@ const AdminDashboard = () => {
                         </div>
                         <div className="detail-modal-grid">
                             <div className="detail-item"><label>Email</label><span>{selectedUser.email}</span></div>
-                            <div className="detail-item"><label>Role</label><span>{selectedUser.role.replace('ROLE_', '')}</span></div>
+                            <div className="detail-item">
+                                <label><Shield size={14} /> Role Management</label>
+                                <div className="role-updater-flex">
+                                    <select 
+                                        className="role-select"
+                                        value={selectedUser.role}
+                                        onChange={(e) => handleUserRoleUpdate(selectedUser.userId, e.target.value)}
+                                        disabled={isUpdatingUser === selectedUser.userId}
+                                    >
+                                        <option value="ROLE_STUDENT">Student</option>
+                                        <option value="ROLE_TEACHER">Teacher</option>
+                                        <option value="ROLE_ADMIN">Administrator</option>
+                                    </select>
+                                    {isUpdatingUser === selectedUser.userId && <Loader size="xs" />}
+                                </div>
+                            </div>
                             <div className="detail-item"><label><Calendar size={14} /> Created</label><span>{formatDate(selectedUser.createdAt)}</span></div>
                             <div className="detail-item"><label><Clock size={14} /> Last Login</label><span>{formatDate(selectedUser.lastLoginAt)}</span></div>
                         </div>
@@ -467,6 +558,125 @@ const AdminDashboard = () => {
                                 </Button>
                             )}
                             <Button variant="outline" onClick={() => setIsUserModalOpen(false)} className="w-full">Close</Button>
+                        </div>
+                    </div>
+                )}
+            </Modal>
+
+            {/* Flashcard Set Review Modal */}
+            <Modal isOpen={isSetModalOpen} onClose={() => setIsSetModalOpen(false)} title="Flashcard Set Review" size="lg">
+                {selectedSet && (
+                    <div className="moderation-modal-content">
+                        <div className="moderation-modal-header">
+                            <h3>{selectedSet.title}</h3>
+                            <div className="meta-row">
+                                <Badge variant="outline">{selectedSet.visibility}</Badge>
+                                <span className="meta-text">By {selectedSet.ownerDisplayName} (@{selectedSet.ownerUsername})</span>
+                                <span className="meta-text text-sm"><Clock size={12} /> {formatDate(selectedSet.submittedAt)}</span>
+                            </div>
+                        </div>
+
+                        <div className="moderation-details-section">
+                            <label className="section-label">Description</label>
+                            <p className="description-text">{selectedSet.description || 'No description provided.'}</p>
+                        </div>
+
+                        <div className="moderation-content-section">
+                            <label className="section-label">Flashcards ({selectedSet.flashcards?.length || 0})</label>
+                            <div className="flashcard-preview-list">
+                                {selectedSet.flashcards && selectedSet.flashcards.length > 0 ? (
+                                    selectedSet.flashcards.map((card, idx) => (
+                                        <div key={card.cardId || idx} className="flashcard-preview-item">
+                                            <div className="card-term"><strong>Term:</strong> {card.term}</div>
+                                            <div className="card-definition"><strong>Definition:</strong> {card.definition}</div>
+                                        </div>
+                                    ))
+                                ) : (
+                                    <p className="text-slate-400 italic">This set has no cards.</p>
+                                )}
+                            </div>
+                        </div>
+
+                        <div className="moderation-actions-section">
+                            <div className="notes-field">
+                                <label><MessageSquare size={14} /> Moderation Notes (Optional)</label>
+                                <textarea 
+                                    placeholder="Reason for approval or rejection..."
+                                    value={moderationNotes}
+                                    onChange={(e) => setModerationNotes(e.target.value)}
+                                />
+                            </div>
+                            <div className="actions-flex">
+                                <Button 
+                                    variant="success" 
+                                    className="flex-1"
+                                    onClick={() => handleModeration('SET', selectedSet.setId, 'APPROVE')}
+                                    disabled={isProcessingModeration}
+                                >
+                                    {isProcessingModeration ? <Loader size="xs" /> : <><CheckCircle size={18} /> Approve</>}
+                                </Button>
+                                <Button 
+                                    variant="error" 
+                                    className="flex-1"
+                                    onClick={() => handleModeration('SET', selectedSet.setId, 'REJECT')}
+                                    disabled={isProcessingModeration}
+                                >
+                                    {isProcessingModeration ? <Loader size="xs" /> : <><XCircle size={18} /> Reject</>}
+                                </Button>
+                            </div>
+                            <Button variant="outline" className="w-full mt-2" onClick={() => setIsSetModalOpen(false)}>Cancel</Button>
+                        </div>
+                    </div>
+                )}
+            </Modal>
+
+            {/* Class Review Modal */}
+            <Modal isOpen={isClassModalOpen} onClose={() => setIsClassModalOpen(false)} title="Class Review" size="md">
+                {selectedClass && (
+                    <div className="moderation-modal-content">
+                        <div className="moderation-modal-header">
+                            <h3>{selectedClass.className}</h3>
+                            <div className="meta-row">
+                                <Badge variant="outline">{selectedClass.visibility}</Badge>
+                                <span className="meta-text">By {selectedClass.ownerDisplayName} (@{selectedClass.ownerUsername})</span>
+                            </div>
+                        </div>
+
+                        <div className="moderation-details-section">
+                            <div className="detail-item"><label>Join Code</label><code>{selectedClass.joinCode}</code></div>
+                            <div className="detail-item"><label>Submitted</label><span>{formatDate(selectedClass.submittedAt)}</span></div>
+                            <label className="section-label mt-4">Description</label>
+                            <p className="description-text">{selectedClass.description || 'No description provided.'}</p>
+                        </div>
+
+                        <div className="moderation-actions-section">
+                            <div className="notes-field">
+                                <label><MessageSquare size={14} /> Moderation Notes (Optional)</label>
+                                <textarea 
+                                    placeholder="Reason for approval or rejection..."
+                                    value={moderationNotes}
+                                    onChange={(e) => setModerationNotes(e.target.value)}
+                                />
+                            </div>
+                            <div className="actions-flex">
+                                <Button 
+                                    variant="success" 
+                                    className="flex-1"
+                                    onClick={() => handleModeration('CLASS', selectedClass.classId, 'APPROVE')}
+                                    disabled={isProcessingModeration}
+                                >
+                                    {isProcessingModeration ? <Loader size="xs" /> : <><CheckCircle size={18} /> Approve</>}
+                                </Button>
+                                <Button 
+                                    variant="error" 
+                                    className="flex-1"
+                                    onClick={() => handleModeration('CLASS', selectedClass.classId, 'REJECT')}
+                                    disabled={isProcessingModeration}
+                                >
+                                    {isProcessingModeration ? <Loader size="xs" /> : <><XCircle size={18} /> Reject</>}
+                                </Button>
+                            </div>
+                            <Button variant="outline" className="w-full mt-2" onClick={() => setIsClassModalOpen(false)}>Cancel</Button>
                         </div>
                     </div>
                 )}

@@ -68,4 +68,12 @@ public class UserController {
             @RequestParam User.UserStatus status) {
         return ResponseEntity.ok(userService.updateUserStatus(userId, status));
     }
+
+    @PatchMapping("/{userId}/role")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<UserResponse> updateUserRole(
+            @PathVariable String userId,
+            @RequestParam User.UserRole role) {
+        return ResponseEntity.ok(userService.updateUserRole(userId, role));
+    }
 }

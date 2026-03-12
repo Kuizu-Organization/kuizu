@@ -1,6 +1,8 @@
 package com.kuizu.backend.config;
 
 import com.kuizu.backend.entity.*;
+import com.kuizu.backend.entity.enumeration.Visibility;
+import com.kuizu.backend.entity.enumeration.ModerationStatus;
 import com.kuizu.backend.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
@@ -90,8 +92,8 @@ public class DataInitializer {
                                         .owner(teacher)
                                         .className("Java Programming 101")
                                         .description("Introduction to Java development concepts.")
-                                        .visibility("PUBLIC")
-                                        .status("ACTIVE")
+                                        .visibility(Visibility.PUBLIC)
+                                        .status(ModerationStatus.ACTIVE)
                                         .joinCode(UUID.randomUUID().toString().substring(0, 8).toUpperCase())
                                         .build();
 
@@ -99,12 +101,34 @@ public class DataInitializer {
                                         .owner(teacher)
                                         .className("Advanced Mathematics")
                                         .description("Calculus and Linear Algebra.")
-                                        .visibility("PRIVATE")
-                                        .status("ACTIVE")
+                                        .visibility(Visibility.PRIVATE)
+                                        .status(ModerationStatus.ACTIVE)
                                         .joinCode(UUID.randomUUID().toString().substring(0, 8).toUpperCase())
                                         .build();
 
-                        classRepository.saveAll(List.of(javaClass, mathClass));
+                        com.kuizu.backend.entity.Class pendingClass1 = com.kuizu.backend.entity.Class.builder()
+                                        .owner(teacher)
+                                        .className("Data Structures")
+                                        .description("Pending review for new curriculum.")
+                                        .visibility(Visibility.PUBLIC)
+                                        .status(ModerationStatus.PENDING)
+                                        .joinCode(UUID.randomUUID().toString().substring(0, 8).toUpperCase())
+                                        .submittedAt(LocalDateTime.now())
+                                        .submittedBy(teacher.getUserId())
+                                        .build();
+
+                        com.kuizu.backend.entity.Class pendingClass2 = com.kuizu.backend.entity.Class.builder()
+                                        .owner(teacher)
+                                        .className("Web Development")
+                                        .description("Pending review for frontend course.")
+                                        .visibility(Visibility.PUBLIC)
+                                        .status(ModerationStatus.PENDING)
+                                        .joinCode(UUID.randomUUID().toString().substring(0, 8).toUpperCase())
+                                        .submittedAt(LocalDateTime.now())
+                                        .submittedBy(teacher.getUserId())
+                                        .build();
+
+                        classRepository.saveAll(List.of(javaClass, mathClass, pendingClass1, pendingClass2));
 
                         // --- Class Members ---
                         classMemberRepository.save(ClassMember.builder()
@@ -136,8 +160,8 @@ public class DataInitializer {
                                         .owner(teacher)
                                         .title("Java Basics")
                                         .description("Essential Java keywords and concepts.")
-                                        .visibility("PUBLIC")
-                                        .status("APPROVED")
+                                        .visibility(Visibility.PUBLIC)
+                                        .status(ModerationStatus.APPROVED)
                                         .isDeleted(false)
                                         .version(1)
                                         .build();
@@ -146,8 +170,8 @@ public class DataInitializer {
                                         .owner(teacher)
                                         .title("Calculus Formulas")
                                         .description("Common derivatives and integrals.")
-                                        .visibility("PUBLIC")
-                                        .status("APPROVED")
+                                        .visibility(Visibility.PUBLIC)
+                                        .status(ModerationStatus.APPROVED)
                                         .isDeleted(false)
                                         .version(1)
                                         .build();
@@ -156,13 +180,38 @@ public class DataInitializer {
                                         .owner(student1)
                                         .title("English Vocabulary Set 1")
                                         .description("Daily life vocabulary.")
-                                        .visibility("PRIVATE")
-                                        .status("DRAFT")
+                                        .visibility(Visibility.PRIVATE)
+                                        .status(ModerationStatus.ACTIVE) // Private sets are active by default
                                         .isDeleted(false)
                                         .version(1)
                                         .build();
 
-                        flashcardSetRepository.saveAll(List.of(javaBasics, calculusSum, englishVocab));
+                        FlashcardSet pendingSet1 = FlashcardSet.builder()
+                                        .owner(teacher)
+                                        .title("Algorithms - Sorting")
+                                        .description("Pending review for algorithms course.")
+                                        .visibility(Visibility.PUBLIC)
+                                        .status(ModerationStatus.PENDING)
+                                        .isDeleted(false)
+                                        .version(1)
+                                        .submittedAt(LocalDateTime.now())
+                                        .submittedBy(teacher.getUserId())
+                                        .build();
+
+                        FlashcardSet pendingSet2 = FlashcardSet.builder()
+                                        .owner(student1)
+                                        .title("React Functional Components")
+                                        .description("Pending review for web development.")
+                                        .visibility(Visibility.PUBLIC)
+                                        .status(ModerationStatus.PENDING)
+                                        .isDeleted(false)
+                                        .version(1)
+                                        .submittedAt(LocalDateTime.now())
+                                        .submittedBy(student1.getUserId())
+                                        .build();
+
+                        flashcardSetRepository.saveAll(
+                                        List.of(javaBasics, calculusSum, englishVocab, pendingSet1, pendingSet2));
 
                         // --- Flashcards ---
                         flashcardRepository.saveAll(List.of(
@@ -192,6 +241,22 @@ public class DataInitializer {
                                         Flashcard.builder().flashcardSet(calculusSum).term("d/dx (e^x)")
                                                         .definition("e^x").orderIndex(2)
                                                         .isDeleted(false).build()));
+
+                        flashcardRepository.saveAll(List.of(
+                                        Flashcard.builder().flashcardSet(pendingSet1).term("Quicksort")
+                                                        .definition("Divide and conquer sorting algorithm")
+                                                        .orderIndex(0).isDeleted(false).build(),
+                                        Flashcard.builder().flashcardSet(pendingSet1).term("Merge Sort")
+                                                        .definition("Stable divide and conquer sorting algorithm")
+                                                        .orderIndex(1).isDeleted(false).build()));
+
+                        flashcardRepository.saveAll(List.of(
+                                        Flashcard.builder().flashcardSet(pendingSet2).term("useState")
+                                                        .definition("React Hook that lets you add a state variable to your component")
+                                                        .orderIndex(0).isDeleted(false).build(),
+                                        Flashcard.builder().flashcardSet(pendingSet2).term("useEffect")
+                                                        .definition("React Hook that lets you synchronize a component with an external system")
+                                                        .orderIndex(1).isDeleted(false).build()));
 
                         // --- Folders ---
                         Folder teacherFolder = Folder.builder()

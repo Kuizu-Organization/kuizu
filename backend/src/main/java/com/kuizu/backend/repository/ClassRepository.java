@@ -1,12 +1,11 @@
 package com.kuizu.backend.repository;
 
-import com.kuizu.backend.dto.response.ClassResponse;
 import com.kuizu.backend.entity.Class;
+import com.kuizu.backend.entity.enumeration.ModerationStatus;
 import com.kuizu.backend.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -20,5 +19,5 @@ public interface ClassRepository extends JpaRepository<Class, Long> {
 
     List<Class> findByClassNameContainingIgnoreCase(String name);
 
-    List<Class> findByStatus(String status);
+    List<Class> findByStatus(ModerationStatus status);
 }

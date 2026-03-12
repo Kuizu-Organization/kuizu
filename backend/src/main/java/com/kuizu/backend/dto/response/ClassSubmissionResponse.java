@@ -7,6 +7,8 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
+import com.kuizu.backend.entity.enumeration.Visibility;
+
 @Data
 @Builder
 @NoArgsConstructor
@@ -18,6 +20,6 @@ public class ClassSubmissionResponse {
     private String className;
     private String description;
     private String joinCode;
-    private String visibility;
+    private Visibility visibility;
     private LocalDateTime submittedAt;
 }

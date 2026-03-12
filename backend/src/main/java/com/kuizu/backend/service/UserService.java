@@ -88,6 +88,15 @@ public class UserService {
         return mapToUserResponse(user);
     }
 
+    @Transactional
+    public UserResponse updateUserRole(String userId, User.UserRole role) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ApiException("User not found"));
+        user.setRole(role);
+        userRepository.save(user);
+        return mapToUserResponse(user);
+    }
+
     private UserResponse mapToUserResponse(User user) {
         return UserResponse.builder()
                 .userId(user.getUserId())

@@ -1,6 +1,8 @@
 package com.kuizu.backend.service;
 
 import com.kuizu.backend.dto.response.ClassInfoResponse;
+import com.kuizu.backend.entity.enumeration.Visibility;
+import com.kuizu.backend.entity.enumeration.ModerationStatus;
 import com.kuizu.backend.dto.response.ClassMaterialResponse;
 import com.kuizu.backend.dto.response.ClassMemberResponse;
 import com.kuizu.backend.dto.response.ClassJoinRequestResponse;
@@ -160,10 +162,15 @@ public class ClassService {
                 .owner(user)
                 .className(request.getClassName())
                 .description(request.getDescription())
-                .visibility(request.getVisibility() != null ? request.getVisibility() : "PUBLIC")
-                .status("ACTIVE")
+                .visibility(request.getVisibility() != null ? request.getVisibility() : Visibility.PUBLIC)
+                .status(request.getVisibility() == Visibility.PUBLIC ? ModerationStatus.PENDING : ModerationStatus.ACTIVE)
                 .joinCode(joinCode)
+                .submittedBy(user.getUserId())
                 .build();
+
+        if (newClass.getStatus() == ModerationStatus.PENDING) {
+            newClass.setSubmittedAt(java.time.LocalDateTime.now());
+        }
 
         newClass = classRepository.save(newClass);
 

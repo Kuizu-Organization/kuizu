@@ -1,5 +1,8 @@
 package com.kuizu.backend.entity;
 
+import com.kuizu.backend.entity.enumeration.Visibility;
+import com.kuizu.backend.entity.enumeration.ModerationStatus;
+
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -31,14 +34,16 @@ public class FlashcardSet {
     @Column(columnDefinition = "TEXT")
     private String description;
 
+    @Enumerated(EnumType.STRING)
     @Column(length = 20)
-    private String visibility;
+    private Visibility visibility;
 
     @Column(name = "is_deleted")
     private Boolean isDeleted;
 
+    @Enumerated(EnumType.STRING)
     @Column(length = 20)
-    private String status;
+    private ModerationStatus status;
 
     @Column(name = "submitted_at")
     private LocalDateTime submittedAt;

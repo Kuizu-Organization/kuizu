@@ -349,6 +349,31 @@
     flex: 1;
 }
 
+.role-updater-flex {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.role-select {
+    flex: 1;
+    padding: 10px 12px;
+    border-radius: 10px;
+    border: 1px solid var(--border-color);
+    background: var(--input-bg);
+    color: var(--text-dark);
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: border-color 0.2s;
+}
+
+.role-select:focus {
+    outline: none;
+    border-color: var(--primary);
+}
+
 @media (max-width: 768px) {
     .admin-header {
         flex-direction: column;
@@ -373,3 +398,122 @@
         grid-template-columns: 1fr;
     }
 }
+
+/* Moderation Modals */
+.moderation-modal-content {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.moderation-modal-header h3 {
+    font-family: 'Outfit', sans-serif;
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--text-dark);
+    margin-bottom: 8px;
+}
+
+.meta-row {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
+.meta-text {
+    color: var(--text-light);
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.section-label {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: var(--text-light);
+    letter-spacing: 1px;
+    margin-bottom: 8px;
+    display: block;
+}
+
+.description-text {
+    background: var(--input-bg);
+    padding: 16px;
+    border-radius: 12px;
+    font-size: 14px;
+    line-height: 1.6;
+    color: var(--text-dark);
+}
+
+.flashcard-preview-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    max-height: 300px;
+    overflow-y: auto;
+    padding-right: 8px;
+}
+
+.flashcard-preview-item {
+    background: var(--white);
+    border: 1px solid var(--border-color);
+    padding: 12px;
+    border-radius: 10px;
+    font-size: 14px;
+}
+
+.card-term {
+    color: var(--primary);
+    margin-bottom: 4px;
+}
+
+.card-definition {
+    color: var(--text-dark);
+}
+
+.notes-field {
+    margin-bottom: 20px;
+}
+
+.notes-field label {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-dark);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 8px;
+}
+
+.notes-field textarea {
+    width: 100%;
+    min-height: 80px;
+    padding: 12px;
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
+    background: var(--white);
+    font-family: inherit;
+    font-size: 14px;
+    resize: vertical;
+}
+
+.actions-flex {
+    display: flex;
+    gap: 12px;
+}
+
+.flashcard-preview-list::-webkit-scrollbar {
+    width: 6px;
+}
+
+.flashcard-preview-list::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.flashcard-preview-list::-webkit-scrollbar-thumb {
+    background: var(--border-color);
+    border-radius: 10px;
+}
