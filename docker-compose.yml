@@ -1,9 +1,37 @@
 services:
+  db:
+    image: postgres:alpine
+    container_name: db
+    restart: always
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: mydb
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U user -d mydb"]
+      interval: 1s
+      timeout: 5s
+      retries: 10
+
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - "8081:8080"
+    depends_on:
+      db:
+        condition: service_healthy
+
   backend:
     build:
       context: ./backend
       dockerfile: Dockerfile
     container_name: spring-backend
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/mydb
+      SPRING_DATASOURCE_USERNAME: user
+      SPRING_DATASOURCE_PASSWORD: password
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
     ports:
       - "8080:8080"
     develop:
@@ -13,10 +41,11 @@ services:
           target: /app/src
         - path: ./backend/pom.xml
           action: rebuild
-        - path: ./backend/.mvn
-          action: rebuild
-        - path: ./backend/mvnw
-          action: rebuild
+    volumes:
+      - maven-cache:/root/.m2
+    depends_on:
+      db:
+        condition: service_healthy
 
   frontend:
     build:
@@ -38,3 +67,6 @@ services:
           action: rebuild
     depends_on:
       - backend
+
+volumes:
+  maven-cache:

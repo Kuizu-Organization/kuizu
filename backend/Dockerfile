@@ -1,20 +1,16 @@
-FROM eclipse-temurin:17-jdk-alpine
+FROM maven:3-eclipse-temurin-17-alpine
 
 WORKDIR /app
-
-# Copy wrapper first
-COPY .mvn .mvn
-COPY mvnw .
 
 # Copy dependency descriptor
 COPY pom.xml .
 
 # Cache dependencies
-RUN ./mvnw -B -q dependency:go-offline
+RUN mvn -B -q -e dependency:go-offline
 
 # Copy application code
-COPY src src
+COPY . .
 
 EXPOSE 8080
 
-CMD ["./mvnw", "spring-boot:run"]
+CMD ["mvn", "spring-boot:run"]
