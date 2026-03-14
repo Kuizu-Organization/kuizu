@@ -1,5 +1,6 @@
 package com.kuizu.backend.service;
 
+import com.kuizu.backend.dto.request.CreateFolderRequest;
 import com.kuizu.backend.dto.response.FolderDetailResponse;
 import com.kuizu.backend.dto.response.FolderResponse;
 import com.kuizu.backend.entity.Flashcard;
@@ -26,13 +27,56 @@ public class FolderService {
     private final FlashcardRepository flashcardRepository;
     private final UserRepository userRepository;
 
+    @Transactional
+    public FolderResponse createFolder(CreateFolderRequest request, String username) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        String visibility = request.getVisibility();
+        if (visibility == null || (!visibility.equals("PUBLIC") && !visibility.equals("PRIVATE"))) {
+            visibility = "PUBLIC";
+        }
+
+        Folder folder = Folder.builder()
+                .name(request.getName())
+                .description(request.getDescription())
+                .visibility(visibility)
+                .owner(user)
+                .isDeleted(false)
+                .build();
+
+        Folder saved = folderRepository.save(folder);
+
+        return FolderResponse.builder()
+                .folderId(saved.getFolderId())
+                .name(saved.getName())
+                .description(saved.getDescription())
+                .visibility(saved.getVisibility())
+                .setCount(0L)
+                .ownerDisplayName(user.getDisplayName())
+                .createdAt(saved.getCreatedAt())
+                .build();
+    }
+
     @Transactional(readOnly = true)
     public List<FolderResponse> getUserFolders(String username) {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
         List<Folder> folders = folderRepository.findByOwnerAndIsDeletedFalse(user);
+        return mapFoldersToResponse(folders);
+    }
 
+    @Transactional(readOnly = true)
+    public List<FolderResponse> getPublicFolders(String username) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        List<Folder> folders = folderRepository.findByVisibilityAndIsDeletedFalseAndOwnerNot("PUBLIC", user);
+        return mapFoldersToResponse(folders);
+    }
+
+    private List<FolderResponse> mapFoldersToResponse(List<Folder> folders) {
         return folders.stream().map(folder -> FolderResponse.builder()
                 .folderId(folder.getFolderId())
                 .name(folder.getName())
@@ -97,3 +141,4 @@ public class FolderService {
                 .build();
     }
 }
+

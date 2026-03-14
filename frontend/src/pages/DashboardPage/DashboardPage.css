@@ -144,3 +144,26 @@
     font-size: 16px;
     line-height: 1.6;
 }
+
+/* Visibility tags */
+.visibility-tag {
+    font-size: 11px;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 8px;
+}
+
+.visibility-tag.public {
+    background: rgba(16, 185, 129, 0.1);
+    color: #10b981;
+}
+
+.visibility-tag.private {
+    background: rgba(255, 114, 94, 0.1);
+    color: #ff725e;
+}
+
+.badge-custom.badge-green {
+    background: rgba(16, 185, 129, 0.1);
+    color: #10b981;
+}
