@@ -19,7 +19,7 @@ const Sidebar = ({ isCollapsed, onToggle, activePath = '/dashboard' }) => {
     const [isComingSoonOpen, setIsComingSoonOpen] = useState(false);
     const [currentFeature, setCurrentFeature] = useState('');
 
-    const implementedRoutes = ['/dashboard', '/profile', '/search', '/auth', '/'];
+    const implementedRoutes = ['/dashboard', '/profile', '/search', '/auth', '/', '/folders'];
 
     const handleNavigation = (path, label) => {
         // Special check for dynamic class route
@@ -38,7 +38,7 @@ const Sidebar = ({ isCollapsed, onToggle, activePath = '/dashboard' }) => {
 
     const quickStartLinks = [
         { icon: <BookOpen size={22} />, label: 'Flashcards', path: '/create/flashcards' },
-        { icon: <Folder size={22} />, label: 'Folders', path: '/create/folder' },
+        { icon: <Folder size={22} />, label: 'Folders', path: '/folders' },
         { icon: <GraduationCap size={22} />, label: 'Classes', path: '/create/class' },
     ];
 

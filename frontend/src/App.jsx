@@ -6,6 +6,8 @@ import ProtectedRoute from './components/layout/ProtectedRoute';
 import DashboardPage from './pages/DashboardPage/DashboardPage';
 import ClassDetailPage from './pages/ClassDetailPage/ClassDetailPage';
 import SearchPage from './pages/SearchPage/SearchPage';
+import FoldersPage from './pages/FoldersPage/FoldersPage';
+import FolderDetailPage from './pages/FolderDetailPage/FolderDetailPage';
 
 import MainLayout from './components/layout';
 
@@ -46,9 +48,26 @@ function App() {
             </ProtectedRoute>
           </MainLayout>
         } />
+
+        <Route path="/folders" element={
+          <MainLayout>
+            <ProtectedRoute>
+              <FoldersPage />
+            </ProtectedRoute>
+          </MainLayout>
+        } />
+
+        <Route path="/folders/:folderId" element={
+          <MainLayout>
+            <ProtectedRoute>
+              <FolderDetailPage />
+            </ProtectedRoute>
+          </MainLayout>
+        } />
       </Routes>
     </Router>
   );
 }
 
 export default App;
+

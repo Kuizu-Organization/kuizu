@@ -10,4 +10,5 @@ import java.util.List;
 @Repository
 public interface FlashcardRepository extends JpaRepository<Flashcard, Long> {
     List<Flashcard> findByFlashcardSetAndIsDeletedFalseOrderByOrderIndexAsc(FlashcardSet set);
+    long countByFlashcardSetAndIsDeletedFalse(FlashcardSet set);
 }

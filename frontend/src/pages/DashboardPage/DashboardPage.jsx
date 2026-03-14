@@ -1,14 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getMyClasses } from '../../api/class';
+import { getMyFolders } from '../../api/folder';
 import CreateClassModal from '../../components/Class/CreateClassModal';
 import { useAuth } from '../../context/AuthContext';
 import { Button, Card, Loader, ComingSoonModal } from '../../components/ui';
+import { FolderOpen } from 'lucide-react';
 import './DashboardPage.css';
 
 const DashboardPage = () => {
     const { user } = useAuth();
     const [classes, setClasses] = useState([]);
+    const [folders, setFolders] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
     const [isComingSoonOpen, setIsComingSoonOpen] = useState(false);
@@ -21,8 +24,12 @@ const DashboardPage = () => {
         const fetchDashboardData = async () => {
             try {
                 setIsLoading(true);
-                const classData = await getMyClasses();
+                const [classData, folderData] = await Promise.all([
+                    getMyClasses(),
+                    getMyFolders()
+                ]);
                 setClasses(classData);
+                setFolders(folderData);
             } catch (error) {
                 console.error("Failed to fetch dashboard data:", error);
             } finally {
@@ -49,6 +56,11 @@ const DashboardPage = () => {
             setCurrentFeature('');
         }
         setIsComingSoonOpen(!isComingSoonOpen);
+    };
+
+    const getInitials = (name) => {
+        if (!name) return '?';
+        return name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
     };
 
     if (isLoading) {
@@ -81,14 +93,40 @@ const DashboardPage = () => {
                     <h2>My Folders</h2>
                     <div className="section-actions">
                         <Button variant="outline" size="sm" onClick={() => toggleComingSoon('Folder creation')}>New Folder</Button>
-                        <Button variant="ghost" size="sm" onClick={() => toggleComingSoon('Folders Library')}>View all</Button>
+                        <Button variant="ghost" size="sm" onClick={() => navigate('/folders')}>View all</Button>
                     </div>
                 </div>
 
-                <div className="empty-state">
-                    <p>Organize your sets into folders for better study flow.</p>
-                    <Button variant="outline" onClick={() => toggleComingSoon('Folder creation')}>Create Folder</Button>
-                </div>
+                {folders.length > 0 ? (
+                    <div className="dashboard-grid">
+                        {folders.map(folder => (
+                            <Card
+                                key={folder.folderId}
+                                className="dashboard-item-card"
+                                onClick={() => navigate(`/folders/${folder.folderId}`)}
+                            >
+                                <div className="card-header-custom">
+                                    <h3 className="card-title-custom">{folder.name}</h3>
+                                    <span className="badge-custom">
+                                        <FolderOpen size={12} style={{ marginRight: 4, verticalAlign: 'middle' }} />
+                                        {folder.setCount} sets
+                                    </span>
+                                </div>
+                                <div className="card-body-custom">
+                                    <p className="card-description-custom">{folder.description || 'No description provided.'}</p>
+                                </div>
+                                <div className="card-footer-custom">
+                                    <span className="owner-text">by {folder.ownerDisplayName}</span>
+                                </div>
+                            </Card>
+                        ))}
+                    </div>
+                ) : (
+                    <div className="empty-state">
+                        <p>Organize your sets into folders for better study flow.</p>
+                        <Button variant="outline" onClick={() => toggleComingSoon('Folder creation')}>Create Folder</Button>
+                    </div>
+                )}
             </section>
 
             {/* Classes Section */}
@@ -148,3 +186,4 @@ const DashboardPage = () => {
 };
 
 export default DashboardPage;
+

@@ -1,0 +1,36 @@
+package com.kuizu.backend.dto.response;
+
+import lombok.*;
+import java.time.LocalDateTime;
+import java.util.List;
+
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+public class FolderDetailResponse {
+    private Long folderId;
+    private String name;
+    private String description;
+    private String visibility;
+    private String ownerDisplayName;
+    private String ownerUsername;
+    private LocalDateTime createdAt;
+    private List<FlashcardSetSummary> sets;
+
+    @Getter
+    @Setter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Builder
+    public static class FlashcardSetSummary {
+        private Long setId;
+        private String title;
+        private String description;
+        private long termCount;
+        private String ownerDisplayName;
+        private String ownerUsername;
+        private LocalDateTime createdAt;
+    }
+}
