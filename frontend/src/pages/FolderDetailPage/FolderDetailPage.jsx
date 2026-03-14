@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { getFolderDetail, removeSetFromFolder } from '../../api/folder';
-import { Loader } from '../../components/ui';
+import { getFolderDetail, removeSetFromFolder, deleteFolder } from '../../api/folder';
+import { Loader, Modal, Button } from '../../components/ui';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
 import AddSetToFolderModal from '../../components/Folder/AddSetToFolderModal';
-import { ArrowLeft, BookOpen, FolderOpen, User, Eye, Calendar, Layers, Hash, ChevronDown, ChevronUp, Plus, Trash2 } from 'lucide-react';
+import EditFolderModal from '../../components/Folder/EditFolderModal';
+import { ArrowLeft, BookOpen, FolderOpen, User, Eye, Calendar, Layers, Hash, ChevronDown, ChevronUp, Plus, Trash2, Pencil, AlertTriangle } from 'lucide-react';
 import './FolderDetailPage.css';
 
 const FolderDetailPage = () => {
@@ -17,6 +18,9 @@ const FolderDetailPage = () => {
     const [isLoading, setIsLoading] = useState(true);
     const [expandedSets, setExpandedSets] = useState({});
     const [isAddSetOpen, setIsAddSetOpen] = useState(false);
+    const [isEditOpen, setIsEditOpen] = useState(false);
+    const [isDeleteOpen, setIsDeleteOpen] = useState(false);
+    const [isDeleting, setIsDeleting] = useState(false);
     const [removingSetId, setRemovingSetId] = useState(null);
 
     const fetchFolder = async () => {
@@ -94,6 +98,32 @@ const FolderDetailPage = () => {
         }
     };
 
+    const handleFolderUpdated = (updatedFolder) => {
+        setFolder(updatedFolder);
+        setIsEditOpen(false);
+    };
+
+    const confirmDeleteFolder = async () => {
+        try {
+            setIsDeleting(true);
+            await deleteFolder(folderId);
+            toast.success('Xóa thư mục thành công');
+            navigate('/folders'); // Navigate back to folders list
+        } catch (error) {
+            console.error('Failed to delete folder:', error);
+            toast.error(error.response?.data?.message || 'Không thể xóa thư mục');
+            setIsDeleting(false);
+            setIsDeleteOpen(false);
+        }
+    };
+
+    const deleteFooter = (
+        <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end', width: '100%' }}>
+            <Button variant="outline" onClick={() => setIsDeleteOpen(false)} disabled={isDeleting}>Hủy</Button>
+            <Button variant="danger" onClick={confirmDeleteFolder} isLoading={isDeleting}>Xóa thư mục</Button>
+        </div>
+    );
+
     const isOwner = user && folder && folder.ownerUsername === user.username;
     const allExpanded = folder?.sets?.every(s => expandedSets[s.setId]);
 
@@ -119,15 +149,29 @@ const FolderDetailPage = () => {
             {/* ====== FOLDER INFO SECTION ====== */}
             <div className="fd-info-card">
                 <div className="fd-info-header">
-                    <div className="fd-info-icon">
-                        <FolderOpen size={28} />
+                    <div className="fd-info-header-main">
+                        <div className="fd-info-icon">
+                            <FolderOpen size={28} />
+                        </div>
+                        <div className="fd-info-header-text">
+                            <h1 className="fd-name">{folder.name}</h1>
+                            {folder.description && (
+                                <p className="fd-description">{folder.description}</p>
+                            )}
+                        </div>
                     </div>
-                    <div className="fd-info-header-text">
-                        <h1 className="fd-name">{folder.name}</h1>
-                        {folder.description && (
-                            <p className="fd-description">{folder.description}</p>
-                        )}
-                    </div>
+                    {isOwner && (
+                        <div className="fd-info-header-actions">
+                            <button className="fd-action-btn edit-btn" onClick={() => setIsEditOpen(true)}>
+                                <Pencil size={16} />
+                                <span>Chỉnh sửa</span>
+                            </button>
+                            <button className="fd-action-btn delete-btn" onClick={() => setIsDeleteOpen(true)}>
+                                <Trash2 size={16} />
+                                <span>Xóa</span>
+                            </button>
+                        </div>
+                    )}
                 </div>
 
                 <div className="fd-info-grid">
@@ -290,6 +334,34 @@ const FolderDetailPage = () => {
                 folderId={folderId}
                 onSetAdded={fetchFolder}
             />
+
+            <EditFolderModal
+                isOpen={isEditOpen}
+                onClose={() => setIsEditOpen(false)}
+                folder={folder}
+                onUpdateSuccess={handleFolderUpdated}
+            />
+
+            <Modal
+                isOpen={isDeleteOpen}
+                onClose={() => setIsDeleteOpen(false)}
+                title="Xóa thư mục"
+                size="sm"
+                footer={deleteFooter}
+            >
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', padding: '16px 0' }}>
+                    <div style={{ width: '48px', height: '48px', borderRadius: '50%', background: 'rgba(239, 68, 68, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#ef4444', marginBottom: '16px' }}>
+                        <AlertTriangle size={24} />
+                    </div>
+                    <h3 style={{ fontSize: '18px', fontWeight: '600', color: 'var(--text-dark)', marginBottom: '8px' }}>
+                        Xóa thư mục này?
+                    </h3>
+                    <p style={{ fontSize: '14px', color: 'var(--text-light)', lineHeight: '1.5' }}>
+                        Hành động này sẽ xóa thư mục <strong>"{folder.name}"</strong> vĩnh viễn. 
+                        Các học phần bên trong thư mục này <strong>SẼ KHÔNG</strong> bị xóa. Bạn có chắc chắn muốn tiến hành?
+                    </p>
+                </div>
+            </Modal>
         </div>
     );
 };

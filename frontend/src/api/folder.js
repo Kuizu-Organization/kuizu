@@ -39,3 +39,13 @@ export const getMySets = async () => {
     const response = await api.get('/folders/my-sets');
     return response.data;
 };
+
+export const updateFolder = async (folderId, updateData) => {
+    const response = await api.put(`/folders/${folderId}`, updateData);
+    return response.data;
+};
+
+export const deleteFolder = async (folderId) => {
+    const response = await api.delete(`/folders/${folderId}`);
+    return response.data;
+};

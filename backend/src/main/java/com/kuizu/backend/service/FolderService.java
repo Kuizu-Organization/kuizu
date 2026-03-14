@@ -1,6 +1,7 @@
 package com.kuizu.backend.service;
 
 import com.kuizu.backend.dto.request.CreateFolderRequest;
+import com.kuizu.backend.dto.request.UpdateFolderRequest;
 import com.kuizu.backend.dto.response.FolderDetailResponse;
 import com.kuizu.backend.dto.response.FolderResponse;
 import com.kuizu.backend.entity.*;
@@ -93,6 +94,55 @@ public class FolderService {
                     );
                 })
                 .collect(Collectors.toList());
+    }
+
+    @Transactional
+    public FolderResponse updateFolder(Long folderId, UpdateFolderRequest request, String username) {
+        Folder folder = folderRepository.findByFolderIdAndIsDeletedFalse(folderId)
+                .orElseThrow(() -> new RuntimeException("Folder not found"));
+
+        if (!folder.getOwner().getUsername().equals(username)) {
+            throw new RuntimeException("You do not have permission to update this folder");
+        }
+
+        String visibility = request.getVisibility();
+        if (visibility == null || (!visibility.equals("PUBLIC") && !visibility.equals("PRIVATE"))) {
+            visibility = "PUBLIC";
+        }
+
+        folder.setName(request.getName());
+        folder.setDescription(request.getDescription());
+        folder.setVisibility(visibility);
+
+        Folder saved = folderRepository.save(folder);
+        long setCount = folderSetRepository.countByFolder(saved);
+
+        return FolderResponse.builder()
+                .folderId(saved.getFolderId())
+                .name(saved.getName())
+                .description(saved.getDescription())
+                .visibility(saved.getVisibility())
+                .setCount(setCount)
+                .ownerDisplayName(saved.getOwner().getDisplayName())
+                .createdAt(saved.getCreatedAt())
+                .build();
+    }
+
+    @Transactional
+    public void deleteFolder(Long folderId, String username) {
+        Folder folder = folderRepository.findByFolderIdAndIsDeletedFalse(folderId)
+                .orElseThrow(() -> new RuntimeException("Folder not found"));
+
+        if (!folder.getOwner().getUsername().equals(username)) {
+            throw new RuntimeException("You do not have permission to delete this folder");
+        }
+
+        // Soft delete the folder
+        folder.setIsDeleted(true);
+        folderRepository.save(folder);
+        
+        // Optional: Depending on logic, might want to remove all FolderSets or just leave them
+        // Setting folder.isDeleted=true is usually enough if queries filter by it.
     }
 
     @Transactional

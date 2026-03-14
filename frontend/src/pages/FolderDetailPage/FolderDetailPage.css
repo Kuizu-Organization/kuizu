@@ -51,8 +51,15 @@
 .fd-info-header {
     display: flex;
     align-items: flex-start;
-    gap: 20px;
+    justify-content: space-between;
     margin-bottom: 28px;
+}
+
+.fd-info-header-main {
+    display: flex;
+    align-items: flex-start;
+    gap: 20px;
+    flex: 1;
 }
 
 .fd-info-icon {
@@ -69,6 +76,40 @@
 
 .fd-info-header-text {
     flex: 1;
+}
+
+.fd-info-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.fd-action-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0 16px;
+    height: 36px;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 500;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.05);
+    color: #a8b4ff;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.fd-action-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.2);
+    color: #ffffff;
+}
+
+.fd-action-btn.delete-btn:hover {
+    background: rgba(239, 68, 68, 0.15);
+    border-color: rgba(239, 68, 68, 0.3);
+    color: #ef4444;
 }
 
 .fd-name {
