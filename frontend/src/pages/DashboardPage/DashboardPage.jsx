@@ -6,7 +6,7 @@ import CreateClassModal from '../../components/Class/CreateClassModal';
 import CreateFolderModal from '../../components/Folder/CreateFolderModal';
 import { useAuth } from '../../context/AuthContext';
 import { FolderOpen, Globe } from 'lucide-react';
-import { Button, Card, Loader, EmptyState, ItemCard, ComingSoonModal } from '../../components/ui';
+import { Button, Card, Loader, EmptyState, ItemCard } from '../../components/ui';
 import './DashboardPage.css';
 
 const DashboardPage = () => {
@@ -17,9 +17,6 @@ const DashboardPage = () => {
     const [isLoading, setIsLoading] = useState(true);
     const [isCreateClassOpen, setIsCreateClassOpen] = useState(false);
     const [isCreateFolderOpen, setIsCreateFolderOpen] = useState(false);
-    const [isComingSoonOpen, setIsComingSoonOpen] = useState(false);
-    const [currentFeature, setCurrentFeature] = useState('');
-    const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
     const navigate = useNavigate();
 
     const isTeacherOrAdmin = user?.role === 'ROLE_TEACHER' || user?.role === 'ROLE_ADMIN';
@@ -212,12 +209,6 @@ const DashboardPage = () => {
                 isOpen={isCreateFolderOpen}
                 onClose={() => setIsCreateFolderOpen(false)}
                 onCreateSuccess={handleFolderCreated}
-            />
-
-            <ComingSoonModal
-                isOpen={isComingSoonOpen}
-                onClose={toggleComingSoon}
-                featureName={currentFeature}
             />
         </div>
     );
