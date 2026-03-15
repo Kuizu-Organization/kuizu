@@ -56,12 +56,12 @@ const FoldersPage = () => {
             {/* My Folders Section */}
             <div className="folders-header">
                 <div>
-                    <h1>Thư mục của bạn</h1>
-                    <p>Quản lý và tổ chức các bộ thẻ ghi nhớ của bạn</p>
+                    <h1>My Folders</h1>
+                    <p>Manage and organize your flashcard sets</p>
                 </div>
                 <Button variant="primary" onClick={() => setIsCreateOpen(true)}>
                     <Plus size={16} style={{ marginRight: 6 }} />
-                    Tạo thư mục
+                    Create Folder
                 </Button>
             </div>
 
@@ -76,7 +76,7 @@ const FoldersPage = () => {
                             <div className="folder-card-body">
                                 <div className="folder-card-meta">
                                     <span className="folder-set-count">
-                                        {folder.setCount} học phần
+                                        {folder.setCount} sets
                                     </span>
                                     <div className="folder-owner-info">
                                         <div className="folder-owner-avatar">
@@ -95,10 +95,10 @@ const FoldersPage = () => {
                             <div className="folder-card-footer">
                                 <div className="folder-icon-wrapper">
                                     <FolderOpen size={16} />
-                                    <span>Thư mục</span>
+                                    <span>Folder</span>
                                 </div>
                                 <span className={`folder-visibility ${folder.visibility?.toLowerCase()}`}>
-                                    {folder.visibility === 'PUBLIC' ? 'Công khai' : 'Riêng tư'}
+                                    {folder.visibility === 'PUBLIC' ? 'Public' : 'Private'}
                                 </span>
                             </div>
                         </div>
@@ -109,11 +109,11 @@ const FoldersPage = () => {
                     <div className="folders-empty-icon">
                         <Folder size={32} />
                     </div>
-                    <h3>Chưa có thư mục nào</h3>
-                    <p>Tạo thư mục để tổ chức các bộ thẻ ghi nhớ của bạn</p>
+                    <h3>No folders yet</h3>
+                    <p>Create a folder to organize your flashcard sets</p>
                     <Button variant="primary" onClick={() => setIsCreateOpen(true)}>
                         <Plus size={16} style={{ marginRight: 6 }} />
-                        Tạo thư mục đầu tiên
+                        Create your first folder
                     </Button>
                 </div>
             )}
@@ -123,8 +123,8 @@ const FoldersPage = () => {
                 <div className="public-folders-section">
                     <div className="public-folders-header">
                         <Globe size={20} />
-                        <h2>Thư mục đề xuất</h2>
-                        <span className="public-folders-badge">{publicFolders.length} thư mục công khai</span>
+                        <h2>Suggested Folders</h2>
+                        <span className="public-folders-badge">{publicFolders.length} public folders</span>
                     </div>
                     <div className="folders-grid">
                         {publicFolders.map(folder => (
@@ -136,7 +136,7 @@ const FoldersPage = () => {
                                 <div className="folder-card-body">
                                     <div className="folder-card-meta">
                                         <span className="folder-set-count">
-                                            {folder.setCount} học phần
+                                            {folder.setCount} sets
                                         </span>
                                         <div className="folder-owner-info">
                                             <div className="folder-owner-avatar">
@@ -155,10 +155,10 @@ const FoldersPage = () => {
                                 <div className="folder-card-footer">
                                     <div className="folder-icon-wrapper">
                                         <Globe size={14} />
-                                        <span>Công khai</span>
+                                        <span>Public</span>
                                     </div>
                                     <span className="folder-visibility public">
-                                        {folder.ownerDisplayName}
+                                        Public
                                     </span>
                                 </div>
                             </div>

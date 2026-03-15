@@ -24,7 +24,7 @@ const AddSetToFolderModal = ({ isOpen, onClose, folderId, onSetAdded }) => {
             setAvailableSets(data);
         } catch (error) {
             console.error("Failed to fetch available sets:", error);
-            toast.error("Không thể tải danh sách học phần");
+            toast.error("Failed to load sets");
         } finally {
             setIsLoading(false);
         }
@@ -34,14 +34,14 @@ const AddSetToFolderModal = ({ isOpen, onClose, folderId, onSetAdded }) => {
         try {
             setAddingSetId(setId);
             await addSetToFolder(folderId, setId);
-            toast.success("Đã thêm học phần vào thư mục!");
+            toast.success("Set added to folder!");
             setAvailableSets(prev => prev.filter(s => s.setId !== setId));
             if (onSetAdded) {
                 onSetAdded();
             }
         } catch (error) {
             console.error("Failed to add set:", error);
-            toast.error(error.response?.data?.message || "Không thể thêm học phần");
+            toast.error(error.response?.data?.message || "Failed to add set");
         } finally {
             setAddingSetId(null);
         }
@@ -51,14 +51,14 @@ const AddSetToFolderModal = ({ isOpen, onClose, folderId, onSetAdded }) => {
         <Modal
             isOpen={isOpen}
             onClose={onClose}
-            title="Thêm học phần vào thư mục"
+            title="Add set to folder"
             size="md"
         >
             <div className="add-set-content">
                 {isLoading ? (
                     <div className="add-set-loading">
                         <Loader2 size={24} className="spin" />
-                        <p>Đang tải...</p>
+                        <p>Loading...</p>
                     </div>
                 ) : availableSets.length > 0 ? (
                     <div className="add-set-list">
@@ -69,7 +69,7 @@ const AddSetToFolderModal = ({ isOpen, onClose, folderId, onSetAdded }) => {
                                     <div className="add-set-item-text">
                                         <h4>{set.title}</h4>
                                         <span className="add-set-meta">
-                                            {set.termCount} thuật ngữ
+                                            {set.termCount} terms
                                             {set.description && ` · ${set.description}`}
                                         </span>
                                     </div>
@@ -82,7 +82,7 @@ const AddSetToFolderModal = ({ isOpen, onClose, folderId, onSetAdded }) => {
                                     isLoading={addingSetId === set.setId}
                                 >
                                     <Plus size={14} style={{ marginRight: 4 }} />
-                                    Thêm
+                                    Add
                                 </Button>
                             </div>
                         ))}
@@ -90,9 +90,9 @@ const AddSetToFolderModal = ({ isOpen, onClose, folderId, onSetAdded }) => {
                 ) : (
                     <div className="add-set-empty">
                         <BookOpen size={32} color="var(--text-light)" />
-                        <p>Không có học phần nào khả dụng</p>
+                        <p>No available sets</p>
                         <span className="add-set-empty-hint">
-                            Tất cả học phần của bạn đã được thêm vào thư mục này
+                            All your sets have been added to this folder
                         </span>
                     </div>
                 )}

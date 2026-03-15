@@ -52,7 +52,7 @@ const CreateFolderModal = ({ isOpen, onClose, onCreateSuccess }) => {
         if (isSubmitting) return;
 
         if (!folderName.trim()) {
-            toast.error('Tên thư mục không được để trống');
+            toast.error('Folder name is required');
             return;
         }
 
@@ -66,7 +66,7 @@ const CreateFolderModal = ({ isOpen, onClose, onCreateSuccess }) => {
             };
 
             const newFolder = await createFolder(folderData);
-            toast.success('Tạo thư mục thành công!');
+            toast.success('Folder created successfully!');
 
             if (onCreateSuccess) {
                 onCreateSuccess(newFolder);
@@ -75,7 +75,7 @@ const CreateFolderModal = ({ isOpen, onClose, onCreateSuccess }) => {
 
         } catch (error) {
             console.error('Failed to create folder:', error);
-            toast.error(error.response?.data?.message || 'Không thể tạo thư mục');
+            toast.error(error.response?.data?.message || 'Failed to create folder');
         } finally {
             setIsSubmitting(false);
         }
@@ -84,7 +84,7 @@ const CreateFolderModal = ({ isOpen, onClose, onCreateSuccess }) => {
     const footer = (
         <div className="create-folder-actions">
             <Button variant="outline" onClick={onClose} disabled={isSubmitting}>
-                Hủy
+                Cancel
             </Button>
             <Button
                 variant="primary"
@@ -92,7 +92,7 @@ const CreateFolderModal = ({ isOpen, onClose, onCreateSuccess }) => {
                 disabled={isSubmitting || !folderName.trim()}
                 isLoading={isSubmitting}
             >
-                Tạo thư mục
+                Create Folder
             </Button>
         </div>
     );
@@ -101,16 +101,16 @@ const CreateFolderModal = ({ isOpen, onClose, onCreateSuccess }) => {
         <Modal
             isOpen={isOpen}
             onClose={onClose}
-            title="Tạo thư mục mới"
+            title="Create new folder"
             size="md"
             footer={footer}
         >
             <div className="create-folder-content">
                 <form onSubmit={handleSubmit}>
                     <div className="form-group slide-in">
-                        <label>Tên thư mục *</label>
+                        <label>Folder name *</label>
                         <Input
-                            placeholder="Ví dụ: Tài liệu Học kỳ 1"
+                            placeholder="e.g., Semester 1 Materials"
                             value={folderName}
                             onChange={(e) => setFolderName(e.target.value)}
                             autoFocus
@@ -119,10 +119,10 @@ const CreateFolderModal = ({ isOpen, onClose, onCreateSuccess }) => {
                     </div>
 
                     <div className="form-group slide-in" style={{ animationDelay: '0.1s' }}>
-                        <label>Mô tả (Không bắt buộc)</label>
+                        <label>Description (Optional)</label>
                         <textarea
                             className="create-folder-textarea"
-                            placeholder="Mô tả nội dung thư mục..."
+                            placeholder="Describe the folder contents..."
                             value={description}
                             onChange={(e) => setDescription(e.target.value)}
                             rows={2}
@@ -130,12 +130,12 @@ const CreateFolderModal = ({ isOpen, onClose, onCreateSuccess }) => {
                     </div>
 
                     <div className="form-group slide-in" style={{ animationDelay: '0.15s' }}>
-                        <label>Đề xuất học phần (Không bắt buộc)</label>
+                        <label>Suggested sets (Optional)</label>
                         <div className="suggested-sets-list">
                             {isLoadingSets ? (
-                                <div className="loading-sets">Đang tải học phần...</div>
+                                <div className="loading-sets">Loading sets...</div>
                             ) : mySets.length === 0 ? (
-                                <div className="empty-sets-msg">Bạn chưa có học phần nào.</div>
+                                <div className="empty-sets-msg">You don't have any sets yet.</div>
                             ) : (
                                 mySets.map(set => (
                                     <div 
@@ -147,7 +147,7 @@ const CreateFolderModal = ({ isOpen, onClose, onCreateSuccess }) => {
                                             <BookOpen size={16} className="set-icon" />
                                             <div className="set-info-minimal">
                                                 <div className="set-title">{set.title}</div>
-                                                <div className="set-terms">{set.termCount} thuật ngữ</div>
+                                                <div className="set-terms">{set.termCount} terms</div>
                                             </div>
                                         </div>
                                         <div className="set-checkbox">
@@ -160,7 +160,7 @@ const CreateFolderModal = ({ isOpen, onClose, onCreateSuccess }) => {
                     </div>
 
                     <div className="form-group slide-in" style={{ animationDelay: '0.2s' }}>
-                        <label>Hiển thị</label>
+                        <label>Visibility</label>
                         <div className="visibility-options">
                             <div
                                 className={`visibility-option ${visibility === 'PUBLIC' ? 'active' : ''}`}
@@ -170,8 +170,8 @@ const CreateFolderModal = ({ isOpen, onClose, onCreateSuccess }) => {
                                     <div className={`radio-dot ${visibility === 'PUBLIC' ? 'checked' : ''}`}></div>
                                 </div>
                                 <div className="visibility-text">
-                                    <span className="visibility-label">🌐 Công khai</span>
-                                    <span className="visibility-desc">Tất cả người dùng đều có thể xem thư mục này</span>
+                                    <span className="visibility-label">🌐 Public</span>
+                                    <span className="visibility-desc">Anyone can view this folder</span>
                                 </div>
                             </div>
                             <div
@@ -182,8 +182,8 @@ const CreateFolderModal = ({ isOpen, onClose, onCreateSuccess }) => {
                                     <div className={`radio-dot ${visibility === 'PRIVATE' ? 'checked' : ''}`}></div>
                                 </div>
                                 <div className="visibility-text">
-                                    <span className="visibility-label">🔒 Riêng tư</span>
-                                    <span className="visibility-desc">Chỉ bạn mới có thể xem thư mục này</span>
+                                    <span className="visibility-label">🔒 Private</span>
+                                    <span className="visibility-desc">Only you can view this folder</span>
                                 </div>
                             </div>
                         </div>

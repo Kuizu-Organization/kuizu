@@ -84,15 +84,15 @@ const FolderDetailPage = () => {
 
     const handleRemoveSet = async (e, setId) => {
         e.stopPropagation();
-        if (!confirm('Bạn có chắc muốn xóa học phần này khỏi thư mục?')) return;
+        if (!confirm('Are you sure you want to remove this set from the folder?')) return;
 
         try {
             setRemovingSetId(setId);
             await removeSetFromFolder(folderId, setId);
-            toast.success('Đã xóa học phần khỏi thư mục');
+            toast.success('Set removed from folder');
             fetchFolder();
         } catch (error) {
-            toast.error('Không thể xóa học phần');
+            toast.error('Failed to remove set');
         } finally {
             setRemovingSetId(null);
         }
@@ -107,11 +107,11 @@ const FolderDetailPage = () => {
         try {
             setIsDeleting(true);
             await deleteFolder(folderId);
-            toast.success('Xóa thư mục thành công');
+            toast.success('Folder deleted successfully');
             navigate('/folders'); // Navigate back to folders list
         } catch (error) {
             console.error('Failed to delete folder:', error);
-            toast.error(error.response?.data?.message || 'Không thể xóa thư mục');
+            toast.error(error.response?.data?.message || 'Failed to delete folder');
             setIsDeleting(false);
             setIsDeleteOpen(false);
         }
@@ -119,8 +119,8 @@ const FolderDetailPage = () => {
 
     const deleteFooter = (
         <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end', width: '100%' }}>
-            <Button variant="outline" onClick={() => setIsDeleteOpen(false)} disabled={isDeleting}>Hủy</Button>
-            <Button variant="danger" onClick={confirmDeleteFolder} isLoading={isDeleting}>Xóa thư mục</Button>
+            <Button variant="outline" onClick={() => setIsDeleteOpen(false)} disabled={isDeleting}>Cancel</Button>
+            <Button variant="danger" onClick={confirmDeleteFolder} isLoading={isDeleting}>Delete Folder</Button>
         </div>
     );
 
@@ -134,7 +134,7 @@ const FolderDetailPage = () => {
     if (!folder) {
         return (
             <div className="fd-container">
-                <p>Không tìm thấy thư mục.</p>
+                <p>Folder not found.</p>
             </div>
         );
     }
@@ -143,7 +143,7 @@ const FolderDetailPage = () => {
         <div className="fd-container">
             <button className="fd-back" onClick={() => navigate('/folders')}>
                 <ArrowLeft size={18} />
-                <span>Quay lại thư mục</span>
+                <span>Back to folders</span>
             </button>
 
             {/* ====== FOLDER INFO SECTION ====== */}
@@ -164,11 +164,11 @@ const FolderDetailPage = () => {
                         <div className="fd-info-header-actions">
                             <button className="fd-action-btn edit-btn" onClick={() => setIsEditOpen(true)}>
                                 <Pencil size={16} />
-                                <span>Chỉnh sửa</span>
+                                <span>Edit</span>
                             </button>
                             <button className="fd-action-btn delete-btn" onClick={() => setIsDeleteOpen(true)}>
                                 <Trash2 size={16} />
-                                <span>Xóa</span>
+                                <span>Delete</span>
                             </button>
                         </div>
                     )}
@@ -178,37 +178,37 @@ const FolderDetailPage = () => {
                     <div className="fd-info-item">
                         <User size={16} />
                         <div>
-                            <span className="fd-info-label">Người tạo</span>
+                            <span className="fd-info-label">Creator</span>
                             <span className="fd-info-value">{folder.ownerDisplayName}</span>
                         </div>
                     </div>
                     <div className="fd-info-item">
                         <Layers size={16} />
                         <div>
-                            <span className="fd-info-label">Số học phần</span>
-                            <span className="fd-info-value">{folder.sets?.length || 0} học phần</span>
+                            <span className="fd-info-label">Sets</span>
+                            <span className="fd-info-value">{folder.sets?.length || 0} sets</span>
                         </div>
                     </div>
                     <div className="fd-info-item">
                         <Hash size={16} />
                         <div>
-                            <span className="fd-info-label">Tổng thuật ngữ</span>
-                            <span className="fd-info-value">{getTotalTerms()} thuật ngữ</span>
+                            <span className="fd-info-label">Total terms</span>
+                            <span className="fd-info-value">{getTotalTerms()} terms</span>
                         </div>
                     </div>
                     <div className="fd-info-item">
                         <Eye size={16} />
                         <div>
-                            <span className="fd-info-label">Hiển thị</span>
+                            <span className="fd-info-label">Visibility</span>
                             <span className="fd-info-value">
-                                {folder.visibility === 'PUBLIC' ? 'Công khai' : 'Riêng tư'}
+                                {folder.visibility === 'PUBLIC' ? 'Public' : 'Private'}
                             </span>
                         </div>
                     </div>
                     <div className="fd-info-item">
                         <Calendar size={16} />
                         <div>
-                            <span className="fd-info-label">Ngày tạo</span>
+                            <span className="fd-info-label">Created on</span>
                             <span className="fd-info-value">{formatDate(folder.createdAt)}</span>
                         </div>
                     </div>
@@ -218,7 +218,7 @@ const FolderDetailPage = () => {
             {/* ====== TERMS LIST SECTION ====== */}
             <div className="fd-terms-section">
                 <div className="fd-terms-header">
-                    <h2>Danh sách thuật ngữ trong thư mục</h2>
+                    <h2>Sets in folder</h2>
                     <div className="fd-terms-header-actions">
                         {isOwner && (
                             <button
@@ -226,7 +226,7 @@ const FolderDetailPage = () => {
                                 onClick={() => setIsAddSetOpen(true)}
                             >
                                 <Plus size={16} />
-                                Thêm học phần
+                                Add set
                             </button>
                         )}
                         {folder.sets && folder.sets.length > 0 && (
@@ -235,13 +235,13 @@ const FolderDetailPage = () => {
                                 onClick={allExpanded ? collapseAll : expandAll}
                             >
                                 {allExpanded ? (
-                                    <><ChevronUp size={14} /> Thu gọn</>
+                                    <><ChevronUp size={14} /> Collapse</>
                                 ) : (
-                                    <><ChevronDown size={14} /> Mở rộng</>
+                                    <><ChevronDown size={14} /> Expand</>
                                 )}
                             </button>
                         )}
-                        <span className="fd-terms-badge">{getTotalTerms()} thuật ngữ</span>
+                        <span className="fd-terms-badge">{getTotalTerms()} terms</span>
                     </div>
                 </div>
 
@@ -258,7 +258,7 @@ const FolderDetailPage = () => {
                                         <div className="fd-set-title-left">
                                             <BookOpen size={18} />
                                             <h3>{set.title}</h3>
-                                            <span className="fd-set-count-chip">{set.termCount} thuật ngữ</span>
+                                            <span className="fd-set-count-chip">{set.termCount} terms</span>
                                         </div>
                                         <div className="fd-set-title-right">
                                             <div className="fd-set-owner-chip">
@@ -272,7 +272,7 @@ const FolderDetailPage = () => {
                                                     className="fd-remove-set-btn"
                                                     onClick={(e) => handleRemoveSet(e, set.setId)}
                                                     disabled={removingSetId === set.setId}
-                                                    title="Xóa khỏi thư mục"
+                                                    title="Remove from folder"
                                                 >
                                                     <Trash2 size={14} />
                                                 </button>
@@ -293,8 +293,8 @@ const FolderDetailPage = () => {
                                                 <div className="fd-terms-table">
                                                     <div className="fd-terms-table-header">
                                                         <div className="fd-th-num">#</div>
-                                                        <div className="fd-th-term">Thuật ngữ</div>
-                                                        <div className="fd-th-def">Định nghĩa</div>
+                                                        <div className="fd-th-term">Term</div>
+                                                        <div className="fd-th-def">Definition</div>
                                                     </div>
                                                     {set.flashcards.map((card, index) => (
                                                         <div key={card.cardId} className="fd-terms-row">
@@ -314,14 +314,14 @@ const FolderDetailPage = () => {
                 ) : (
                     <div className="fd-empty">
                         <BookOpen size={32} color="var(--text-light)" />
-                        <p>Thư mục này chưa có học phần nào</p>
+                        <p>This folder has no sets yet</p>
                         {isOwner && (
                             <button
                                 className="fd-add-set-btn primary"
                                 onClick={() => setIsAddSetOpen(true)}
                             >
                                 <Plus size={16} />
-                                Thêm học phần đầu tiên
+                                Add your first set
                             </button>
                         )}
                     </div>
@@ -345,7 +345,7 @@ const FolderDetailPage = () => {
             <Modal
                 isOpen={isDeleteOpen}
                 onClose={() => setIsDeleteOpen(false)}
-                title="Xóa thư mục"
+                title="Delete folder"
                 size="sm"
                 footer={deleteFooter}
             >
@@ -354,11 +354,11 @@ const FolderDetailPage = () => {
                         <AlertTriangle size={24} />
                     </div>
                     <h3 style={{ fontSize: '18px', fontWeight: '600', color: 'var(--text-dark)', marginBottom: '8px' }}>
-                        Xóa thư mục này?
+                        Delete this folder?
                     </h3>
                     <p style={{ fontSize: '14px', color: 'var(--text-light)', lineHeight: '1.5' }}>
-                        Hành động này sẽ xóa thư mục <strong>"{folder.name}"</strong> vĩnh viễn. 
-                        Các học phần bên trong thư mục này <strong>SẼ KHÔNG</strong> bị xóa. Bạn có chắc chắn muốn tiến hành?
+                        This action will permanently delete the folder <strong>"{folder.name}"</strong>. 
+                        The flashcard sets inside this folder <strong>WILL NOT</strong> be deleted. Are you sure you want to proceed?
                     </p>
                 </div>
             </Modal>

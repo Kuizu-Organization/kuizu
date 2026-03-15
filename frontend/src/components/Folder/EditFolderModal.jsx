@@ -25,7 +25,7 @@ const EditFolderModal = ({ isOpen, onClose, folder, onUpdateSuccess }) => {
         if (isSubmitting) return;
 
         if (!folderName.trim()) {
-            toast.error('Tên thư mục không được để trống');
+            toast.error('Folder name is required');
             return;
         }
 
@@ -38,7 +38,7 @@ const EditFolderModal = ({ isOpen, onClose, folder, onUpdateSuccess }) => {
             };
 
             const updatedFolder = await updateFolder(folder.folderId, folderData);
-            toast.success('Cập nhật thư mục thành công!');
+            toast.success('Folder updated successfully!');
 
             if (onUpdateSuccess) {
                 onUpdateSuccess(updatedFolder);
@@ -47,7 +47,7 @@ const EditFolderModal = ({ isOpen, onClose, folder, onUpdateSuccess }) => {
 
         } catch (error) {
             console.error('Failed to update folder:', error);
-            toast.error(error.response?.data?.message || 'Không thể cập nhật thư mục');
+            toast.error(error.response?.data?.message || 'Failed to update folder');
         } finally {
             setIsSubmitting(false);
         }
@@ -56,7 +56,7 @@ const EditFolderModal = ({ isOpen, onClose, folder, onUpdateSuccess }) => {
     const footer = (
         <div className="create-folder-actions">
             <Button variant="outline" onClick={onClose} disabled={isSubmitting}>
-                Hủy
+                Cancel
             </Button>
             <Button
                 variant="primary"
@@ -64,7 +64,7 @@ const EditFolderModal = ({ isOpen, onClose, folder, onUpdateSuccess }) => {
                 disabled={isSubmitting || !folderName.trim()}
                 isLoading={isSubmitting}
             >
-                Lưu thay đổi
+                Save changes
             </Button>
         </div>
     );
@@ -73,16 +73,16 @@ const EditFolderModal = ({ isOpen, onClose, folder, onUpdateSuccess }) => {
         <Modal
             isOpen={isOpen}
             onClose={onClose}
-            title="Chỉnh sửa thư mục"
+            title="Edit Folder"
             size="md"
             footer={footer}
         >
             <div className="create-folder-content">
                 <form onSubmit={handleSubmit}>
                     <div className="form-group slide-in">
-                        <label>Tên thư mục *</label>
+                        <label>Folder name *</label>
                         <Input
-                            placeholder="Ví dụ: Tài liệu Học kỳ 1"
+                            placeholder="e.g., Semester 1 Materials"
                             value={folderName}
                             onChange={(e) => setFolderName(e.target.value)}
                             autoFocus
@@ -91,10 +91,10 @@ const EditFolderModal = ({ isOpen, onClose, folder, onUpdateSuccess }) => {
                     </div>
 
                     <div className="form-group slide-in" style={{ animationDelay: '0.1s' }}>
-                        <label>Mô tả (Không bắt buộc)</label>
+                        <label>Description (Optional)</label>
                         <textarea
                             className="create-folder-textarea"
-                            placeholder="Mô tả nội dung thư mục..."
+                            placeholder="Describe the folder contents..."
                             value={description}
                             onChange={(e) => setDescription(e.target.value)}
                             rows={3}
@@ -102,7 +102,7 @@ const EditFolderModal = ({ isOpen, onClose, folder, onUpdateSuccess }) => {
                     </div>
 
                     <div className="form-group slide-in" style={{ animationDelay: '0.2s' }}>
-                        <label>Hiển thị</label>
+                        <label>Visibility</label>
                         <div className="visibility-options">
                             <div
                                 className={`visibility-option ${visibility === 'PUBLIC' ? 'active' : ''}`}
@@ -112,8 +112,8 @@ const EditFolderModal = ({ isOpen, onClose, folder, onUpdateSuccess }) => {
                                     <div className={`radio-dot ${visibility === 'PUBLIC' ? 'checked' : ''}`}></div>
                                 </div>
                                 <div className="visibility-text">
-                                    <span className="visibility-label">🌐 Công khai</span>
-                                    <span className="visibility-desc">Tất cả người dùng đều có thể xem thư mục này</span>
+                                    <span className="visibility-label">🌐 Public</span>
+                                    <span className="visibility-desc">Anyone can view this folder</span>
                                 </div>
                             </div>
                             <div
@@ -124,8 +124,8 @@ const EditFolderModal = ({ isOpen, onClose, folder, onUpdateSuccess }) => {
                                     <div className={`radio-dot ${visibility === 'PRIVATE' ? 'checked' : ''}`}></div>
                                 </div>
                                 <div className="visibility-text">
-                                    <span className="visibility-label">🔒 Riêng tư</span>
-                                    <span className="visibility-desc">Chỉ bạn mới có thể xem thư mục này</span>
+                                    <span className="visibility-label">🔒 Private</span>
+                                    <span className="visibility-desc">Only you can view this folder</span>
                                 </div>
                             </div>
                         </div>
