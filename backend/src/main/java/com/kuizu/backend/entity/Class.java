@@ -76,6 +76,10 @@ public class Class {
 
     @OneToMany(mappedBy = "clazz", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
+    private List<ClassInvite> classInvites = new ArrayList<>();
+
+    @OneToMany(mappedBy = "clazz", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
     private List<ClassMaterial> classMaterials = new ArrayList<>();
 
     @OneToMany(mappedBy = "clazz", cascade = CascadeType.ALL, orphanRemoval = true)
