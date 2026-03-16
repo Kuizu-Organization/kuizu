@@ -60,7 +60,7 @@ const Sidebar = ({ isCollapsed, onToggle, activePath = '/dashboard' }) => {
 
     const quickStartLinks = [
         { icon: <BookOpen size={22} />, label: 'Flashcards', path: '/create/flashcards' },
-        { icon: <Folder size={22} />, label: 'Folders', path: '/create/folder' },
+        { icon: <Folder size={22} />, label: 'Folders', path: '/folders' },
         { icon: <GraduationCap size={22} />, label: 'Classes', path: '/create/class' },
     ];
 

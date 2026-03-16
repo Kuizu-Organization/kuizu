@@ -9,6 +9,8 @@ import AdminSetPreviewPage from './pages/Admin/AdminSetPreviewPage';
 import ClassDetailPage from './pages/ClassDetailPage/ClassDetailPage';
 import SearchPage from './pages/SearchPage/SearchPage';
 import ComingSoonPage from './pages/ComingSoonPage';
+import FoldersPage from './pages/FoldersPage/FoldersPage';
+import FolderDetailPage from './pages/FolderDetailPage/FolderDetailPage';
 
 import MainLayout from './components/layout';
 
@@ -107,6 +109,21 @@ function App() {
           </MainLayout>
         } />
 
+        <Route path="/folders" element={
+          <MainLayout>
+            <ProtectedRoute>
+              <FoldersPage />
+            </ProtectedRoute>
+          </MainLayout>
+        } />
+
+        <Route path="/folders/:folderId" element={
+          <MainLayout>
+            <ProtectedRoute>
+              <FolderDetailPage />
+            </ProtectedRoute>
+          </MainLayout>
+        } />
         {/* Catch-all route for missing pages */}
         <Route path="*" element={<ComingSoonPage />} />
       </Routes>
@@ -115,3 +132,4 @@ function App() {
 }
 
 export default App;
+

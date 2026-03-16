@@ -1,0 +1,243 @@
+.folders-container {
+    padding: 40px;
+    max-width: 1440px;
+    margin: 0 auto;
+}
+
+.folders-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 36px;
+    flex-wrap: wrap;
+    gap: 16px;
+}
+
+.folders-header h1 {
+    font-family: 'Outfit', sans-serif;
+    font-size: 32px;
+    font-weight: 700;
+    color: var(--text-dark);
+    margin: 0 0 8px 0;
+    letter-spacing: -0.5px;
+}
+
+.folders-header p {
+    color: var(--text-light);
+    font-size: 16px;
+    margin: 0;
+}
+
+.folders-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+    gap: 20px;
+}
+
+.folder-card {
+    background: linear-gradient(135deg, #2e3856 0%, #282e3e 100%);
+    border-radius: 16px;
+    padding: 0;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    position: relative;
+}
+
+.folder-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--primary), var(--bg-purple));
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.folder-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.25);
+    border-color: rgba(66, 85, 255, 0.3);
+}
+
+.folder-card:hover::before {
+    opacity: 1;
+}
+
+.folder-card.public-card::before {
+    background: linear-gradient(90deg, #10b981, #34d399);
+}
+
+.folder-card-body {
+    padding: 28px 24px 20px;
+}
+
+.folder-card-meta {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 14px;
+}
+
+.folder-set-count {
+    background: rgba(66, 85, 255, 0.15);
+    color: #a8b4ff;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 4px 12px;
+    border-radius: 20px;
+    letter-spacing: 0.3px;
+}
+
+.folder-owner-info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.folder-owner-avatar {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--primary), var(--bg-purple));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 700;
+    color: #fff;
+}
+
+.folder-owner-name {
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 13px;
+    font-weight: 500;
+}
+
+.folder-card-title {
+    font-family: 'Outfit', sans-serif;
+    font-size: 20px;
+    font-weight: 700;
+    color: #ffffff;
+    margin: 0 0 8px 0;
+    line-height: 1.3;
+}
+
+.folder-card-description {
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 14px;
+    line-height: 1.5;
+    margin: 0;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.folder-card-footer {
+    padding: 14px 24px;
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.folder-icon-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: rgba(255, 255, 255, 0.4);
+    font-size: 13px;
+}
+
+.folder-visibility {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 3px 10px;
+    border-radius: 12px;
+}
+
+.folder-visibility.public {
+    background: rgba(16, 185, 129, 0.15);
+    color: #34d399;
+}
+
+.folder-visibility.private {
+    background: rgba(255, 114, 94, 0.15);
+    color: #ff725e;
+}
+
+/* Empty State */
+.folders-empty {
+    text-align: center;
+    padding: 80px 40px;
+    background: var(--input-bg);
+    border-radius: 20px;
+    border: 2px dashed var(--border-color);
+}
+
+.folders-empty-icon {
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, rgba(66, 85, 255, 0.1), rgba(168, 161, 255, 0.1));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 20px;
+    color: var(--primary);
+}
+
+.folders-empty h3 {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--text-dark);
+    margin: 0 0 8px 0;
+}
+
+.folders-empty p {
+    color: var(--text-light);
+    font-size: 15px;
+    margin: 0 auto 20px;
+    max-width: 360px;
+}
+
+/* Public Folders Section */
+.public-folders-section {
+    margin-top: 48px;
+    padding-top: 36px;
+    border-top: 1px solid var(--border-color);
+}
+
+.public-folders-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 24px;
+    color: #10b981;
+}
+
+.public-folders-header h2 {
+    font-family: 'Outfit', sans-serif;
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--text-dark);
+    margin: 0;
+}
+
+.public-folders-badge {
+    background: rgba(16, 185, 129, 0.1);
+    color: #10b981;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 4px 12px;
+    border-radius: 20px;
+    margin-left: auto;
+}
+
