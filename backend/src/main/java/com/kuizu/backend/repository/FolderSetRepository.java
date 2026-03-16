@@ -10,4 +10,5 @@ import java.util.List;
 @Repository
 public interface FolderSetRepository extends JpaRepository<FolderSet, FolderSet.FolderSetId> {
     List<FolderSet> findByFolder(Folder folder);
+    long countByFolder(Folder folder);
 }

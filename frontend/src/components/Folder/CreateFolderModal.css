@@ -1,0 +1,212 @@
+.create-folder-content {
+    padding: 8px 0;
+}
+
+.create-folder-content .form-group {
+    margin-bottom: 20px;
+}
+
+.create-folder-content .form-group label {
+    display: block;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-dark);
+    margin-bottom: 8px;
+}
+
+.create-folder-textarea {
+    width: 100%;
+    padding: 12px 16px;
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    font-size: 14px;
+    font-family: inherit;
+    resize: vertical;
+    background: var(--input-bg);
+    color: var(--text-dark);
+    transition: border-color 0.2s ease;
+    box-sizing: border-box;
+}
+
+.create-folder-textarea:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(66, 85, 255, 0.1);
+}
+
+/* Visibility Options */
+.visibility-options {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.visibility-option {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 14px 16px;
+    border: 2px solid var(--border-color);
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.visibility-option:hover {
+    border-color: rgba(66, 85, 255, 0.3);
+    background: rgba(66, 85, 255, 0.02);
+}
+
+.visibility-option.active {
+    border-color: var(--primary);
+    background: rgba(66, 85, 255, 0.04);
+}
+
+.visibility-radio {
+    width: 20px;
+    height: 20px;
+    border: 2px solid var(--border-color);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    margin-top: 2px;
+    transition: border-color 0.2s ease;
+}
+
+.visibility-option.active .visibility-radio {
+    border-color: var(--primary);
+}
+
+.radio-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    transition: background 0.2s ease;
+}
+
+.radio-dot.checked {
+    background: var(--primary);
+}
+
+.visibility-text {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.visibility-label {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-dark);
+}
+
+.visibility-desc {
+    font-size: 12px;
+    color: var(--text-light);
+}
+
+/* Actions */
+.create-folder-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+}
+
+/* Suggested Sets List in Create Folder Modal */
+.suggested-sets-list {
+    margin-top: 8px;
+    max-height: 200px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding-right: 4px;
+}
+
+/* Custom scrollbar for suggested list */
+.suggested-sets-list::-webkit-scrollbar {
+    width: 6px;
+}
+.suggested-sets-list::-webkit-scrollbar-track {
+    background: transparent;
+}
+.suggested-sets-list::-webkit-scrollbar-thumb {
+    background: var(--border-color);
+    border-radius: 4px;
+}
+
+.loading-sets, .empty-sets-msg {
+    font-size: 13px;
+    color: var(--text-light);
+    padding: 12px 0;
+    text-align: center;
+    font-style: italic;
+}
+
+.suggested-set-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    cursor: pointer;
+    background: var(--bg-card);
+    transition: all 0.2s ease;
+}
+
+.suggested-set-item:hover {
+    border-color: rgba(66, 85, 255, 0.4);
+    background: rgba(66, 85, 255, 0.02);
+}
+
+.suggested-set-item.selected {
+    border-color: var(--primary);
+    background: rgba(66, 85, 255, 0.05);
+}
+
+.set-item-main {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.set-icon {
+    color: var(--primary);
+}
+
+.set-info-minimal {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.set-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-dark);
+}
+
+.set-terms {
+    font-size: 12px;
+    color: var(--text-light);
+}
+
+.set-checkbox {
+    width: 20px;
+    height: 20px;
+    border: 2px solid var(--border-color);
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    transition: all 0.2s ease;
+}
+
+.suggested-set-item.selected .set-checkbox {
+    background: var(--primary);
+    border-color: var(--primary);
+}

@@ -212,6 +212,17 @@ public class DataInitializer {
 
                         flashcardSetRepository.saveAll(
                                         List.of(javaBasics, calculusSum, englishVocab, pendingSet1, pendingSet2));
+                        FlashcardSet demoSet = FlashcardSet.builder()
+                                        .owner(teacher)
+                                        .title("Demo Test Set")
+                                        .description("A demo flashcard set for testing.")
+                                        .visibility("PUBLIC")
+                                        .status("APPROVED")
+                                        .isDeleted(false)
+                                        .version(1)
+                                        .build();
+
+                        flashcardSetRepository.saveAll(List.of(javaBasics, calculusSum, englishVocab, demoSet));
 
                         // --- Flashcards ---
                         flashcardRepository.saveAll(List.of(
@@ -257,6 +268,10 @@ public class DataInitializer {
                                         Flashcard.builder().flashcardSet(pendingSet2).term("useEffect")
                                                         .definition("React Hook that lets you synchronize a component with an external system")
                                                         .orderIndex(1).isDeleted(false).build()));
+                        flashcardRepository.save(
+                                        Flashcard.builder().flashcardSet(demoSet).term("Hello")
+                                                        .definition("Xin chào")
+                                                        .orderIndex(0).isDeleted(false).build());
 
                         // --- Folders ---
                         Folder teacherFolder = Folder.builder()
