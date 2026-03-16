@@ -4,6 +4,7 @@ import com.kuizu.backend.dto.request.ForgotPasswordRequest;
 import com.kuizu.backend.dto.request.LoginRequest;
 import com.kuizu.backend.dto.request.RegisterRequest;
 import com.kuizu.backend.dto.request.ResetPasswordRequest;
+import com.kuizu.backend.dto.request.VerifyOtpRequest;
 import com.kuizu.backend.dto.response.AuthResponse;
 import com.kuizu.backend.service.AuthService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -27,6 +28,12 @@ public class AuthController {
     public ResponseEntity<AuthResponse> register(@Valid @RequestBody RegisterRequest request,
             HttpServletRequest httpRequest) {
         return ResponseEntity.ok(authService.register(request, httpRequest));
+    }
+
+    @PostMapping("/verify-registration")
+    public ResponseEntity<AuthResponse> verifyRegistration(@Valid @RequestBody VerifyOtpRequest request,
+            HttpServletRequest httpRequest) {
+        return ResponseEntity.ok(authService.verifyRegistrationOtp(request, httpRequest));
     }
 
     @PostMapping("/login")

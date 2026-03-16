@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Eye, EyeOff, Mail, Lock } from 'lucide-react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { login as loginApi } from '../../api/auth';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
@@ -54,7 +54,7 @@ const LoginForm = ({ onToggle }) => {
             <div className="input-container">
                 <div className="label-row">
                     <label className="input-label">Password</label>
-                    <a href="/forgot-password" title="Forgot password?">Forgot password?</a>
+                    <Link to="/forgot-password" title="Forgot password?">Forgot password?</Link>
                 </div>
                 <Input
                     type={showPassword ? "text" : "password"}

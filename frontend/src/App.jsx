@@ -9,6 +9,7 @@ import SearchPage from './pages/SearchPage/SearchPage';
 import ComingSoonPage from './pages/ComingSoonPage';
 import FoldersPage from './pages/FoldersPage/FoldersPage';
 import FolderDetailPage from './pages/FolderDetailPage/FolderDetailPage';
+import ForgotPasswordPage from './pages/ForgotPasswordPage/ForgotPasswordPage';
 
 import MainLayout from './components/layout';
 
@@ -18,6 +19,7 @@ function App() {
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/auth" element={<AuthPage />} />
+        <Route path="/forgot-password" element={<ForgotPasswordPage />} />
 
         {/* Protected layout pages */}
         <Route path="/profile" element={

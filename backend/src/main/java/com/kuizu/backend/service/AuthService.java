@@ -4,12 +4,13 @@ import com.kuizu.backend.dto.request.ForgotPasswordRequest;
 import com.kuizu.backend.dto.request.LoginRequest;
 import com.kuizu.backend.dto.request.RegisterRequest;
 import com.kuizu.backend.dto.request.ResetPasswordRequest;
+import com.kuizu.backend.dto.request.VerifyOtpRequest;
 import com.kuizu.backend.dto.response.AuthResponse;
-import com.kuizu.backend.entity.PasswordReset;
+import com.kuizu.backend.entity.OtpToken;
 import com.kuizu.backend.entity.User;
 import com.kuizu.backend.entity.UserSession;
 import com.kuizu.backend.exception.ApiException;
-import com.kuizu.backend.repository.PasswordResetRepository;
+import com.kuizu.backend.repository.OtpTokenRepository;
 import com.kuizu.backend.repository.UserRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,9 +20,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.security.SecureRandom;
 import java.time.LocalDateTime;
-import java.util.Base64;
+import java.util.Random;
 
 @Service
 public class AuthService {
@@ -39,13 +39,15 @@ public class AuthService {
     private SessionService sessionService;
 
     @Autowired
-    private PasswordResetRepository passwordResetRepository;
-
-    @Autowired
     private RateLimiterService rateLimiterService;
 
-    private static final SecureRandom secureRandom = new SecureRandom();
-    private static final Base64.Encoder base64Encoder = Base64.getUrlEncoder().withoutPadding();
+    @Autowired
+    private OtpTokenRepository otpTokenRepository;
+
+    @Autowired
+    private EmailService emailService;
+
+    private static final Random random = new Random();
 
     @Transactional
     public AuthResponse register(RegisterRequest request, HttpServletRequest httpServletRequest) {
@@ -75,10 +77,48 @@ public class AuthService {
                 .displayName(request.getDisplayName())
                 .bio(request.getBio())
                 .role(userRole)
-                .status(User.UserStatus.ACTIVE)
+                .status(User.UserStatus.INACTIVE)
                 .build();
 
         user = userRepository.save(user);
+
+        String otp = String.format("%06d", random.nextInt(1000000));
+        OtpToken otpToken = OtpToken.builder()
+                .email(user.getEmail())
+                .otpCode(otp)
+                .action("REGISTER")
+                .expiresAt(LocalDateTime.now().plusMinutes(10))
+                .build();
+        otpTokenRepository.save(otpToken);
+
+        emailService.sendOtpEmail(user.getEmail(), user.getUsername(), otp, "Registration");
+
+        return AuthResponse.builder()
+                .requireOtp(true)
+                .build();
+    }
+
+    @Transactional
+    public AuthResponse verifyRegistrationOtp(VerifyOtpRequest request, HttpServletRequest httpServletRequest) {
+        OtpToken otpToken = otpTokenRepository.findByEmailAndOtpCodeAndAction(request.getEmail(), request.getOtpCode(), "REGISTER")
+                .orElseThrow(() -> new ApiException("Invalid OTP code"));
+
+        if (otpToken.getUsedAt() != null || otpToken.getExpiresAt().isBefore(LocalDateTime.now())) {
+            throw new ApiException("Invalid or expired OTP code");
+        }
+
+        User user = userRepository.findByEmail(request.getEmail())
+                .orElseThrow(() -> new ApiException("User not found"));
+
+        if (user.getStatus() != User.UserStatus.INACTIVE) {
+            throw new ApiException("User is already active");
+        }
+
+        user.setStatus(User.UserStatus.ACTIVE);
+        userRepository.save(user);
+
+        otpToken.setUsedAt(LocalDateTime.now());
+        otpTokenRepository.save(otpToken);
 
         UserSession session = sessionService.createSession(user, httpServletRequest);
 
@@ -88,6 +128,7 @@ public class AuthService {
                 .username(user.getUsername())
                 .email(user.getEmail())
                 .role(user.getRole().name())
+                .requireOtp(false)
                 .build();
     }
 
@@ -109,8 +150,11 @@ public class AuthService {
                         }));
 
         if (user.getStatus() == User.UserStatus.LOCKED) {
-            throw new ApiException(
-                    "Your account is locked due to multiple failed login attempts. Please contact support.");
+            throw new ApiException("Your account is locked due to multiple failed login attempts. Please contact support.");
+        }
+        
+        if (user.getStatus() == User.UserStatus.INACTIVE) {
+            throw new ApiException("Your account is not verified. Please check your email and verify your account first.");
         }
 
         try {
@@ -140,6 +184,7 @@ public class AuthService {
                 .username(user.getUsername())
                 .email(user.getEmail())
                 .role(user.getRole().name())
+                .requireOtp(false)
                 .build();
     }
 
@@ -156,44 +201,43 @@ public class AuthService {
         User user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new ApiException("User not found with this email"));
 
-        // Invalidate previous used or active tokens
-        passwordResetRepository.findByUserAndUsedAtIsNull(user).forEach(reset -> {
-            reset.setUsedAt(LocalDateTime.now()); // Mark as used to invalidate
-            passwordResetRepository.save(reset);
+        // Invalidate previous ones
+        otpTokenRepository.findByEmailAndActionAndUsedAtIsNull(request.getEmail(), "PASSWORD_RESET").forEach(reset -> {
+            reset.setUsedAt(LocalDateTime.now());
+            otpTokenRepository.save(reset);
         });
 
-        byte[] randomBytes = new byte[32];
-        secureRandom.nextBytes(randomBytes);
-        String token = base64Encoder.encodeToString(randomBytes);
-
-        PasswordReset reset = PasswordReset.builder()
-                .user(user)
-                .resetToken(token)
-                .expiresAt(LocalDateTime.now().plusHours(1))
+        String otp = String.format("%06d", random.nextInt(1000000));
+        OtpToken otpToken = OtpToken.builder()
+                .email(user.getEmail())
+                .otpCode(otp)
+                .action("PASSWORD_RESET")
+                .expiresAt(LocalDateTime.now().plusMinutes(10))
                 .build();
+        otpTokenRepository.save(otpToken);
 
-        passwordResetRepository.save(reset);
         rateLimiterService.registerForgotPasswordAttempt(request.getEmail());
 
-        // Log the token for demonstration
-        System.out.println("Password reset token for " + user.getEmail() + " is: " + token);
+        emailService.sendOtpEmail(user.getEmail(), user.getUsername(), otp, "Password Reset");
     }
 
     @Transactional
     public void resetPassword(ResetPasswordRequest request) {
-        PasswordReset reset = passwordResetRepository.findByResetToken(request.getToken())
-                .orElseThrow(() -> new ApiException("Invalid or expired reset token"));
+        OtpToken otpToken = otpTokenRepository.findByEmailAndOtpCodeAndAction(request.getEmail(), request.getOtpCode(), "PASSWORD_RESET")
+                .orElseThrow(() -> new ApiException("Invalid OTP code"));
 
-        if (reset.getUsedAt() != null || reset.getExpiresAt().isBefore(LocalDateTime.now())) {
-            throw new ApiException("Invalid or expired reset token");
+        if (otpToken.getUsedAt() != null || otpToken.getExpiresAt().isBefore(LocalDateTime.now())) {
+            throw new ApiException("Invalid or expired OTP code");
         }
 
-        User user = reset.getUser();
+        User user = userRepository.findByEmail(request.getEmail())
+                .orElseThrow(() -> new ApiException("User not found"));
+
         user.setPasswordHash(passwordEncoder.encode(request.getNewPassword()));
         user.setPasswordUpdatedAt(LocalDateTime.now());
         userRepository.save(user);
 
-        reset.setUsedAt(LocalDateTime.now());
-        passwordResetRepository.save(reset);
+        otpToken.setUsedAt(LocalDateTime.now());
+        otpTokenRepository.save(otpToken);
     }
 }

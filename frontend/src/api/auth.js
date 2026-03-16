@@ -25,4 +25,19 @@ export const register = async (userData) => {
   return response.data;
 };
 
+export const verifyRegistration = async (email, otpCode) => {
+  const response = await api.post('/auth/verify-registration', { email, otpCode });
+  return response.data;
+};
+
+export const forgotPassword = async (email) => {
+  const response = await api.post('/auth/forgot-password', { email });
+  return response.data;
+};
+
+export const resetPassword = async (email, otpCode, newPassword) => {
+  const response = await api.post('/auth/reset-password', { email, otpCode, newPassword });
+  return response.data;
+};
+
 export default api;
