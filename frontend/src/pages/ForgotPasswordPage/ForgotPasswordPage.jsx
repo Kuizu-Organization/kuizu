@@ -4,7 +4,7 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { forgotPassword, resetPassword, verifyRegistration, resendRegistrationOtp } from '../../api/auth';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
-import { Input, Button, Card } from '../../components/ui';
+import { Input, Button, Card, OtpInput } from '../../components/ui';
 
 import './ForgotPasswordPage.css';
 
@@ -27,7 +27,17 @@ const ForgotPasswordPage = () => {
     const [confirmPassword, setConfirmPassword] = useState('');
     
     const [loading, setLoading] = useState(false);
-    const [error, setError] = useState('');
+    const [resendCooldown, setResendCooldown] = useState(0);
+
+    useEffect(() => {
+        let timer;
+        if (resendCooldown > 0) {
+            timer = setInterval(() => {
+                setResendCooldown((prev) => prev - 1);
+            }, 1000);
+        }
+        return () => clearInterval(timer);
+    }, [resendCooldown]);
 
     useEffect(() => {
         if (initialAction === 'register' && initialEmail) {
@@ -40,7 +50,6 @@ const ForgotPasswordPage = () => {
     const handleRequestOtp = async (e) => {
         e.preventDefault();
         setLoading(true);
-        setError('');
         
         try {
             await forgotPassword(email);
@@ -49,7 +58,6 @@ const ForgotPasswordPage = () => {
             setAction('reset');
         } catch (err) {
             const msg = err.response?.data?.message || 'Failed to send reset code. Please try again.';
-            setError(msg);
             toast.error(msg);
         } finally {
             setLoading(false);
@@ -68,18 +76,17 @@ const ForgotPasswordPage = () => {
 
     const handleResetPassword = async () => {
         if (newPassword !== confirmPassword) {
-            setError('Passwords do not match.');
+            toast.error('Passwords do not match.');
             return;
         }
         
         const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+=!]).{8,}$/;
         if (!passwordRegex.test(newPassword)) {
-            setError('Password must contain upper, lower, special character and min 8 chars.');
+            toast.error('Password must contain upper, lower, special character and min 8 chars.');
             return;
         }
         
         setLoading(true);
-        setError('');
         
         try {
             await resetPassword(email, otpCode, newPassword);
@@ -87,7 +94,6 @@ const ForgotPasswordPage = () => {
             navigate('/auth');
         } catch (err) {
             const msg = err.response?.data?.message || 'Failed to reset password. Invalid OTP or expired.';
-            setError(msg);
             toast.error(msg);
         } finally {
             setLoading(false);
@@ -96,12 +102,11 @@ const ForgotPasswordPage = () => {
 
     const handleVerifyRegistration = async () => {
         if (otpCode.length !== 6) {
-            setError('Please enter a 6-digit code.');
+            toast.error('Please enter a 6-digit code.');
             return;
         }
 
         setLoading(true);
-        setError('');
 
         try {
             const data = await verifyRegistration(email, otpCode);
@@ -110,7 +115,6 @@ const ForgotPasswordPage = () => {
             navigate('/dashboard');
         } catch (err) {
             const msg = err.response?.data?.message || 'Invalid OTP. Please try again.';
-            setError(msg);
             toast.error(msg);
         } finally {
             setLoading(false);
@@ -119,7 +123,6 @@ const ForgotPasswordPage = () => {
 
     const handleResendOtp = async () => {
         setLoading(true);
-        setError('');
         try {
             if (action === 'register') {
                 await resendRegistrationOtp(email);
@@ -128,9 +131,9 @@ const ForgotPasswordPage = () => {
             }
             toast.success('New 6-digit code sent to your email.');
             setOtpCode('');
+            setResendCooldown(60);
         } catch (err) {
             const msg = err.response?.data?.message || 'Failed to resend code. Please try again.';
-            setError(msg);
             toast.error(msg);
         } finally {
             setLoading(false);
@@ -167,8 +170,6 @@ const ForgotPasswordPage = () => {
                                 required
                             />
                             
-                            {error && <p className="error-text">{error}</p>}
-                            
                             <Button type="submit" isLoading={loading} className="w-full mt-6">
                                 {loading ? 'Sending...' : 'Send Reset Code'}
                             </Button>
@@ -190,13 +191,11 @@ const ForgotPasswordPage = () => {
                         </div>
                         
                         <form onSubmit={handleSubmit} className="auth-form">
-                            <Input
-                                label="6-Digit OTP"
-                                placeholder="Enter code"
+                            <label className="input-label" style={{ textAlign: 'center', display: 'block', marginBottom: '8px' }}>6-Digit OTP</label>
+                            <OtpInput
                                 value={otpCode}
-                                onChange={(e) => setOtpCode(e.target.value.replace(/[^0-9]/g, '').slice(0, 6))}
-                                className="otp-input"
-                                required
+                                onChange={(val) => setOtpCode(val)}
+                                disabled={loading}
                             />
                             
                             {action === 'reset' && (
@@ -223,14 +222,20 @@ const ForgotPasswordPage = () => {
                                 </>
                             )}
                             
-                            {error && <p className="error-text">{error}</p>}
-                            
                             <Button type="submit" isLoading={loading} className="w-full mt-6">
                                 {loading ? 'Processing...' : (action === 'reset' ? 'Reset Password' : 'Verify Account')}
                             </Button>
 
-                            <Button variant="ghost" type="button" className="w-full mt-4" onClick={handleResendOtp} disabled={loading}>
-                                Didn't get a code? Resend
+                            <Button 
+                                variant="ghost" 
+                                type="button" 
+                                className="w-full mt-4" 
+                                onClick={handleResendOtp} 
+                                disabled={loading || resendCooldown > 0}
+                            >
+                                {resendCooldown > 0 
+                                    ? `Resend in ${resendCooldown}s` 
+                                    : "Didn't get a code? Resend"}
                             </Button>
                         </form>
                     </div>

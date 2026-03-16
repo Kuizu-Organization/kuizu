@@ -1,0 +1,45 @@
+.otp-input-container {
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+    margin: 16px 0 24px;
+}
+
+.otp-digit-slot {
+    width: 46px;
+    height: 56px;
+    background: var(--input-bg);
+    border: 2px solid transparent;
+    border-radius: 12px;
+    text-align: center;
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: var(--text-dark);
+    transition: all 0.2s ease;
+    outline: none;
+}
+
+.otp-digit-slot:focus {
+    border-color: var(--primary);
+    background: white;
+    box-shadow: 0 4px 12px rgba(66, 133, 244, 0.15);
+    transform: translateY(-2px);
+}
+
+.otp-digit-slot.filled {
+    border-color: var(--border-color);
+}
+
+.otp-digit-slot:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+@media (max-width: 480px) {
+    .otp-digit-slot {
+        width: 42px;
+        height: 52px;
+        font-size: 1.5rem;
+        gap: 8px;
+    }
+}

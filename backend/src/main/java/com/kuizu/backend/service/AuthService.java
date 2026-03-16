@@ -82,6 +82,8 @@ public class AuthService {
 
         user = userRepository.save(user);
 
+        checkOtpRateLimit(user.getEmail());
+
         String otp = String.format("%06d", random.nextInt(1000000));
         OtpToken otpToken = OtpToken.builder()
                 .email(user.getEmail())
@@ -91,6 +93,7 @@ public class AuthService {
                 .build();
         otpTokenRepository.save(otpToken);
 
+        rateLimiterService.registerOtpRequest(user.getEmail());
         emailService.sendOtpEmail(user.getEmail(), user.getUsername(), otp, "Registration");
 
         return AuthResponse.builder()
@@ -100,7 +103,8 @@ public class AuthService {
 
     @Transactional
     public AuthResponse verifyRegistrationOtp(VerifyOtpRequest request, HttpServletRequest httpServletRequest) {
-        OtpToken otpToken = otpTokenRepository.findByEmailAndOtpCodeAndAction(request.getEmail(), request.getOtpCode(), "REGISTER")
+        OtpToken otpToken = otpTokenRepository
+                .findByEmailAndOtpCodeAndAction(request.getEmail(), request.getOtpCode(), "REGISTER")
                 .orElseThrow(() -> new ApiException("Invalid OTP code"));
 
         if (otpToken.getUsedAt() != null || otpToken.getExpiresAt().isBefore(LocalDateTime.now())) {
@@ -150,11 +154,13 @@ public class AuthService {
                         }));
 
         if (user.getStatus() == User.UserStatus.LOCKED) {
-            throw new ApiException("Your account is locked due to multiple failed login attempts. Please contact support.");
+            throw new ApiException(
+                    "Your account is locked due to multiple failed login attempts. Please contact support.");
         }
-        
+
         if (user.getStatus() == User.UserStatus.INACTIVE) {
-            throw new ApiException("Your account is not verified. Please check your email and verify your account first.");
+            throw new ApiException(
+                    "Your account is not verified. Please check your email and verify your account first.");
         }
 
         try {
@@ -195,7 +201,7 @@ public class AuthService {
     @Transactional
     public void forgotPassword(ForgotPasswordRequest request) {
         if (!rateLimiterService.isForgotPasswordAllowed(request.getEmail())) {
-            throw new ApiException("Too many password reset requests. Please try again in an hour.");
+            throw new ApiException("Too many password reset requests. Please try again in 15 minutes.");
         }
 
         User user = userRepository.findByEmail(request.getEmail())
@@ -207,6 +213,8 @@ public class AuthService {
             otpTokenRepository.save(reset);
         });
 
+        checkOtpRateLimit(request.getEmail());
+
         String otp = String.format("%06d", random.nextInt(1000000));
         OtpToken otpToken = OtpToken.builder()
                 .email(user.getEmail())
@@ -217,13 +225,15 @@ public class AuthService {
         otpTokenRepository.save(otpToken);
 
         rateLimiterService.registerForgotPasswordAttempt(request.getEmail());
+        rateLimiterService.registerOtpRequest(request.getEmail());
 
         emailService.sendOtpEmail(user.getEmail(), user.getUsername(), otp, "Password Reset");
     }
 
     @Transactional
     public void resetPassword(ResetPasswordRequest request) {
-        OtpToken otpToken = otpTokenRepository.findByEmailAndOtpCodeAndAction(request.getEmail(), request.getOtpCode(), "PASSWORD_RESET")
+        OtpToken otpToken = otpTokenRepository
+                .findByEmailAndOtpCodeAndAction(request.getEmail(), request.getOtpCode(), "PASSWORD_RESET")
                 .orElseThrow(() -> new ApiException("Invalid OTP code"));
 
         if (otpToken.getUsedAt() != null || otpToken.getExpiresAt().isBefore(LocalDateTime.now())) {
@@ -256,6 +266,8 @@ public class AuthService {
             otpTokenRepository.save(token);
         });
 
+        checkOtpRateLimit(email);
+
         String otp = String.format("%06d", random.nextInt(1000000));
         OtpToken otpToken = OtpToken.builder()
                 .email(email)
@@ -265,6 +277,17 @@ public class AuthService {
                 .build();
         otpTokenRepository.save(otpToken);
 
+        rateLimiterService.registerOtpRequest(email);
         emailService.sendOtpEmail(email, user.getUsername(), otp, "Registration");
+    }
+
+    private void checkOtpRateLimit(String email) {
+        String status = rateLimiterService.getOtpRateLimitStatus(email);
+        if ("BLOCKED".equals(status)) {
+            throw new ApiException("Too many OTP requests. Please try again after 15 minutes.");
+        }
+        if ("COOLDOWN".equals(status)) {
+            throw new ApiException("Please wait 60 seconds before requesting another code.");
+        }
     }
 }

@@ -13,3 +13,4 @@ export { default as ComingSoonModal } from "./ComingSoonModal/ComingSoonModal";
 export { default as Dropdown } from "./Dropdown/Dropdown";
 export { default as EmptyState } from "./EmptyState/EmptyState";
 export { default as SearchBar } from "./SearchBar/SearchBar";
+export { default as OtpInput } from "./OtpInput/OtpInput";

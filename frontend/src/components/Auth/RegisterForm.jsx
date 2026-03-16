@@ -18,7 +18,7 @@ const RegisterForm = ({ onToggle }) => {
         role: 'ROLE_STUDENT'
     });
     
-    const [error, setError] = useState('');
+    
     const [loading, setLoading] = useState(false);
     const { login } = useAuth();
     const toast = useToast();
@@ -31,13 +31,11 @@ const RegisterForm = ({ onToggle }) => {
         const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+=!]).{8,}$/;
         if (!passwordRegex.test(formData.password)) {
             const msg = 'Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, and one special character.';
-            setError(msg);
             toast.error(msg);
             return;
         }
 
         setLoading(true);
-        setError('');
         try {
             const data = await registerApi(formData);
             if (data.requireOtp) {
@@ -50,7 +48,6 @@ const RegisterForm = ({ onToggle }) => {
             }
         } catch (err) {
             const msg = err.response?.data?.message || 'Something went wrong. Please try again.';
-            setError(msg);
             toast.error(msg);
         } finally {
             setLoading(false);
