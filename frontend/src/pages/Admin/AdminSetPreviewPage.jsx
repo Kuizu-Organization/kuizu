@@ -42,7 +42,7 @@ const AdminSetPreviewPage = () => {
                     </Button>
                 </header>
 
-                <div className="preview-main-card">
+                <Card className="preview-main-card">
                     <div className="preview-header-section">
                         <div className="header-info-main">
                             <div className="type-icon-wrapper">
@@ -109,7 +109,7 @@ const AdminSetPreviewPage = () => {
                             )}
                         </div>
                     </div>
-                </div>
+                </Card>
             </div>
         </MainLayout>
     );

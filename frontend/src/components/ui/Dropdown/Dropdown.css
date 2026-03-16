@@ -180,6 +180,14 @@
     background-color: #fffaf9 !important;
 }
 
+.dropdown-trigger.disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    background-color: var(--input-bg) !important;
+    border-color: transparent !important;
+    box-shadow: none !important;
+}
+
 .has-error.active {
     box-shadow: 0 0 0 4px rgba(255, 114, 94, 0.1) !important;
 }

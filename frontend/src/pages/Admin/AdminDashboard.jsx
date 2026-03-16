@@ -10,7 +10,7 @@ import {
     approveClass,
     rejectClass
 } from '../../api/moderation';
-import { Button, Card, Loader, Badge, Modal, Tabs, EmptyState, Table, Pagination } from '../../components/ui';
+import { Button, Card, Loader, Badge, Modal, Tabs, EmptyState, Table, Pagination, Dropdown, Textarea } from '../../components/ui';
 import { useToast } from '../../context/ToastContext';
 import { useAuth } from '../../context/AuthContext';
 import {
@@ -525,22 +525,24 @@ const AdminDashboard = () => {
                         </div>
                         <div className="detail-item role-management-section">
                             <label><Shield size={14} /> Role Management</label>
-                            <div className="role-updater-flex">
-                                <select
-                                    className="role-select"
-                                    value={selectedUser.role}
-                                    onChange={(e) => handleUserRoleUpdate(selectedUser.userId, e.target.value)}
-                                    disabled={isUpdatingUser === selectedUser.userId || selectedUser.userId === currentUser?.userId}
-                                >
-                                    <option value="ROLE_STUDENT">Student</option>
-                                    <option value="ROLE_TEACHER">Teacher</option>
-                                    <option value="ROLE_ADMIN">Administrator</option>
-                                </select>
-                                {isUpdatingUser === selectedUser.userId && <Loader size="xs" />}
-                                {selectedUser.userId === currentUser?.userId && (
-                                    <span className="text-xs text-slate-400 italic ml-2">You cannot change your own role</span>
-                                )}
-                            </div>
+                                <div className="role-updater-flex">
+                                    <Dropdown
+                                        className="w-full"
+                                        variant="select"
+                                        label={selectedUser.role.replace('ROLE_', '').charAt(0) + selectedUser.role.replace('ROLE_', '').slice(1).toLowerCase()}
+                                        items={[
+                                            { label: 'Student', value: 'ROLE_STUDENT' },
+                                            { label: 'Teacher', value: 'ROLE_TEACHER' },
+                                            { label: 'Administrator', value: 'ROLE_ADMIN' }
+                                        ]}
+                                        onItemClick={(item) => handleUserRoleUpdate(selectedUser.userId, item.value)}
+                                        disabled={isUpdatingUser === selectedUser.userId || selectedUser.userId === currentUser?.userId}
+                                    />
+                                    {isUpdatingUser === selectedUser.userId && <Loader size="xs" />}
+                                    {selectedUser.userId === currentUser?.userId && (
+                                        <span className="text-xs text-slate-400 italic ml-2">You cannot change your own role</span>
+                                    )}
+                                </div>
                         </div>
                         <div className="detail-modal-actions">
                             {selectedUser.role !== 'ROLE_ADMIN' && (
@@ -607,11 +609,12 @@ const AdminDashboard = () => {
                         <div className="moderation-footer">
                             <div className="notes-field">
                                 <label><MessageSquare size={14} /> Moderation Feedback</label>
-                                <textarea
-                                    className="moderation-textarea"
+                                <Textarea
+                                    className="w-full mt-3 mb-6"
                                     placeholder="Provide a reason for approval or rejection (optional)..."
                                     value={moderationNotes}
                                     onChange={(e) => setModerationNotes(e.target.value)}
+                                    rows={4}
                                 />
                             </div>
                             <div className="actions-flex">
@@ -656,7 +659,7 @@ const AdminDashboard = () => {
 
                         <div className="info-card">
                             <div className="moderation-details-grid-single">
-                                <div className="detail-item">
+                                <div className="detail-item horizontal">
                                     <label><Users size={14} /> Owner</label>
                                     <span className="font-bold">{selectedClass.ownerDisplayName || 'N/A'}</span>
                                 </div>
@@ -670,11 +673,12 @@ const AdminDashboard = () => {
                         <div className="moderation-footer">
                             <div className="notes-field">
                                 <label><MessageSquare size={14} /> Moderation Feedback</label>
-                                <textarea
-                                    className="moderation-textarea"
+                                <Textarea
+                                    className="w-full mt-3 mb-6"
                                     placeholder="Provide a reason for approval or rejection (optional)..."
                                     value={moderationNotes}
                                     onChange={(e) => setModerationNotes(e.target.value)}
+                                    rows={4}
                                 />
                             </div>
                             <div className="actions-flex">

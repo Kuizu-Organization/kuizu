@@ -15,7 +15,8 @@ const Dropdown = ({
     variant = 'ghost', // ghost, field, select
     icon: Icon = ChevronDown,
     showChevron = true,
-    children
+    children,
+    disabled = false
 }) => {
     const [isOpen, setIsOpen] = useState(false);
     const dropdownRef = useRef(null);
@@ -31,7 +32,11 @@ const Dropdown = ({
         return () => document.removeEventListener('mousedown', handleClickOutside);
     }, []);
 
-    const toggleDropdown = () => setIsOpen(!isOpen);
+    const toggleDropdown = () => {
+        if (!disabled) {
+            setIsOpen(!isOpen);
+        }
+    };
 
     const handleItemClick = (item) => {
         if (onItemClick) {
@@ -45,7 +50,7 @@ const Dropdown = ({
             {formLabel && <label className="dropdown-form-label">{formLabel}</label>}
             <div className="dropdown-container" ref={dropdownRef}>
                 <div
-                    className={`${triggerClassName} ${variant} ${isOpen ? 'active' : ''} ${error ? 'has-error' : ''}`}
+                    className={`${triggerClassName} ${variant} ${isOpen ? 'active' : ''} ${error ? 'has-error' : ''} ${disabled ? 'disabled' : ''}`}
                     onClick={toggleDropdown}
                     aria-haspopup="true"
                     aria-expanded={isOpen}
