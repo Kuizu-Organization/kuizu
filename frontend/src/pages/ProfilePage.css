@@ -119,7 +119,8 @@
 }
 
 
-.account-type-badge, .account-status-badge {
+.account-type-badge,
+.account-status-badge {
     background: var(--input-bg);
     height: 48px;
     padding: 0 20px;
@@ -136,7 +137,8 @@
     background-color: rgba(16, 185, 129, 0.1);
 }
 
-.account-status-badge.banned, .account-status-badge.inactive {
+.account-status-badge.banned,
+.account-status-badge.inactive {
     color: var(--error);
     background-color: rgba(255, 114, 94, 0.1);
 }
@@ -160,5 +162,29 @@
 .edit-modal-content {
     display: flex;
     flex-direction: column;
-    gap: 16px;
+}
+
+.password-input-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.label-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.forgot-link {
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: var(--primary);
+    text-decoration: none;
+    transition: all 0.2s;
+}
+
+.forgot-link:hover {
+    color: var(--primary-hover);
+    text-decoration: underline;
 }

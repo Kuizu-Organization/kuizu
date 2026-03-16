@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Camera, ChevronDown, Plus, Pencil, User as UserIcon, Mail, ShieldCheck, Palette, Lock } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import './ProfilePage.css';
 import { updateProfile, changePassword } from '../api/user';
 import { Button, Card, Input, Modal, Dropdown, Textarea } from '../components/ui';
@@ -377,13 +378,18 @@ const ProfilePage = () => {
                         }
                     >
                         <div className="edit-modal-content">
-                            <Input
-                                label="Current Password"
-                                type="password"
-                                value={passwordData.oldPassword}
-                                onChange={(e) => setPasswordData({ ...passwordData, oldPassword: e.target.value })}
-                                placeholder="Enter current password"
-                            />
+                            <div className="password-input-group">
+                                <div className="label-row">
+                                    <label className="input-label">Current Password</label>
+                                    <Link to={`/forgot-password?email=${encodeURIComponent(user?.email || '')}`} className="forgot-link">Forgot password?</Link>
+                                </div>
+                                <Input
+                                    type="password"
+                                    value={passwordData.oldPassword}
+                                    onChange={(e) => setPasswordData({ ...passwordData, oldPassword: e.target.value })}
+                                    placeholder="Enter current password"
+                                />
+                            </div>
                             <Input
                                 style={{ marginTop: '16px' }}
                                 label="New Password"
