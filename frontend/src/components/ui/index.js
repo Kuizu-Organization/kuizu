@@ -16,3 +16,4 @@ export { default as EmptyState } from "./EmptyState/EmptyState";
 export { default as SearchBar } from "./SearchBar/SearchBar";
 export { default as Table } from "./Table/Table";
 export { default as Pagination } from "./Pagination/Pagination";
+export { default as OtpInput } from "./OtpInput/OtpInput";

@@ -4,6 +4,7 @@ import com.kuizu.backend.dto.request.ForgotPasswordRequest;
 import com.kuizu.backend.dto.request.LoginRequest;
 import com.kuizu.backend.dto.request.RegisterRequest;
 import com.kuizu.backend.dto.request.ResetPasswordRequest;
+import com.kuizu.backend.dto.request.VerifyOtpRequest;
 import com.kuizu.backend.dto.response.AuthResponse;
 import com.kuizu.backend.service.AuthService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -29,10 +30,24 @@ public class AuthController {
         return ResponseEntity.ok(authService.register(request, httpRequest));
     }
 
+    @PostMapping("/verify-registration")
+    public ResponseEntity<AuthResponse> verifyRegistration(@Valid @RequestBody VerifyOtpRequest request,
+            HttpServletRequest httpRequest) {
+        return ResponseEntity.ok(authService.verifyRegistrationOtp(request, httpRequest));
+    }
+
     @PostMapping("/login")
     public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginRequest request,
             HttpServletRequest httpRequest) {
         return ResponseEntity.ok(authService.login(request, httpRequest));
+    }
+
+    @PostMapping("/resend-registration-otp")
+    public ResponseEntity<Map<String, String>> resendRegistrationOtp(@RequestBody Map<String, String> request) {
+        authService.resendRegistrationOtp(request.get("email"));
+        Map<String, String> response = new HashMap<>();
+        response.put("message", "Registration code resent successfully");
+        return ResponseEntity.ok(response);
     }
 
     @PostMapping("/forgot-password")

@@ -90,7 +90,7 @@ public class UserService {
         user.setStatus(status);
         userRepository.save(user);
 
-        if (status == User.UserStatus.SUSPENDED || status == User.UserStatus.LOCKED) {
+        if (status == User.UserStatus.SUSPENDED) {
             sessionService.revokeAllUserSessions(user);
         }
 

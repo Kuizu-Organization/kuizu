@@ -4,12 +4,11 @@ import com.kuizu.backend.dto.request.ForgotPasswordRequest;
 import com.kuizu.backend.dto.request.LoginRequest;
 import com.kuizu.backend.dto.request.RegisterRequest;
 import com.kuizu.backend.dto.request.ResetPasswordRequest;
+import com.kuizu.backend.dto.request.VerifyOtpRequest;
 import com.kuizu.backend.dto.response.AuthResponse;
-import com.kuizu.backend.entity.PasswordReset;
 import com.kuizu.backend.entity.User;
 import com.kuizu.backend.entity.UserSession;
 import com.kuizu.backend.exception.ApiException;
-import com.kuizu.backend.repository.PasswordResetRepository;
 import com.kuizu.backend.repository.UserRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,9 +18,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.security.SecureRandom;
 import java.time.LocalDateTime;
-import java.util.Base64;
+import java.util.Random;
 
 @Service
 public class AuthService {
@@ -39,13 +37,15 @@ public class AuthService {
     private SessionService sessionService;
 
     @Autowired
-    private PasswordResetRepository passwordResetRepository;
-
-    @Autowired
     private RateLimiterService rateLimiterService;
 
-    private static final SecureRandom secureRandom = new SecureRandom();
-    private static final Base64.Encoder base64Encoder = Base64.getUrlEncoder().withoutPadding();
+    @Autowired
+    private OtpService otpService;
+
+    @Autowired
+    private EmailService emailService;
+
+    private static final Random random = new Random();
 
     @Transactional
     public AuthResponse register(RegisterRequest request, HttpServletRequest httpServletRequest) {
@@ -75,10 +75,40 @@ public class AuthService {
                 .displayName(request.getDisplayName())
                 .bio(request.getBio())
                 .role(userRole)
-                .status(User.UserStatus.ACTIVE)
+                .status(User.UserStatus.INACTIVE)
                 .build();
 
         user = userRepository.save(user);
+
+        checkOtpRateLimit(user.getEmail());
+
+        String otp = String.format("%06d", random.nextInt(1000000));
+        otpService.storeOtp(user.getEmail(), otp, "REGISTER");
+
+        rateLimiterService.registerOtpRequest(user.getEmail());
+        emailService.sendOtpEmail(user.getEmail(), user.getUsername(), otp, "Registration");
+
+        return AuthResponse.builder()
+                .requireOtp(true)
+                .build();
+    }
+
+    @Transactional
+    public AuthResponse verifyRegistrationOtp(VerifyOtpRequest request, HttpServletRequest httpServletRequest) {
+        boolean isValid = otpService.verifyOtp(request.getEmail(), request.getOtpCode(), "REGISTER");
+        if (!isValid) {
+            throw new ApiException("Invalid or expired OTP code");
+        }
+
+        User user = userRepository.findByEmail(request.getEmail())
+                .orElseThrow(() -> new ApiException("User not found"));
+
+        if (user.getStatus() != User.UserStatus.INACTIVE) {
+            throw new ApiException("User is already active");
+        }
+
+        user.setStatus(User.UserStatus.ACTIVE);
+        userRepository.save(user);
 
         UserSession session = sessionService.createSession(user, httpServletRequest);
 
@@ -88,6 +118,7 @@ public class AuthService {
                 .username(user.getUsername())
                 .email(user.getEmail())
                 .role(user.getRole().name())
+                .requireOtp(false)
                 .build();
     }
 
@@ -108,14 +139,8 @@ public class AuthService {
                             return new ApiException("Invalid username or email");
                         }));
 
-        if (user.getStatus() == User.UserStatus.LOCKED) {
-            throw new ApiException(
-                    "Your account is locked due to multiple failed login attempts. Please contact support.");
-        }
-
         if (user.getStatus() == User.UserStatus.SUSPENDED) {
-            throw new ApiException(
-                    "Your account has been suspended by an administrator. Please contact support.");
+            throw new ApiException("Your account is suspended. Please contact support.");
         }
 
         try {
@@ -127,9 +152,6 @@ public class AuthService {
             rateLimiterService.registerLoginFailedAttempt(rateLimitKey);
             int attempts = (user.getFailedLoginAttempts() == null ? 0 : user.getFailedLoginAttempts()) + 1;
             user.setFailedLoginAttempts(attempts);
-            if (attempts >= 5) {
-                user.setStatus(User.UserStatus.LOCKED);
-            }
             userRepository.save(user);
             throw new ApiException("Invalid password");
         }
@@ -145,6 +167,7 @@ public class AuthService {
                 .username(user.getUsername())
                 .email(user.getEmail())
                 .role(user.getRole().name())
+                .requireOtp(false)
                 .build();
     }
 
@@ -155,50 +178,67 @@ public class AuthService {
     @Transactional
     public void forgotPassword(ForgotPasswordRequest request) {
         if (!rateLimiterService.isForgotPasswordAllowed(request.getEmail())) {
-            throw new ApiException("Too many password reset requests. Please try again in an hour.");
+            throw new ApiException("Too many password reset requests. Please try again in 15 minutes.");
         }
 
         User user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new ApiException("User not found with this email"));
 
-        // Invalidate previous used or active tokens
-        passwordResetRepository.findByUserAndUsedAtIsNull(user).forEach(reset -> {
-            reset.setUsedAt(LocalDateTime.now()); // Mark as used to invalidate
-            passwordResetRepository.save(reset);
-        });
+        otpService.invalidateOtp(request.getEmail(), "PASSWORD_RESET");
 
-        byte[] randomBytes = new byte[32];
-        secureRandom.nextBytes(randomBytes);
-        String token = base64Encoder.encodeToString(randomBytes);
+        checkOtpRateLimit(request.getEmail());
 
-        PasswordReset reset = PasswordReset.builder()
-                .user(user)
-                .resetToken(token)
-                .expiresAt(LocalDateTime.now().plusHours(1))
-                .build();
+        String otp = String.format("%06d", random.nextInt(1000000));
+        otpService.storeOtp(user.getEmail(), otp, "PASSWORD_RESET");
 
-        passwordResetRepository.save(reset);
         rateLimiterService.registerForgotPasswordAttempt(request.getEmail());
+        rateLimiterService.registerOtpRequest(request.getEmail());
 
-        // Log the token for demonstration
-        System.out.println("Password reset token for " + user.getEmail() + " is: " + token);
+        emailService.sendOtpEmail(user.getEmail(), user.getUsername(), otp, "Password Reset");
     }
 
     @Transactional
     public void resetPassword(ResetPasswordRequest request) {
-        PasswordReset reset = passwordResetRepository.findByResetToken(request.getToken())
-                .orElseThrow(() -> new ApiException("Invalid or expired reset token"));
-
-        if (reset.getUsedAt() != null || reset.getExpiresAt().isBefore(LocalDateTime.now())) {
-            throw new ApiException("Invalid or expired reset token");
+        boolean isValid = otpService.verifyOtp(request.getEmail(), request.getOtpCode(), "PASSWORD_RESET");
+        if (!isValid) {
+            throw new ApiException("Invalid or expired OTP code");
         }
 
-        User user = reset.getUser();
+        User user = userRepository.findByEmail(request.getEmail())
+                .orElseThrow(() -> new ApiException("User not found"));
+
         user.setPasswordHash(passwordEncoder.encode(request.getNewPassword()));
         user.setPasswordUpdatedAt(LocalDateTime.now());
         userRepository.save(user);
+    }
 
-        reset.setUsedAt(LocalDateTime.now());
-        passwordResetRepository.save(reset);
+    @Transactional
+    public void resendRegistrationOtp(String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new ApiException("User not found with this email"));
+
+        if (user.getStatus() != User.UserStatus.INACTIVE) {
+            throw new ApiException("User is already active or cannot resend code");
+        }
+
+        otpService.invalidateOtp(email, "REGISTER");
+
+        checkOtpRateLimit(email);
+
+        String otp = String.format("%06d", random.nextInt(1000000));
+        otpService.storeOtp(email, otp, "REGISTER");
+
+        rateLimiterService.registerOtpRequest(email);
+        emailService.sendOtpEmail(email, user.getUsername(), otp, "Registration");
+    }
+
+    private void checkOtpRateLimit(String email) {
+        String status = rateLimiterService.getOtpRateLimitStatus(email);
+        if ("BLOCKED".equals(status)) {
+            throw new ApiException("Too many OTP requests. Please try again after 15 minutes.");
+        }
+        if ("COOLDOWN".equals(status)) {
+            throw new ApiException("Please wait 60 seconds before requesting another code.");
+        }
     }
 }

@@ -52,7 +52,7 @@ public class User {
     }
 
     public enum UserStatus {
-        ACTIVE, INACTIVE, SUSPENDED, LOCKED
+        ACTIVE, INACTIVE, SUSPENDED
     }
 
     @Column(name = "last_login_at")

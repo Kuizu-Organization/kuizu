@@ -525,24 +525,21 @@ const AdminDashboard = () => {
                         </div>
                         <div className="detail-item role-management-section">
                             <label><Shield size={14} /> Role Management</label>
-                                <div className="role-updater-flex">
-                                    <Dropdown
-                                        className="w-full"
-                                        variant="select"
-                                        label={selectedUser.role.replace('ROLE_', '').charAt(0) + selectedUser.role.replace('ROLE_', '').slice(1).toLowerCase()}
-                                        items={[
-                                            { label: 'Student', value: 'ROLE_STUDENT' },
-                                            { label: 'Teacher', value: 'ROLE_TEACHER' },
-                                            { label: 'Administrator', value: 'ROLE_ADMIN' }
-                                        ]}
-                                        onItemClick={(item) => handleUserRoleUpdate(selectedUser.userId, item.value)}
-                                        disabled={isUpdatingUser === selectedUser.userId || selectedUser.userId === currentUser?.userId}
-                                    />
-                                    {isUpdatingUser === selectedUser.userId && <Loader size="xs" />}
-                                    {selectedUser.userId === currentUser?.userId && (
-                                        <span className="text-xs text-slate-400 italic ml-2">You cannot change your own role</span>
-                                    )}
-                                </div>
+                            <div className="role-updater-flex">
+                                <Dropdown
+                                    className="w-full"
+                                    variant="select"
+                                    label={selectedUser.role.replace('ROLE_', '').charAt(0) + selectedUser.role.replace('ROLE_', '').slice(1).toLowerCase()}
+                                    items={[
+                                        { label: 'Student', value: 'ROLE_STUDENT' },
+                                        { label: 'Teacher', value: 'ROLE_TEACHER' },
+                                        { label: 'Administrator', value: 'ROLE_ADMIN' }
+                                    ]}
+                                    onItemClick={(item) => handleUserRoleUpdate(selectedUser.userId, item.value)}
+                                    disabled={isUpdatingUser === selectedUser.userId || selectedUser.userId === currentUser?.userId}
+                                />
+                                {isUpdatingUser === selectedUser.userId && <Loader size="xs" />}
+                            </div>
                         </div>
                         <div className="detail-modal-actions">
                             {selectedUser.role !== 'ROLE_ADMIN' && (

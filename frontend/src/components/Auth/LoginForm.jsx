@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Eye, EyeOff, Mail, Lock } from 'lucide-react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { login as loginApi } from '../../api/auth';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
@@ -11,7 +11,6 @@ import './AuthForm.css';
 const LoginForm = ({ onToggle }) => {
     const [showPassword, setShowPassword] = useState(false);
     const [formData, setFormData] = useState({ identifier: '', password: '' });
-    const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
     const toast = useToast();
 
@@ -24,7 +23,6 @@ const LoginForm = ({ onToggle }) => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         setLoading(true);
-        setError('');
         try {
             const data = await loginApi(formData.identifier, formData.password);
             await login(data, data.token);
@@ -32,7 +30,6 @@ const LoginForm = ({ onToggle }) => {
             navigate(from, { replace: true });
         } catch (err) {
             const msg = err.response?.data?.message || 'Invalid email or password';
-            setError(msg);
             toast.error(msg);
         } finally {
 
@@ -54,7 +51,7 @@ const LoginForm = ({ onToggle }) => {
             <div className="input-container">
                 <div className="label-row">
                     <label className="input-label">Password</label>
-                    <a href="/forgot-password" title="Forgot password?">Forgot password?</a>
+                    <Link to="/forgot-password" title="Forgot password?">Forgot password?</Link>
                 </div>
                 <Input
                     type={showPassword ? "text" : "password"}

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { User, Mail, Lock, FileText, Info } from 'lucide-react';
+import { User, Mail, Lock, Info } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { register as registerApi } from '../../api/auth';
 import { useAuth } from '../../context/AuthContext';
@@ -17,12 +17,12 @@ const RegisterForm = ({ onToggle }) => {
         bio: '',
         role: 'ROLE_STUDENT'
     });
-    const [error, setError] = useState('');
+    
+    
     const [loading, setLoading] = useState(false);
     const { login } = useAuth();
     const toast = useToast();
     const navigate = useNavigate();
-
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -31,25 +31,25 @@ const RegisterForm = ({ onToggle }) => {
         const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+=!]).{8,}$/;
         if (!passwordRegex.test(formData.password)) {
             const msg = 'Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, and one special character.';
-            setError(msg);
             toast.error(msg);
             return;
         }
 
-
         setLoading(true);
-        setError('');
         try {
             const data = await registerApi(formData);
-            await login(data, data.token);
-            toast.success('Account created successfully!');
-            navigate('/dashboard');
+            if (data.requireOtp) {
+                toast.success('Registration successful. Please verify your email.');
+                navigate(`/forgot-password?email=${encodeURIComponent(formData.email)}&action=register`);
+            } else {
+                await login(data, data.token);
+                toast.success('Account created successfully!');
+                navigate('/dashboard');
+            }
         } catch (err) {
             const msg = err.response?.data?.message || 'Something went wrong. Please try again.';
-            setError(msg);
             toast.error(msg);
         } finally {
-
             setLoading(false);
         }
     };
@@ -131,3 +131,6 @@ const RegisterForm = ({ onToggle }) => {
 };
 
 export default RegisterForm;
+
+
+
