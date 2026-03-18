@@ -1,4 +1,3 @@
-application.properties
 .env
 .env.*
 ! .env.example
