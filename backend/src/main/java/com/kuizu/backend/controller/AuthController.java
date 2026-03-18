@@ -1,6 +1,7 @@
 package com.kuizu.backend.controller;
 
 import com.kuizu.backend.dto.request.ForgotPasswordRequest;
+import com.kuizu.backend.dto.request.GoogleLoginRequest;
 import com.kuizu.backend.dto.request.LoginRequest;
 import com.kuizu.backend.dto.request.RegisterRequest;
 import com.kuizu.backend.dto.request.ResetPasswordRequest;
@@ -48,6 +49,12 @@ public class AuthController {
         Map<String, String> response = new HashMap<>();
         response.put("message", "Registration code resent successfully");
         return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/google")
+    public ResponseEntity<AuthResponse> googleLogin(@Valid @RequestBody GoogleLoginRequest request,
+            HttpServletRequest httpRequest) {
+        return ResponseEntity.ok(authService.googleLogin(request, httpRequest));
     }
 
     @PostMapping("/forgot-password")

@@ -6,14 +6,17 @@ import { useToast } from '../context/ToastContext';
 
 import LoginForm from '../components/Auth/LoginForm';
 import RegisterForm from '../components/Auth/RegisterForm';
-import { Button, Tabs } from '../components/ui';
+import { Tabs } from '../components/ui';
+import { GoogleLogin } from '@react-oauth/google';
+import { googleLogin } from '../api/auth';
 import './AuthPage.css';
 
 const AuthPage = () => {
-    const { user } = useAuth();
+    const { user, login } = useAuth();
     const toast = useToast();
     const location = useLocation();
     const [isLogin, setIsLogin] = useState(true);
+    const [isSocialLoading, setIsSocialLoading] = useState(false);
     const [hasCheckedReason, setHasCheckedReason] = useState(false);
 
     useEffect(() => {
@@ -28,11 +31,36 @@ const AuthPage = () => {
     }, [hasCheckedReason, toast]);
 
     if (user) {
-        if (user.role === 'ROLE_ADMIN') {
-            return <Navigate to="/admin/users" replace />;
-        }
         return <Navigate to="/dashboard" replace />;
     }
+
+    const handleGoogleSuccess = async (credentialResponse) => {
+        setIsSocialLoading(true);
+        try {
+            const { credential } = credentialResponse;
+            const data = await googleLogin(credential);
+
+            // Map backend response to AuthContext login
+            const userData = {
+                userId: data.userId,
+                username: data.username,
+                email: data.email,
+                role: data.role
+            };
+
+            await login(userData, data.token);
+            toast.success('Successfully logged in with Google!');
+        } catch (error) {
+            console.error('Google login error:', error);
+            toast.error(error.response?.data?.message || 'Google login failed. Please try again.');
+        } finally {
+            setIsSocialLoading(false);
+        }
+    };
+
+    const handleGoogleError = () => {
+        toast.error('Google login failed. Please try again.');
+    };
 
     const authTabs = [
         {
@@ -70,18 +98,22 @@ const AuthPage = () => {
                         <span>or social</span>
                     </div>
 
-                    <div className="auth-social">
-                        <Button variant="outline" className="w-full google-btn">
-                            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" style={{ width: 20, height: 20 }} />
-                            <span>{isLogin ? 'Log in with Google' : 'Sign up with Google'}</span>
-                        </Button>
-                    </div>
-
-                    {/* Content is handled by Tabs now, but since we had conditional rendering before, we keep it consistent.
+                    <div className="auth-social" style={{ display: 'flex', justifyContent: 'center' }}>
+                        <GoogleLogin
+                            onSuccess={handleGoogleSuccess}
+                            onError={handleGoogleError}
+                            theme="outline"
+                            size="large"
+                            width="100%"
+                            text={isLogin ? 'signin_with' : 'signup_with'}
+                            shape="rectangular"
+                        />
+                        {/* Content is handled by Tabs now, but since we had conditional rendering before, we keep it consistent.
                         Actually, the Tabs component already handles the switching. 
                         Wait, the LoginForm/RegisterForm had their own state toggle.
                         Let's just use the Tabs for a cleaner look.
                     */}
+                    </div>
                 </div>
             </div>
         </div>

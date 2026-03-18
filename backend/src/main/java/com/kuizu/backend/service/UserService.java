@@ -1,6 +1,7 @@
 package com.kuizu.backend.service;
 
 import com.kuizu.backend.dto.request.ChangePasswordRequest;
+import com.kuizu.backend.dto.request.SetPasswordRequest;
 import com.kuizu.backend.dto.request.UpdateProfileRequest;
 import com.kuizu.backend.dto.response.UserResponse;
 import com.kuizu.backend.entity.User;
@@ -24,7 +25,8 @@ public class UserService {
     private final ModerationService moderationService;
 
     @Autowired
-    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, SessionService sessionService, ModerationService moderationService) {
+    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, SessionService sessionService,
+            ModerationService moderationService) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.sessionService = sessionService;
@@ -74,8 +76,26 @@ public class UserService {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new ApiException("User not found"));
 
+        if (user.getPasswordHash() == null || user.getPasswordHash().isEmpty()) {
+            throw new ApiException("No password set. Please use Set Password instead.");
+        }
+
         if (!passwordEncoder.matches(request.getOldPassword(), user.getPasswordHash())) {
             throw new ApiException("Invalid old password");
+        }
+
+        user.setPasswordHash(passwordEncoder.encode(request.getNewPassword()));
+        user.setPasswordUpdatedAt(LocalDateTime.now());
+        userRepository.save(user);
+    }
+
+    @Transactional
+    public void setPassword(String username, SetPasswordRequest request) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new ApiException("User not found"));
+
+        if (user.getPasswordHash() != null && !user.getPasswordHash().isEmpty()) {
+            throw new ApiException("Password already set. Please use Change Password instead.");
         }
 
         user.setPasswordHash(passwordEncoder.encode(request.getNewPassword()));
@@ -119,6 +139,7 @@ public class UserService {
                 .profilePictureUrl(user.getProfilePictureUrl())
                 .role(user.getRole() != null ? user.getRole().name() : null)
                 .status(user.getStatus() != null ? user.getStatus().name() : null)
+                .hasPassword(user.getPasswordHash() != null && !user.getPasswordHash().isEmpty())
                 .locale(user.getLocale())
                 .timezone(user.getTimezone())
                 .preferences(user.getPreferences())

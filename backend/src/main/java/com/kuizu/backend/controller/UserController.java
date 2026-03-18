@@ -1,6 +1,7 @@
 package com.kuizu.backend.controller;
 
 import com.kuizu.backend.dto.request.ChangePasswordRequest;
+import com.kuizu.backend.dto.request.SetPasswordRequest;
 import com.kuizu.backend.dto.request.UpdateProfileRequest;
 import com.kuizu.backend.dto.response.UserResponse;
 import com.kuizu.backend.entity.User;
@@ -58,6 +59,16 @@ public class UserController {
         userService.changePassword(principal.getName(), request);
         Map<String, String> response = new HashMap<>();
         response.put("message", "Password changed successfully");
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/set-password")
+    public ResponseEntity<Map<String, String>> setPassword(
+            Principal principal,
+            @Valid @RequestBody SetPasswordRequest request) {
+        userService.setPassword(principal.getName(), request);
+        Map<String, String> response = new HashMap<>();
+        response.put("message", "Password set successfully");
         return ResponseEntity.ok(response);
     }
 

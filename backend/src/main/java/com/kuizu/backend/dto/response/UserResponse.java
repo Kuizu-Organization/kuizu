@@ -23,6 +23,7 @@ public class UserResponse {
     private String timezone;
     private String preferences;
     private String status;
+    private boolean hasPassword;
     private LocalDateTime lastLoginAt;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;

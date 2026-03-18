@@ -2,13 +2,16 @@ package com.kuizu.backend.service;
 
 import com.kuizu.backend.dto.request.ForgotPasswordRequest;
 import com.kuizu.backend.dto.request.LoginRequest;
+import com.kuizu.backend.dto.request.GoogleLoginRequest;
 import com.kuizu.backend.dto.request.RegisterRequest;
 import com.kuizu.backend.dto.request.ResetPasswordRequest;
 import com.kuizu.backend.dto.request.VerifyOtpRequest;
 import com.kuizu.backend.dto.response.AuthResponse;
+import com.kuizu.backend.entity.OAuthAccount;
 import com.kuizu.backend.entity.User;
 import com.kuizu.backend.entity.UserSession;
 import com.kuizu.backend.exception.ApiException;
+import com.kuizu.backend.repository.OAuthAccountRepository;
 import com.kuizu.backend.repository.UserRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,6 +47,12 @@ public class AuthService {
 
     @Autowired
     private EmailService emailService;
+
+    @Autowired
+    private OAuthAccountRepository oauthAccountRepository;
+
+    @Autowired
+    private SocialAuthService socialAuthService;
 
     private static final Random random = new Random();
 
@@ -157,6 +166,70 @@ public class AuthService {
         }
 
         user.setLastLoginAt(LocalDateTime.now());
+        userRepository.save(user);
+
+        UserSession session = sessionService.createSession(user, httpServletRequest);
+
+        return AuthResponse.builder()
+                .token(session.getSessionToken())
+                .userId(user.getUserId())
+                .username(user.getUsername())
+                .email(user.getEmail())
+                .role(user.getRole().name())
+                .requireOtp(false)
+                .build();
+    }
+
+    @Transactional
+    public AuthResponse googleLogin(GoogleLoginRequest request, HttpServletRequest httpServletRequest) {
+        com.google.api.client.googleapis.auth.oauth2.GoogleIdToken.Payload payload = socialAuthService
+                .verifyGoogleToken(request.getIdToken());
+        if (payload == null) {
+            throw new ApiException("Invalid Google ID Token");
+        }
+
+        String email = payload.getEmail();
+        String googleId = payload.getSubject();
+        String name = (String) payload.get("name");
+        String pictureUrl = (String) payload.get("picture");
+
+        User user = userRepository.findByEmail(email).orElse(null);
+
+        if (user == null) {
+            // Register new user
+            String username = email.split("@")[0];
+            // Handle username collision
+            if (userRepository.existsByUsername(username)) {
+                username = username + "_" + System.currentTimeMillis() % 1000;
+            }
+
+            user = User.builder()
+                    .username(username)
+                    .email(email)
+                    .displayName(name)
+                    .profilePictureUrl(pictureUrl)
+                    .role(User.UserRole.ROLE_STUDENT)
+                    .status(User.UserStatus.ACTIVE)
+                    .build();
+            user = userRepository.save(user);
+        }
+
+        // Link OAuth account if not already linked
+        java.util.Optional<OAuthAccount> oauthAccountOpt = oauthAccountRepository
+                .findByProviderAndProviderUserId("google", googleId);
+        if (oauthAccountOpt.isEmpty()) {
+            OAuthAccount oauthAccount = OAuthAccount.builder()
+                    .user(user)
+                    .provider("google")
+                    .providerUserId(googleId)
+                    .build();
+            oauthAccountRepository.save(oauthAccount);
+        }
+
+        user.setLastLoginAt(LocalDateTime.now());
+        if (user.getProfilePictureUrl() == null || user.getProfilePictureUrl().isEmpty()) {
+            user.setProfilePictureUrl(pictureUrl);
+        }
         userRepository.save(user);
 
         UserSession session = sessionService.createSession(user, httpServletRequest);

@@ -27,9 +27,14 @@ public class UserDetailsServiceImpl implements UserDetailsService {
                 boolean enabled = user.getStatus() == User.UserStatus.ACTIVE;
                 boolean accountNonLocked = user.getStatus() != User.UserStatus.SUSPENDED;
 
+                String password = user.getPasswordHash();
+                if (password == null || password.isEmpty()) {
+                        password = "N/A"; // Placeholder for users without a password (e.g. OAuth)
+                }
+
                 return new org.springframework.security.core.userdetails.User(
                                 user.getUsername(),
-                                user.getPasswordHash(),
+                                password,
                                 enabled,
                                 true, // accountNonExpired
                                 true, // credentialsNonExpired

@@ -1,18 +1,16 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Camera, ChevronDown, Plus, Pencil, User as UserIcon, Mail, ShieldCheck, Palette, Lock } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import './ProfilePage.css';
-import { updateProfile, changePassword } from '../api/user';
+import { updateProfile, changePassword, setPassword } from '../api/user';
 import { Button, Card, Input, Modal, Dropdown, Textarea } from '../components/ui';
 import MainLayout from '../components/layout';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 
-
 const ProfilePage = () => {
     const { user, checkAuth, loading: authLoading } = useAuth();
     const toast = useToast();
-    const [loading, setLoading] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     const [error, setError] = useState(null);
@@ -75,9 +73,17 @@ const ProfilePage = () => {
     };
 
     const handlePasswordSubmit = async () => {
-        if (!passwordData.oldPassword || !passwordData.newPassword || !passwordData.confirmPassword) {
-            toast.error('Please fill in all password fields');
-            return;
+        // Validation
+        if (!user.hasPassword) {
+            if (!passwordData.newPassword || !passwordData.confirmPassword) {
+                toast.error('Please fill in all password fields');
+                return;
+            }
+        } else {
+            if (!passwordData.oldPassword || !passwordData.newPassword || !passwordData.confirmPassword) {
+                toast.error('Please fill in all password fields');
+                return;
+            }
         }
 
         if (passwordData.newPassword !== passwordData.confirmPassword) {
@@ -98,15 +104,24 @@ const ProfilePage = () => {
 
         try {
             setIsSubmitting(true);
-            await changePassword({
-                oldPassword: passwordData.oldPassword,
-                newPassword: passwordData.newPassword
-            });
-            toast.success('Password changed successfully');
+            if (user.hasPassword) {
+                await changePassword({
+                    oldPassword: passwordData.oldPassword,
+                    newPassword: passwordData.newPassword
+                });
+                toast.success('Password changed successfully');
+            } else {
+                await setPassword({
+                    newPassword: passwordData.newPassword
+                });
+                toast.success('Password set successfully');
+            }
+            
             setIsPasswordModalOpen(false);
             setPasswordData({ oldPassword: '', newPassword: '', confirmPassword: '' });
+            await checkAuth(); // Sync global state to update hasPassword
         } catch (err) {
-            toast.error(err.response?.data?.message || 'Failed to change password');
+            toast.error(err.response?.data?.message || 'Failed to update password');
         } finally {
             setIsSubmitting(false);
         }
@@ -148,7 +163,7 @@ const ProfilePage = () => {
     ];
 
     return (
-        <MainLayout isLoading={authLoading || loading}>
+        <MainLayout isLoading={authLoading}>
             {error ? (
                 <div className="profile-container" style={{ textAlign: 'center', padding: '100px 0' }}>
                     <p style={{ color: 'var(--error)', fontSize: '1.2rem', fontWeight: '600' }}>{error}</p>
@@ -320,14 +335,14 @@ const ProfilePage = () => {
                                 <div className="field-row">
                                     <div className="field-info">
                                         <h4>Password</h4>
-                                        <p>Change your account password to keep it secure</p>
+                                        <p>{user?.hasPassword ? 'Change your account password to keep it secure' : 'Set a password to log in without Google'}</p>
                                     </div>
                                     <Button
                                         variant="outline"
                                         onClick={() => setIsPasswordModalOpen(true)}
                                         style={{ color: 'var(--primary)', borderColor: 'var(--primary)' }}
                                     >
-                                        Change Password
+                                        {user?.hasPassword ? 'Change Password' : 'Add Password'}
                                     </Button>
                                 </div>
                             </div>
@@ -369,43 +384,44 @@ const ProfilePage = () => {
                     <Modal
                         isOpen={isPasswordModalOpen}
                         onClose={() => setIsPasswordModalOpen(false)}
-                        title="Change Password"
+                        title={user?.hasPassword ? "Change Password" : "Add Password"}
                         footer={
                             <>
                                 <Button variant="ghost" onClick={() => setIsPasswordModalOpen(false)} disabled={isSubmitting}>Cancel</Button>
-                                <Button variant="primary" onClick={handlePasswordSubmit} isLoading={isSubmitting}>Update Password</Button>
+                                <Button variant="primary" onClick={handlePasswordSubmit} isLoading={isSubmitting}>{user?.hasPassword ? "Update Password" : "Add Password"}</Button>
                             </>
                         }
                     >
                         <div className="edit-modal-content">
-                            <div className="password-input-group">
-                                <div className="label-row">
+                            {user?.hasPassword && (
+                                <div className="password-input-group">
                                     <label className="input-label">Current Password</label>
-                                    <Link to={`/forgot-password?email=${encodeURIComponent(user?.email || '')}`} className="forgot-link">Forgot password?</Link>
+                                    <Input
+                                        type="password"
+                                        value={passwordData.oldPassword}
+                                        onChange={(e) => setPasswordData({ ...passwordData, oldPassword: e.target.value })}
+                                        placeholder="Enter current password"
+                                    />
                                 </div>
+                            )}
+                            <div className="password-input-group" style={{ marginTop: '16px' }}>
+                                <label className="input-label">New Password</label>
                                 <Input
                                     type="password"
-                                    value={passwordData.oldPassword}
-                                    onChange={(e) => setPasswordData({ ...passwordData, oldPassword: e.target.value })}
-                                    placeholder="Enter current password"
+                                    value={passwordData.newPassword}
+                                    onChange={(e) => setPasswordData({ ...passwordData, newPassword: e.target.value })}
+                                    placeholder="Enter new password (min 8 chars, 1 upper, 1 lower, 1 special)"
                                 />
                             </div>
-                            <Input
-                                style={{ marginTop: '16px' }}
-                                label="New Password"
-                                type="password"
-                                value={passwordData.newPassword}
-                                onChange={(e) => setPasswordData({ ...passwordData, newPassword: e.target.value })}
-                                placeholder="Enter new password (min 8 chars, 1 upper, 1 lower, 1 special)"
-                            />
-                            <Input
-                                style={{ marginTop: '16px' }}
-                                label="Confirm New Password"
-                                type="password"
-                                value={passwordData.confirmPassword}
-                                onChange={(e) => setPasswordData({ ...passwordData, confirmPassword: e.target.value })}
-                                placeholder="Confirm new password"
-                            />
+                            <div className="password-input-group" style={{ marginTop: '16px' }}>
+                                <label className="input-label">Confirm New Password</label>
+                                <Input
+                                    type="password"
+                                    value={passwordData.confirmPassword}
+                                    onChange={(e) => setPasswordData({ ...passwordData, confirmPassword: e.target.value })}
+                                    placeholder="Confirm new password"
+                                />
+                            </div>
                         </div>
                     </Modal>
                 </div>
@@ -413,6 +429,5 @@ const ProfilePage = () => {
         </MainLayout>
     );
 };
-
 
 export default ProfilePage;

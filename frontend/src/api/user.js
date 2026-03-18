@@ -29,3 +29,8 @@ export const updateUserRole = async (userId, role) => {
   const response = await api.patch(`/users/${userId}/role?role=${role}`);
   return response.data;
 };
+
+export const setPassword = async (passwordData) => {
+  const response = await api.post("/users/set-password", passwordData);
+  return response.data;
+};
