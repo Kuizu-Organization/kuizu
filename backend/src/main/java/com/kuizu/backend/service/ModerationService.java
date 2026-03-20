@@ -105,6 +105,19 @@ public class ModerationService {
             "MODERATION",
             set.getSetId().toString()
         );
+
+        // Send Email
+        User owner = set.getOwner();
+        if (owner != null && owner.getEmail() != null) {
+            emailService.sendModerationEmail(
+                owner.getEmail(),
+                owner.getDisplayName() != null ? owner.getDisplayName() : owner.getUsername(),
+                set.getTitle(),
+                "Approved",
+                request.getNotes(),
+                "Flashcard Set"
+            );
+        }
     }
 
     @Transactional
@@ -128,6 +141,19 @@ public class ModerationService {
             "MODERATION",
             set.getSetId().toString()
         );
+
+        // Send Email
+        User owner = set.getOwner();
+        if (owner != null && owner.getEmail() != null) {
+            emailService.sendModerationEmail(
+                owner.getEmail(),
+                owner.getDisplayName() != null ? owner.getDisplayName() : owner.getUsername(),
+                set.getTitle(),
+                "Rejected",
+                request.getNotes(),
+                "Flashcard Set"
+            );
+        }
     }
 
     @Transactional
@@ -150,6 +176,19 @@ public class ModerationService {
             "MODERATION",
             cls.getClassId().toString()
         );
+
+        // Send Email
+        User owner = cls.getOwner();
+        if (owner != null && owner.getEmail() != null) {
+            emailService.sendModerationEmail(
+                owner.getEmail(),
+                owner.getDisplayName() != null ? owner.getDisplayName() : owner.getUsername(),
+                cls.getClassName(),
+                "Approved",
+                request.getNotes(),
+                "Class"
+            );
+        }
     }
 
     @Transactional
@@ -173,6 +212,19 @@ public class ModerationService {
             "MODERATION",
             cls.getClassId().toString()
         );
+
+        // Send Email
+        User owner = cls.getOwner();
+        if (owner != null && owner.getEmail() != null) {
+            emailService.sendModerationEmail(
+                owner.getEmail(),
+                owner.getDisplayName() != null ? owner.getDisplayName() : owner.getUsername(),
+                cls.getClassName(),
+                "Rejected",
+                request.getNotes(),
+                "Class"
+            );
+        }
     }
 
     private User getCurrentUser() {
