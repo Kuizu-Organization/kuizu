@@ -38,7 +38,6 @@ public class ModerationService {
     private final FlashcardRepository flashcardRepository;
     private final NotificationService notificationService;
     private final EmailService emailService;
-    private final EmailService emailService;
 
     @Autowired
     public ModerationService(FlashcardSetRepository flashcardSetRepository,
@@ -48,15 +47,12 @@ public class ModerationService {
             FlashcardRepository flashcardRepository,
             NotificationService notificationService,
             EmailService emailService) {
-            NotificationService notificationService,
-            EmailService emailService) {
         this.flashcardSetRepository = flashcardSetRepository;
         this.classRepository = classRepository;
         this.moderationHistoryRepository = moderationHistoryRepository;
         this.userRepository = userRepository;
         this.flashcardRepository = flashcardRepository;
         this.notificationService = notificationService;
-        this.emailService = emailService;
         this.emailService = emailService;
     }
 
