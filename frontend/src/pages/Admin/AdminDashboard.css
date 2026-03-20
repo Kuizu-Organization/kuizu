@@ -5,7 +5,7 @@
 }
 
 .admin-header {
-    margin-bottom: 48px;
+    margin-bottom: 32px;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -446,4 +446,4 @@
     .moderation-grid {
         grid-template-columns: 1fr;
     }
-}
+}

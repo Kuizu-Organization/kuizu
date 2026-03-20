@@ -81,6 +81,12 @@ const AdminDashboard = () => {
     const [isHistoryLoading, setIsHistoryLoading] = useState(false);
 
     useEffect(() => {
+        // Fetch pending counts for the header stats on mount
+        fetchPendingSets();
+        fetchPendingClasses();
+    }, []);
+
+    useEffect(() => {
         if (activeTab === 0) fetchUsers();
         else if (activeTab === 1) fetchPendingSets();
         else if (activeTab === 2) fetchPendingClasses();
@@ -104,7 +110,7 @@ const AdminDashboard = () => {
         try {
             setIsSetsLoading(true);
             const data = await getPendingFlashcardSets();
-            setPendingSets(data);
+            setPendingSets(data || []);
         } catch (error) {
             toast.error("Failed to fetch pending flashcard sets");
         } finally {
@@ -116,7 +122,7 @@ const AdminDashboard = () => {
         try {
             setIsClassesLoading(true);
             const data = await getPendingClasses();
-            setPendingClasses(data);
+            setPendingClasses(data || []);
         } catch (error) {
             toast.error("Failed to fetch pending classes");
         } finally {
@@ -128,7 +134,7 @@ const AdminDashboard = () => {
         try {
             setIsHistoryLoading(true);
             const data = await getModerationHistory();
-            setModHistory(data);
+            setModHistory(data || []);
         } catch (error) {
             toast.error("Failed to fetch moderation history");
         } finally {
@@ -232,7 +238,10 @@ const AdminDashboard = () => {
                                     <td>
                                         <div className="user-cell">
                                             <div className="user-avatar-small">
-                                                {user.profilePictureUrl ? <img src={user.profilePictureUrl} alt="" /> : user.username.charAt(0).toUpperCase()}
+                                                <img
+                                                    src={user.profilePictureUrl || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user.username}`}
+                                                    alt={user.username}
+                                                />
                                             </div>
                                             <div className="user-info-cell">
                                                 <span className="user-display-name">{user.displayName || user.username}</span>
@@ -281,10 +290,10 @@ const AdminDashboard = () => {
         {
             label: (
                 <div className="tab-label-inner">
-                    <BookOpen size={16} /> Flashcard Submissions
+                    <BookOpen size={16} /> Set Submissions
                 </div>
             ),
-            title: 'Flashcard Submissions',
+            title: 'Set Submissions',
             content: (
                 <div className="admin-tab-content">
                     <Card className="user-list-card">
@@ -454,7 +463,10 @@ const AdminDashboard = () => {
                     <div className="user-detail-modal-content">
                         <div className="detail-modal-header">
                             <div className="user-avatar-large">
-                                {selectedUser.profilePictureUrl ? <img src={selectedUser.profilePictureUrl} alt="" /> : selectedUser.username.charAt(0).toUpperCase()}
+                                <img
+                                    src={selectedUser.profilePictureUrl || `https://api.dicebear.com/7.x/avataaars/svg?seed=${selectedUser.username}`}
+                                    alt={selectedUser.username}
+                                />
                             </div>
                             <div className="header-text">
                                 <h3>{selectedUser.displayName || selectedUser.username}</h3>
@@ -534,7 +546,10 @@ const AdminDashboard = () => {
                                     <label className="section-label">Author Information</label>
                                     <div className="author-info">
                                         <div className="user-avatar-mini">
-                                            {selectedSet.ownerDisplayName?.charAt(0)}
+                                            <img
+                                                src={selectedSet.ownerProfilePictureUrl || `https://api.dicebear.com/7.x/avataaars/svg?seed=${selectedSet.ownerUsername}`}
+                                                alt={selectedSet.ownerUsername}
+                                            />
                                         </div>
                                         <div>
                                             <div className="font-bold text-slate-800">{selectedSet.ownerDisplayName}</div>

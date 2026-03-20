@@ -63,7 +63,7 @@ const Sidebar = ({ isCollapsed, onToggle, activePath = '/dashboard' }) => {
 
     const adminLinks = [
         { icon: <Shield size={22} />, label: 'User Management', path: '/admin/users' },
-        { icon: <BookOpen size={22} />, label: 'Flashcard Submissions', path: '/admin/submissions/flashcards' },
+        { icon: <BookOpen size={22} />, label: 'Set Submissions', path: '/admin/submissions/flashcards' },
         { icon: <GraduationCap size={22} />, label: 'Class Submissions', path: '/admin/submissions/classes' },
         { icon: <HistoryIcon size={22} />, label: 'Moderation History', path: '/admin/history' },
         { icon: <BarChart3 size={22} />, label: 'Statistics', path: '/admin/stats/users' },
