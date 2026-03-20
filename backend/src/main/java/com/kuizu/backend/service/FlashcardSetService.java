@@ -37,6 +37,12 @@ public class FlashcardSetService {
     @Autowired
     private NotificationService notificationService;
 
+    @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    private StatisticService statisticService;
+
     public List<FlashcardSetResponse> getAllPublicSets() {
         return flashcardSetRepository.findByVisibilityAndIsDeletedFalse(Visibility.PUBLIC)
                 .stream()
@@ -112,6 +118,7 @@ public class FlashcardSetService {
                         + "' is currently pending moderation and awaiting review by the admins.",
                 "SYSTEM",
                 set.getSetId().toString());
+
         return mapToResponse(set);
     }
 
@@ -131,7 +138,6 @@ public class FlashcardSetService {
             set.setDescription(request.getDescription());
         if (request.getVisibility() != null)
             set.setVisibility(Visibility.valueOf(request.getVisibility().toUpperCase()));
-
 
         set = flashcardSetRepository.save(set);
         return mapToResponse(set);
@@ -212,5 +218,3 @@ public class FlashcardSetService {
                 .build();
     }
 }
-
-                        
