@@ -30,6 +30,18 @@ export const updateUserRole = async (userId, role) => {
   return response.data;
 };
 
+export const getPublicUserByUsername = async (username) => {
+  const response = await api.get(`/users/public/${username}`);
+  return response.data;
+};
+
+export const searchPublicUsers = async (query = "", page = 0, size = 10) => {
+  const response = await api.get(
+    `/users/search?query=${encodeURIComponent(query)}&page=${page}&size=${size}`,
+  );
+  return response.data;
+};
+
 export const setPassword = async (passwordData) => {
   const response = await api.post("/users/set-password", passwordData);
   return response.data;

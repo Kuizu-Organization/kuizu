@@ -8,7 +8,8 @@ const ItemCard = ({
     description,
     footerText,
     onClick,
-    className = ''
+    className = '',
+    profilePicture = null
 }) => {
     return (
         <Card
@@ -16,7 +17,16 @@ const ItemCard = ({
             onClick={onClick}
         >
             <div className="item-card-header">
-                <h3 className="item-card-title">{title}</h3>
+                <div className="item-card-title-wrapper">
+                    {profilePicture && (
+                        <img 
+                            src={profilePicture} 
+                            alt={title} 
+                            className="item-card-profile-pic" 
+                        />
+                    )}
+                    <h3 className="item-card-title">{title}</h3>
+                </div>
                 {badge && <span className="item-card-badge">{badge}</span>}
             </div>
             <div className="item-card-body">
