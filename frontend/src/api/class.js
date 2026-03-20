@@ -54,3 +54,13 @@ export const processJoinRequest = async (classId, requestId, status) => {
     const response = await api.post(`/classes/${classId}/join-requests/${requestId}/process`, { status });
     return response.data;
 };
+
+export const addClassMaterial = async (classId, materialData) => {
+    const response = await api.post(`/classes/${classId}/materials`, materialData);
+    return response.data;
+};
+
+export const removeClassMaterial = async (classId, materialId) => {
+    const response = await api.delete(`/classes/${classId}/materials/${materialId}`);
+    return response.data;
+};

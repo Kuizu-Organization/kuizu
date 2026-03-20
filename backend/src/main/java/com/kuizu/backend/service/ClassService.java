@@ -20,7 +20,13 @@ import com.kuizu.backend.repository.ClassJoinRequestRepository;
 import com.kuizu.backend.repository.ClassMemberRepository;
 import com.kuizu.backend.repository.ClassRepository;
 import com.kuizu.backend.repository.UserRepository;
+import com.kuizu.backend.repository.ClassMaterialRepository;
+import com.kuizu.backend.repository.FolderRepository;
+import com.kuizu.backend.repository.FlashcardSetRepository;
+import com.kuizu.backend.dto.request.AddClassMaterialRequest;
+import com.kuizu.backend.entity.ClassMaterial;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashSet;
 import java.util.List;
@@ -33,15 +39,23 @@ public class ClassService {
     private final ClassMemberRepository classMemberRepository;
     private final ClassJoinRequestRepository classJoinRequestRepository;
     private final NotificationService notificationService;
+    private final ClassMaterialRepository classMaterialRepository;
+    private final FolderRepository folderRepository;
+    private final FlashcardSetRepository flashcardSetRepository;
 
     public ClassService(ClassRepository classRepository, UserRepository userRepository, 
                         ClassMemberRepository classMemberRepository, ClassJoinRequestRepository classJoinRequestRepository,
-                        NotificationService notificationService) {
+                        NotificationService notificationService,
+                        ClassMaterialRepository classMaterialRepository, FolderRepository folderRepository,
+                        FlashcardSetRepository flashcardSetRepository) {
         this.classRepository = classRepository;
         this.userRepository = userRepository;
         this.classMemberRepository = classMemberRepository;
         this.classJoinRequestRepository = classJoinRequestRepository;
         this.notificationService = notificationService;
+        this.classMaterialRepository = classMaterialRepository;
+        this.folderRepository = folderRepository;
+        this.flashcardSetRepository = flashcardSetRepository;
     }
 
     public ClassInfoResponse findClassById(Long classId, String username) {
@@ -55,7 +69,8 @@ public class ClassService {
                 .map(m -> new ClassMaterialResponse(
                         m.getMaterialId(),
                         m.getMaterialType(),
-                        m.getMaterialRefId()
+                        m.getMaterialRefId(),
+                        getMaterialName(m.getMaterialType(), m.getMaterialRefId())
                 )).toList();
 
         Boolean isOwner = false;
@@ -388,5 +403,80 @@ public class ClassService {
         request.setRespondedAt(java.time.LocalDateTime.now());
         request.setRespondedBy(requester.getUserId());
         classJoinRequestRepository.save(request);
+    }
+
+    @Transactional
+    public ClassMaterialResponse addMaterial(Long classId, AddClassMaterialRequest request, String username) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new ApiException("User not found: " + username));
+        
+        Class clazz = classRepository.findByClassId(classId)
+                .orElseThrow(() -> new ApiException("Class not found: " + classId));
+
+        if (!clazz.getOwner().getUserId().equals(user.getUserId())) {
+            throw new ApiException("Only the class owner can add materials");
+        }
+
+        String type = request.getMaterialType();
+        Long refId = request.getMaterialRefId();
+
+        if ("FOLDER".equals(type)) {
+            folderRepository.findByFolderIdAndIsDeletedFalse(refId)
+                    .orElseThrow(() -> new ApiException("Folder not found"));
+        } else if ("FLASHCARD_SET".equals(type)) {
+            flashcardSetRepository.findById(refId)
+                    .filter(s -> s.getIsDeleted() == null || !s.getIsDeleted())
+                    .orElseThrow(() -> new ApiException("Flashcard set not found"));
+        } else {
+            throw new ApiException("Invalid material type");
+        }
+
+        boolean exists = classMaterialRepository.findByClazz_ClassId(classId).stream()
+                .anyMatch(m -> m.getMaterialType().equals(type) && m.getMaterialRefId().equals(refId));
+        if (exists) {
+            throw new ApiException("Material already exists in this class");
+        }
+
+        ClassMaterial material = ClassMaterial.builder()
+                .clazz(clazz)
+                .materialType(type)
+                .materialRefId(refId)
+                .addedBy(user.getUserId())
+                .build();
+        
+        material = classMaterialRepository.save(material);
+
+        return new ClassMaterialResponse(material.getMaterialId(), material.getMaterialType(), material.getMaterialRefId(), getMaterialName(material.getMaterialType(), material.getMaterialRefId()));
+    }
+
+    private String getMaterialName(String type, Long refId) {
+        if ("FOLDER".equals(type)) {
+            return folderRepository.findById(refId).map(com.kuizu.backend.entity.Folder::getName).orElse("Unknown Folder");
+        } else if ("FLASHCARD_SET".equals(type)) {
+            return flashcardSetRepository.findById(refId).map(com.kuizu.backend.entity.FlashcardSet::getTitle).orElse("Unknown Flashcard Set");
+        }
+        return "Unknown Material";
+    }
+
+    @Transactional
+    public void removeMaterial(Long classId, Long materialId, String username) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new ApiException("User not found: " + username));
+        
+        Class clazz = classRepository.findByClassId(classId)
+                .orElseThrow(() -> new ApiException("Class not found: " + classId));
+
+        if (!clazz.getOwner().getUserId().equals(user.getUserId())) {
+            throw new ApiException("Only the class owner can remove materials");
+        }
+
+        ClassMaterial material = classMaterialRepository.findById(materialId)
+                .orElseThrow(() -> new ApiException("Material not found: " + materialId));
+
+        if (!material.getClazz().getClassId().equals(classId)) {
+            throw new ApiException("Material does not belong to this class");
+        }
+
+        classMaterialRepository.delete(material);
     }
 }

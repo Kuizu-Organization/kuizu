@@ -1,0 +1,102 @@
+.add-material-content {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.material-type-selector {
+    display: flex;
+    gap: 1rem;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 1rem;
+}
+
+.type-btn {
+    flex: 1;
+    padding: 0.75rem;
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-md);
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.type-btn.active {
+    background-color: var(--primary-color);
+    color: white;
+    border-color: var(--primary-color);
+}
+
+.type-btn:hover:not(.active) {
+    background-color: var(--hover-color);
+}
+
+.material-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    max-height: 300px;
+    overflow-y: auto;
+    padding-right: 0.5rem;
+}
+
+.material-list-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-md);
+    background-color: var(--bg-color-alt);
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.material-list-item:hover {
+    border-color: var(--primary-color);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.material-list-item.selected {
+    border-color: var(--primary-color);
+    background-color: rgba(66, 153, 225, 0.05); 
+}
+
+.material-item-info {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.material-item-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    background-color: var(--bg-color);
+    border-radius: 8px;
+    color: var(--primary-color);
+}
+
+.material-item-details h4 {
+    margin: 0 0 0.25rem 0;
+    font-size: 1rem;
+    color: var(--text-color);
+}
+
+.material-item-details p {
+    margin: 0;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+}
+
+.empty-materials-msg {
+    text-align: center;
+    padding: 2rem;
+    color: var(--text-muted);
+    background-color: var(--bg-color-alt);
+    border-radius: var(--border-radius-md);
+}
