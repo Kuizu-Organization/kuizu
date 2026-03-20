@@ -22,6 +22,11 @@ and authentication with Google requires secrets that should not be put
 in public repository like Github. Those can be obtained in the `env`
 folder in the Google Drive of the project.
 
+The backend `.env` should be put in the root of the `backend` folder
+and named `.env`. The `.env` file for frontend should also be placed
+in the root of the `frontend` folder, but should be named `.env.production`
+so that is it copied by Docker to the image.
+
 ## Getting Started
 
 To run Kuizu locally using Docker, run this in your terminal:
