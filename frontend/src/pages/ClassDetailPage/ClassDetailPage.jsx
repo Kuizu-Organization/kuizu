@@ -107,13 +107,13 @@ const ClassDetailPage = () => {
         try {
             setIsRemoving(true);
             await removeMember(classId, selectedMember.userId);
-            
+
             // Update local state
             setClassData(prev => ({
                 ...prev,
                 members: prev.members.filter(m => m.userId !== selectedMember.userId)
             }));
-            
+
             setIsRemoveModalOpen(false);
             setSelectedMember(null);
         } catch (err) {
@@ -127,15 +127,15 @@ const ClassDetailPage = () => {
     const handleProcessJoinRequest = async (requestId, status) => {
         try {
             await processJoinRequest(classId, requestId, status);
-            
+
             // Find the request to get user info if accepted
             const request = classData.joinRequests.find(r => r.requestId === requestId);
-            
+
             // Update local state
             setClassData(prev => {
                 const updatedRequests = prev.joinRequests.filter(r => r.requestId !== requestId);
                 let updatedMembers = prev.members;
-                
+
                 if (status === 'ACCEPTED' && request) {
                     const newMember = {
                         userId: request.userId,
@@ -145,7 +145,7 @@ const ClassDetailPage = () => {
                     };
                     updatedMembers = [...prev.members, newMember];
                 }
-                
+
                 return {
                     ...prev,
                     joinRequests: updatedRequests,
@@ -165,7 +165,7 @@ const ClassDetailPage = () => {
 
     const handleRemoveMaterialConfirm = async () => {
         if (!selectedMaterial) return;
-        
+
         try {
             setIsRemovingMaterial(true);
             await removeClassMaterial(classId, selectedMaterial.materialId);
@@ -235,14 +235,23 @@ const ClassDetailPage = () => {
             <header className="class-header-section">
                 <div className="class-header-content">
                     <div className="class-badges">
-                        <span className="badge badge-primary">Class</span>
-                        {classData?.isOwner && classData?.status && (
-                            <span className={`badge ${classData.status === 'ACTIVE' ? 'badge-success' : classData.status === 'PENDING' ? 'badge-warning' : 'badge-danger'}`} style={{ marginLeft: '8px' }}>
-                                {classData.status === 'ACTIVE' ? 'Approved' : classData.status.charAt(0) + classData.status.slice(1).toLowerCase()}
-                            </span>
+                        {classData.status === 'PENDING' && (
+                            <span className="badge" style={{ backgroundColor: '#eab308', color: 'black', marginLeft: '8px' }}>Pending Review</span>
+                        )}
+                        {classData.status === 'REJECTED' && (
+                            <span className="badge" style={{ backgroundColor: '#ef4444', color: 'white', marginLeft: '8px' }}>Rejected</span>
+                        )}
+                        {classData.status === 'ACTIVE' && classData.isOwner && (
+                            <span className="badge" style={{ backgroundColor: '#22c55e', color: 'white', marginLeft: '8px' }}>Approved</span>
                         )}
                     </div>
                     <h1 className="class-title">{classData.className}</h1>
+                    {classData.status === 'REJECTED' && classData.moderationNotes && (
+                        <div style={{ backgroundColor: '#fee2e2', border: '1px solid #fecaca', borderRadius: '8px', padding: '12px', marginBottom: '16px', maxWidth: '600px' }}>
+                            <h4 style={{ color: '#991b1b', margin: '0 0 4px 0', fontSize: '0.9rem', fontWeight: 700 }}>Moderator Feedback:</h4>
+                            <p style={{ color: '#b91c1c', margin: 0, fontSize: '0.9rem' }}>{classData.moderationNotes}</p>
+                        </div>
+                    )}
                     <p className="class-owner">Created by <strong>{classData.ownerDisplayName}</strong></p>
 
                     <div className="class-actions">
@@ -287,9 +296,9 @@ const ClassDetailPage = () => {
                                     <Share2 size={18} />
                                     <span>Edit Class</span>
                                 </Button>
-                                <Button 
-                                    variant="outline" 
-                                    className="action-btn text-red-600 hover:bg-red-50 hover:text-red-700 border-red-200" 
+                                <Button
+                                    variant="outline"
+                                    className="action-btn text-red-600 hover:bg-red-50 hover:text-red-700 border-red-200"
                                     onClick={() => setIsDeleteModalOpen(true)}
                                 >
                                     <Trash2 size={18} />
@@ -326,14 +335,14 @@ const ClassDetailPage = () => {
                 <div className="class-content-area">
                     {classData?.isOwner && (
                         <div className="class-tabs">
-                            <button 
+                            <button
                                 className={`tab-btn ${activeTab === 'materials' ? 'active' : ''}`}
                                 onClick={() => setActiveTab('materials')}
                             >
                                 <File size={18} />
                                 <span>Materials</span>
                             </button>
-                            <button 
+                            <button
                                 className={`tab-btn ${activeTab === 'members' ? 'active' : ''}`}
                                 onClick={() => setActiveTab('members')}
                             >
@@ -341,7 +350,7 @@ const ClassDetailPage = () => {
                                 <span>Members</span>
                                 <span className="tab-count">{classData.members?.length || 0}</span>
                             </button>
-                            <button 
+                            <button
                                 className={`tab-btn ${activeTab === 'requests' ? 'active' : ''}`}
                                 onClick={() => setActiveTab('requests')}
                             >
@@ -412,9 +421,9 @@ const ClassDetailPage = () => {
                                             <span className={`member-role ${member.role.toLowerCase()}`}>{member.role}</span>
                                         </div>
                                         {member.userId !== classData.ownerUserId && (
-                                            <Button 
-                                                variant="ghost" 
-                                                size="sm" 
+                                            <Button
+                                                variant="ghost"
+                                                size="sm"
                                                 className="text-red-500"
                                                 onClick={() => handleRemoveMemberClick(member)}
                                             >

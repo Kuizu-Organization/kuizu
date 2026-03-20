@@ -189,7 +189,7 @@ const DashboardPage = () => {
                                 key={cls.classId}
                                 onClick={() => handleClassClick(cls.classId)}
                                 title={cls.className}
-                                badge="Class"
+                                badge={cls.status === 'PENDING' ? 'Pending Review' : (cls.status === 'REJECTED' ? 'Rejected' : 'Class')}
                                 description={cls.description || 'No description provided.'}
                                 footerText={`by ${cls.ownerDisplayName}`}
                             />

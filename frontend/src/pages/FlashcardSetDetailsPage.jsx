@@ -98,7 +98,24 @@ const FlashcardSetDetailsPage = () => {
 
                 <div className="set-hero">
                     <div className="set-info-main">
-                        <h1 className="set-title">{set.title}</h1>
+                        <h1 className="set-title">
+                            {set.title}
+                            {set.status === 'PENDING' && (
+                                <span style={{ fontSize: '1rem', backgroundColor: '#eab308', color: 'black', padding: '4px 8px', borderRadius: '4px', marginLeft: '12px', verticalAlign: 'middle', fontWeight: 600 }}>Pending Review</span>
+                            )}
+                            {set.status === 'REJECTED' && (
+                                <span style={{ fontSize: '1rem', backgroundColor: '#ef4444', color: 'white', padding: '4px 8px', borderRadius: '4px', marginLeft: '12px', verticalAlign: 'middle', fontWeight: 600 }}>Rejected</span>
+                            )}
+                            {set.status === 'APPROVED' && (
+                                <span style={{ fontSize: '1rem', backgroundColor: '#22c55e', color: 'white', padding: '4px 8px', borderRadius: '4px', marginLeft: '12px', verticalAlign: 'middle', fontWeight: 600 }}>Approved</span>
+                            )}
+                        </h1>
+                        {set.status === 'REJECTED' && set.moderationNotes && (
+                            <div style={{ backgroundColor: '#fee2e2', border: '1px solid #fecaca', borderRadius: '8px', padding: '12px', marginBottom: '16px' }}>
+                                <h4 style={{ color: '#991b1b', margin: '0 0 4px 0', fontSize: '0.9rem', fontWeight: 700 }}>Moderator Feedback:</h4>
+                                <p style={{ color: '#b91c1c', margin: 0, fontSize: '0.9rem' }}>{set.moderationNotes}</p>
+                            </div>
+                        )}
                         <p className="set-description">{set.description || 'No description provided.'}</p>
 
                         <div className="set-meta">

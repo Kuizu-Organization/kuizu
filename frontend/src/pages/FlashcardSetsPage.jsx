@@ -112,7 +112,18 @@ const FlashcardSetsPage = () => {
                                     onClick={() => navigate(`/flashcard-sets/${set.setId}`)}
                                 >
                                     <div className="set-card-header">
-                                        <h3 className="set-title">{set.title}</h3>
+                                        <h3 className="set-title">
+                                            {set.title}
+                                            {set.status === 'PENDING' && (
+                                                <span style={{ fontSize: '0.75rem', backgroundColor: '#eab308', color: 'black', padding: '2px 6px', borderRadius: '4px', marginLeft: '8px', verticalAlign: 'middle', fontWeight: 600 }}>Pending Review</span>
+                                            )}
+                                            {set.status === 'REJECTED' && (
+                                                <span style={{ fontSize: '0.75rem', backgroundColor: '#ef4444', color: 'white', padding: '2px 6px', borderRadius: '4px', marginLeft: '8px', verticalAlign: 'middle', fontWeight: 600 }}>Rejected</span>
+                                            )}
+                                            {set.status === 'APPROVED' && activeTab === 'my' && (
+                                                <span style={{ fontSize: '0.75rem', backgroundColor: '#22c55e', color: 'white', padding: '2px 6px', borderRadius: '4px', marginLeft: '8px', verticalAlign: 'middle', fontWeight: 600 }}>Approved</span>
+                                            )}
+                                        </h3>
                                         <span className="card-count">{set.cardCount || 0} terms</span>
                                     </div>
                                     <p className="set-description">{set.description || 'No description provided.'}</p>
