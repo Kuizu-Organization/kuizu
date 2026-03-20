@@ -88,6 +88,8 @@ public class FlashcardSetService {
                 .description(request.getDescription())
                 .visibility(request.getVisibility() != null ? Visibility.valueOf(request.getVisibility().toUpperCase())
                         : Visibility.PUBLIC)
+                .visibility(request.getVisibility() != null ? Visibility.valueOf(request.getVisibility().toUpperCase())
+                        : Visibility.PUBLIC)
                 .status(com.kuizu.backend.entity.enumeration.ModerationStatus.PENDING)
                 .isDeleted(false)
                 .version(1)
@@ -112,7 +114,6 @@ public class FlashcardSetService {
                         + "' is currently pending moderation and awaiting review by the admins.",
                 "SYSTEM",
                 set.getSetId().toString());
-
         return mapToResponse(set);
     }
 
@@ -126,6 +127,12 @@ public class FlashcardSetService {
             throw new ApiException("You do not have permission to update this set");
         }
 
+        if (request.getTitle() != null)
+            set.setTitle(request.getTitle());
+        if (request.getDescription() != null)
+            set.setDescription(request.getDescription());
+        if (request.getVisibility() != null)
+            set.setVisibility(Visibility.valueOf(request.getVisibility().toUpperCase()));
         if (request.getTitle() != null)
             set.setTitle(request.getTitle());
         if (request.getDescription() != null)
