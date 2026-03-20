@@ -35,7 +35,7 @@ public class FlashcardSetService {
     }
 
     @Autowired
-    private StatisticService statisticService;
+    private NotificationService notificationService;
 
     public List<FlashcardSetResponse> getAllPublicSets() {
         return flashcardSetRepository.findByVisibilityAndIsDeletedFalse(Visibility.PUBLIC)
