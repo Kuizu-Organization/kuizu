@@ -7,6 +7,8 @@ import { useToast } from '../../../context/ToastContext';
 import { useModal } from '../../../context/ModalContext';
 import { useNavigate } from 'react-router-dom';
 import { searchClasses } from '../../../api/class';
+import { searchFolders } from '../../../api/folder';
+import { searchFlashcardSets } from '../../../api/flashcardSet';
 
 
 const Navbar = ({ isSidebarCollapsed, onToggleSidebar }) => {
@@ -16,13 +18,42 @@ const Navbar = ({ isSidebarCollapsed, onToggleSidebar }) => {
     const toast = useToast();
 
     const handleSearchInput = async (query) => {
-        const results = await searchClasses(query);
-        return results.map(cls => ({
-            id: cls.classId,
-            title: cls.className,
-            subtitle: `by ${cls.ownerDisplayName}`,
-            original: cls
-        }));
+        try {
+            const [classes, folders, sets] = await Promise.all([
+                searchClasses(query),
+                searchFolders(query),
+                searchFlashcardSets(query)
+            ]);
+
+            const classResults = (classes || []).map(cls => ({
+                id: cls.classId,
+                type: 'class',
+                title: cls.className,
+                subtitle: `Class • by ${cls.ownerDisplayName}`,
+                original: cls
+            }));
+
+            const folderResults = (folders || []).map(folder => ({
+                id: folder.folderId,
+                type: 'folder',
+                title: folder.name,
+                subtitle: `Folder • ${folder.setCount} sets • by ${folder.ownerDisplayName}`,
+                original: folder
+            }));
+
+            const setResults = (sets || []).map(set => ({
+                id: set.setId,
+                type: 'set',
+                title: set.title,
+                subtitle: `Set • ${set.flashcardCount} terms • by ${set.ownerDisplayName}`,
+                original: set
+            }));
+
+            return [...classResults, ...folderResults, ...setResults].slice(0, 10);
+        } catch (error) {
+            console.error('Search input failed:', error);
+            return [];
+        }
     };
 
     const handleLogout = () => {
@@ -32,7 +63,13 @@ const Navbar = ({ isSidebarCollapsed, onToggleSidebar }) => {
     };
 
     const handleResultClick = (result) => {
-        navigate(`/classes/${result.id}`);
+        if (result.type === 'class') {
+            navigate(`/classes/${result.id}`);
+        } else if (result.type === 'folder') {
+            navigate(`/folders/${result.id}`);
+        } else if (result.type === 'set') {
+            navigate(`/coming-soon?feature=Flashcard Set View`);
+        }
     };
 
     const handleSearchEnter = (query) => {
@@ -76,7 +113,7 @@ const Navbar = ({ isSidebarCollapsed, onToggleSidebar }) => {
         <nav className="navbar">
             <div className="navbar-content">
                 <div className="navbar-left">
-                    <div className="navbar-logo" onClick={() => navigate('/dashboard')}>Kuizu</div>
+                    <div className="navbar-logo" onClick={() => navigate(user ? '/dashboard' : '/')}>Kuizu</div>
                     <div className="navbar-links">
                         <Dropdown
                             label="Study Tools"
@@ -98,20 +135,22 @@ const Navbar = ({ isSidebarCollapsed, onToggleSidebar }) => {
                         onSearch={handleSearchInput}
                         onResultClick={handleResultClick}
                         onEnter={handleSearchEnter}
-                        placeholder="Search for classes..."
+                        placeholder="Search for sets, folders, classes..."
                     />
                 </div>
 
                 <div className="navbar-right">
-                    <Dropdown
-                        items={createItems}
-                        onItemClick={handleDropdownItemClick}
-                        variant="create-pill"
-                        showChevron={false}
-                    >
-                        <Plus size={20} strokeWidth={3} />
-                        <span>Create</span>
-                    </Dropdown>
+                    {user && (
+                        <Dropdown
+                            items={createItems}
+                            onItemClick={handleDropdownItemClick}
+                            variant="create-pill"
+                            showChevron={false}
+                        >
+                            <Plus size={20} strokeWidth={3} />
+                            <span>Create</span>
+                        </Dropdown>
+                    )}
                     {user ? (
                         <div className="nav-profile-section">
                             <img

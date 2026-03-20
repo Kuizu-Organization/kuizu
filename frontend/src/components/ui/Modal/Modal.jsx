@@ -6,11 +6,14 @@ const Modal = ({ isOpen, onClose, title, children, footer, size = 'md' }) => {
     useEffect(() => {
         if (isOpen) {
             document.body.style.overflow = 'hidden';
+            document.documentElement.style.scrollbarGutter = 'stable';
         } else {
             document.body.style.overflow = 'unset';
+            document.documentElement.style.scrollbarGutter = 'auto';
         }
         return () => {
             document.body.style.overflow = 'unset';
+            document.documentElement.style.scrollbarGutter = 'auto';
         };
     }, [isOpen]);
 

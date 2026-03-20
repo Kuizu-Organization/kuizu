@@ -14,6 +14,7 @@ import ComingSoonPage from './pages/ComingSoonPage';
 import FoldersPage from './pages/FoldersPage/FoldersPage';
 import FolderDetailPage from './pages/FolderDetailPage/FolderDetailPage';
 import ForgotPasswordPage from './pages/ForgotPasswordPage/ForgotPasswordPage';
+import PublicProfilePage from './pages/PublicProfilePage/PublicProfilePage';
 import FlashcardSetsPage from './pages/FlashcardSetsPage';
 import FlashcardSetDetailsPage from './pages/FlashcardSetDetailsPage';
 import FlashcardSetForm from './pages/FlashcardSetForm';
@@ -65,9 +66,7 @@ function App() {
 
         <Route path="/dashboard" element={
           <MainLayout>
-            <ProtectedRoute>
-              <DashboardPage />
-            </ProtectedRoute>
+            <DashboardPage />
           </MainLayout>
         } />
 
@@ -138,33 +137,29 @@ function App() {
 
         <Route path="/classes/:classId" element={
           <MainLayout>
-            <ProtectedRoute>
-              <ClassDetailPage />
-            </ProtectedRoute>
+            <ClassDetailPage />
           </MainLayout>
         } />
 
         <Route path="/search" element={
           <MainLayout>
-            <ProtectedRoute>
-              <SearchPage />
-            </ProtectedRoute>
+            <SearchPage />
           </MainLayout>
+        } />
+
+        <Route path="/users/:username" element={
+          <PublicProfilePage />
         } />
 
         <Route path="/folders" element={
           <MainLayout>
-            <ProtectedRoute>
-              <FoldersPage />
-            </ProtectedRoute>
+            <FoldersPage />
           </MainLayout>
         } />
 
         <Route path="/folders/:folderId" element={
           <MainLayout>
-            <ProtectedRoute>
-              <FolderDetailPage />
-            </ProtectedRoute>
+            <FolderDetailPage />
           </MainLayout>
         } />
         {/* Catch-all route for missing pages */}

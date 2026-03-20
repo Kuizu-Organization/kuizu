@@ -73,8 +73,7 @@ const DashboardPage = () => {
 
     useEffect(() => {
         fetchDashboardData();
-    }, []);
-
+    }, [isAuthenticated]);
     const handleClassClick = (classId) => {
         navigate(`/classes/${classId}`);
     };
@@ -104,11 +103,23 @@ const DashboardPage = () => {
         return <Loader fullPage={true} />;
     }
 
+    if (!isAuthenticated) {
+        navigate('/');
+        return null;
+    }
+
+    if (!isAuthenticated) {
+        navigate('/');
+        return null;
+    }
+
     return (
         <div className="dashboard-container">
-            <h1 className="dashboard-title">Welcome back to Kuizu!</h1>
+            <h1 className="dashboard-title">
+                Welcome back, {user?.displayName || 'Student'}!
+            </h1>
 
-            {/* Flashcard Sets Section */}
+            {/* Recent Flashcard Sets */}
             <section className="dashboard-section">
                 <div className="dashboard-section-header">
                     <h2>Recent Flashcard Sets</h2>
@@ -198,7 +209,6 @@ const DashboardPage = () => {
                 <div className="dashboard-section-header">
                     <h2>My Folders</h2>
                     <div className="section-actions">
-                        <Button variant="outline" size="sm" onClick={() => setIsCreateFolderOpen(true)}>New Folder</Button>
                         <Button variant="ghost" size="sm" onClick={() => navigate('/folders')}>View all</Button>
                     </div>
                 </div>
@@ -238,47 +248,29 @@ const DashboardPage = () => {
                 )}
             </section>
 
-            {/* Suggested Public Folders */}
-            {publicFolders.length > 0 && (
+            {/* Suggested Folders */}
+            {suggestedFolders.length > 0 && (
                 <section className="dashboard-section">
                     <div className="dashboard-section-header">
-                        <h2>
-                            <Globe size={20} style={{ marginRight: 8, verticalAlign: 'middle', color: '#10b981' }} />
-                            Suggested Folders
-                        </h2>
-                        <div className="section-actions">
-                            <Button variant="ghost" size="sm" onClick={() => navigate('/folders')}>View all</Button>
-                        </div>
+                        <h2>Suggested Folders</h2>
+                        <Button variant="ghost" size="sm" onClick={() => navigate('/search?q=')}>Explore all</Button>
                     </div>
-
                     <div className="dashboard-grid">
-                        {publicFolders.slice(0, 4).map(folder => (
-                            <Card
+                        {suggestedFolders.map(folder => (
+                            <ItemCard
                                 key={folder.folderId}
-                                className="dashboard-item-card"
                                 onClick={() => navigate(`/folders/${folder.folderId}`)}
-                            >
-                                <div className="card-header-custom">
-                                    <h3 className="card-title-custom">{folder.name}</h3>
-                                    <span className="badge-custom badge-green">
-                                        <Globe size={12} style={{ marginRight: 4, verticalAlign: 'middle' }} />
-                                        {folder.setCount} sets
-                                    </span>
-                                </div>
-                                <div className="card-body-custom">
-                                    <p className="card-description-custom">{folder.description || 'No description provided.'}</p>
-                                </div>
-                                <div className="card-footer-custom">
-                                    <span className="owner-text">by {folder.ownerDisplayName}</span>
-                                    <span className="visibility-tag public">🌐 Public</span>
-                                </div>
-                            </Card>
+                                title={folder.name}
+                                badge="Folder"
+                                description={folder.description || 'No description provided.'}
+                                footerText={`${folder.setCount} sets • by ${folder.ownerDisplayName}`}
+                            />
                         ))}
                     </div>
                 </section>
             )}
 
-            {/* Classes Section */}
+            {/* My Classes */}
             <section className="dashboard-section">
                 <div className="dashboard-section-header">
                     <h2>My Classes</h2>
@@ -310,6 +302,28 @@ const DashboardPage = () => {
                     />
                 )}
             </section>
+
+            {/* Suggested Classes */}
+            {suggestedClasses.length > 0 && (
+                <section className="dashboard-section">
+                    <div className="dashboard-section-header">
+                        <h2>Suggested Classes</h2>
+                        <Button variant="ghost" size="sm" onClick={() => navigate('/search?q=')}>Explore all</Button>
+                    </div>
+                    <div className="dashboard-grid">
+                        {suggestedClasses.map(cls => (
+                            <ItemCard
+                                key={cls.classId}
+                                onClick={() => handleClassClick(cls.classId)}
+                                title={cls.className}
+                                badge="Class"
+                                description={cls.description || 'No description provided.'}
+                                footerText={`by ${cls.ownerDisplayName}`}
+                            />
+                        ))}
+                    </div>
+                </section>
+            )}
 
             <CreateClassModal
                 isOpen={isCreateClassOpen}

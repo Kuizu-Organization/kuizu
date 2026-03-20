@@ -25,6 +25,22 @@
     border-bottom: 1px solid var(--border-color);
 }
 
+.item-card-title-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex: 1;
+    min-width: 0;
+}
+
+.item-card-profile-pic {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    object-fit: cover;
+    flex-shrink: 0;
+}
+
 .item-card-title {
     margin: 0;
     font-size: 1.15rem;
