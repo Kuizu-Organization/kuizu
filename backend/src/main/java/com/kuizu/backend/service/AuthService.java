@@ -27,34 +27,28 @@ import java.util.Random;
 @Service
 public class AuthService {
 
-    @Autowired
-    private UserRepository userRepository;
-
-    @Autowired
-    private AuthenticationManager authenticationManager;
-
-    @Autowired
-    private PasswordEncoder passwordEncoder;
-
-    @Autowired
-    private SessionService sessionService;
-
-    @Autowired
-    private RateLimiterService rateLimiterService;
-
-    @Autowired
-    private OtpService otpService;
-
-    @Autowired
-    private EmailService emailService;
-
-    @Autowired
-    private OAuthAccountRepository oauthAccountRepository;
-
-    @Autowired
-    private SocialAuthService socialAuthService;
-
+    private final UserRepository userRepository;
+    private final AuthenticationManager authenticationManager;
+    private final PasswordEncoder passwordEncoder;
+    private final SessionService sessionService;
+    private final RateLimiterService rateLimiterService;
+    private final OtpService otpService;
+    private final EmailService emailService;
+    private final OAuthAccountRepository oauthAccountRepository;
+    private final SocialAuthService socialAuthService;
     private static final Random random = new Random();
+
+    public AuthService(UserRepository userRepository, AuthenticationManager authenticationManager, PasswordEncoder passwordEncoder, SessionService sessionService, RateLimiterService rateLimiterService, OtpService otpService, EmailService emailService, OAuthAccountRepository oauthAccountRepository, SocialAuthService socialAuthService) {
+        this.userRepository = userRepository;
+        this.authenticationManager = authenticationManager;
+        this.passwordEncoder = passwordEncoder;
+        this.sessionService = sessionService;
+        this.rateLimiterService = rateLimiterService;
+        this.otpService = otpService;
+        this.emailService = emailService;
+        this.oauthAccountRepository = oauthAccountRepository;
+        this.socialAuthService = socialAuthService;
+    }
 
     @Transactional
     public AuthResponse register(RegisterRequest request, HttpServletRequest httpServletRequest) {

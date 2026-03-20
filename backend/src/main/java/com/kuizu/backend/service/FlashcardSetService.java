@@ -19,14 +19,15 @@ import java.util.stream.Collectors;
 @Service
 public class FlashcardSetService {
 
-    @Autowired
-    private FlashcardSetRepository flashcardSetRepository;
+    private final FlashcardSetRepository flashcardSetRepository;
+    private final FlashcardRepository flashcardRepository;
+    private final UserRepository userRepository;
 
-    @Autowired
-    private FlashcardRepository flashcardRepository;
-
-    @Autowired
-    private UserRepository userRepository;
+    public FlashcardSetService(FlashcardSetRepository flashcardSetRepository, FlashcardRepository flashcardRepository, UserRepository userRepository) {
+        this.flashcardSetRepository = flashcardSetRepository;
+        this.flashcardRepository = flashcardRepository;
+        this.userRepository = userRepository;
+    }
 
     public List<FlashcardSetResponse> getAllPublicSets() {
         return flashcardSetRepository.findByVisibilityAndIsDeletedFalse(Visibility.PUBLIC)
