@@ -47,6 +47,7 @@ public class ModerationService {
             FlashcardRepository flashcardRepository,
             NotificationService notificationService,
             EmailService emailService) {
+            NotificationService notificationService) {
         this.flashcardSetRepository = flashcardSetRepository;
         this.classRepository = classRepository;
         this.moderationHistoryRepository = moderationHistoryRepository;
@@ -97,26 +98,13 @@ public class ModerationService {
 
         // Notify owner
         notificationService.sendNotification(
-                set.getOwner(),
-                "Flashcard Set Approved",
-                "Your flashcard set '" + set.getTitle() + "' has been approved by the moderator." +
-                        (request.getNotes() != null && !request.getNotes().isEmpty()
-                                ? "\nFeedback: " + request.getNotes()
-                                : ""),
-                "MODERATION",
-                set.getSetId().toString());
-
-        // Send Email
-        User owner = set.getOwner();
-        if (owner != null && owner.getEmail() != null) {
-            emailService.sendModerationEmail(
-                    owner.getEmail(),
-                    owner.getDisplayName() != null ? owner.getDisplayName() : owner.getUsername(),
-                    set.getTitle(),
-                    "Approved",
-                    request.getNotes(),
-                    "Flashcard Set");
-        }
+            set.getOwner(),
+            "Flashcard Set Approved",
+            "Your flashcard set '" + set.getTitle() + "' has been approved by the moderator." + 
+            (request.getNotes() != null && !request.getNotes().isEmpty() ? "\nFeedback: " + request.getNotes() : ""),
+            "MODERATION",
+            set.getSetId().toString()
+        );
     }
 
     @Transactional
@@ -133,26 +121,13 @@ public class ModerationService {
 
         // Notify owner
         notificationService.sendNotification(
-                set.getOwner(),
-                "Flashcard Set Rejected",
-                "Your flashcard set '" + set.getTitle() + "' has been rejected by the moderator." +
-                        (request.getNotes() != null && !request.getNotes().isEmpty()
-                                ? "\n\nFeedback: " + request.getNotes()
-                                : ""),
-                "MODERATION",
-                set.getSetId().toString());
-
-        // Send Email
-        User owner = set.getOwner();
-        if (owner != null && owner.getEmail() != null) {
-            emailService.sendModerationEmail(
-                    owner.getEmail(),
-                    owner.getDisplayName() != null ? owner.getDisplayName() : owner.getUsername(),
-                    set.getTitle(),
-                    "Rejected",
-                    request.getNotes(),
-                    "Flashcard Set");
-        }
+            set.getOwner(),
+            "Flashcard Set Rejected",
+            "Your flashcard set '" + set.getTitle() + "' has been rejected by the moderator." + 
+            (request.getNotes() != null && !request.getNotes().isEmpty() ? "\n\nFeedback: " + request.getNotes() : ""),
+            "MODERATION",
+            set.getSetId().toString()
+        );
     }
 
     @Transactional
@@ -169,23 +144,12 @@ public class ModerationService {
 
         // Notify owner
         notificationService.sendNotification(
-                cls.getOwner(),
-                "Class Approved",
-                "Your class '" + cls.getClassName() + "' has been approved by the moderator.",
-                "MODERATION",
-                cls.getClassId().toString());
-
-        // Send Email
-        User owner = cls.getOwner();
-        if (owner != null && owner.getEmail() != null) {
-            emailService.sendModerationEmail(
-                    owner.getEmail(),
-                    owner.getDisplayName() != null ? owner.getDisplayName() : owner.getUsername(),
-                    cls.getClassName(),
-                    "Approved",
-                    request.getNotes(),
-                    "Class");
-        }
+            cls.getOwner(),
+            "Class Approved",
+            "Your class '" + cls.getClassName() + "' has been approved by the moderator.",
+            "MODERATION",
+            cls.getClassId().toString()
+        );
     }
 
     @Transactional
@@ -202,26 +166,13 @@ public class ModerationService {
 
         // Notify owner
         notificationService.sendNotification(
-                cls.getOwner(),
-                "Class Rejected",
-                "Your class '" + cls.getClassName() + "' has been rejected by the moderator." +
-                        (request.getNotes() != null && !request.getNotes().isEmpty()
-                                ? "\n\nFeedback: " + request.getNotes()
-                                : ""),
-                "MODERATION",
-                cls.getClassId().toString());
-
-        // Send Email
-        User owner = cls.getOwner();
-        if (owner != null && owner.getEmail() != null) {
-            emailService.sendModerationEmail(
-                    owner.getEmail(),
-                    owner.getDisplayName() != null ? owner.getDisplayName() : owner.getUsername(),
-                    cls.getClassName(),
-                    "Rejected",
-                    request.getNotes(),
-                    "Class");
-        }
+            cls.getOwner(),
+            "Class Rejected",
+            "Your class '" + cls.getClassName() + "' has been rejected by the moderator." + 
+            (request.getNotes() != null && !request.getNotes().isEmpty() ? "\n\nFeedback: " + request.getNotes() : ""),
+            "MODERATION",
+            cls.getClassId().toString()
+        );
     }
 
     private User getCurrentUser() {

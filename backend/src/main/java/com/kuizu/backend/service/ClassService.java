@@ -237,6 +237,15 @@ public class ClassService {
             newClass.getClassId().toString()
         );
 
+        // Notify user
+        notificationService.sendNotification(
+            user,
+            "Class Under Review",
+            "Your newly created class '" + newClass.getClassName() + "' is currently pending moderation and awaiting review by the admins.",
+            "SYSTEM",
+            newClass.getClassId().toString()
+        );
+
         return convertToClassInfoResponse(newClass, username);
     }
 
