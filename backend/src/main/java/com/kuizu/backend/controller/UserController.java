@@ -3,6 +3,7 @@ package com.kuizu.backend.controller;
 import com.kuizu.backend.dto.request.ChangePasswordRequest;
 import com.kuizu.backend.dto.request.SetPasswordRequest;
 import com.kuizu.backend.dto.request.UpdateProfileRequest;
+import com.kuizu.backend.dto.response.PublicUserResponse;
 import com.kuizu.backend.dto.response.UserResponse;
 import com.kuizu.backend.entity.User;
 import com.kuizu.backend.service.UserService;
@@ -33,6 +34,18 @@ public class UserController {
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Page<UserResponse>> getAllUsers(Pageable pageable) {
         return ResponseEntity.ok(userService.getAllUsers(pageable));
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<Page<PublicUserResponse>> searchPublicUsers(
+            @RequestParam(required = false, defaultValue = "") String query,
+            Pageable pageable) {
+        return ResponseEntity.ok(userService.searchPublicUsers(query, pageable));
+    }
+
+    @GetMapping("/public/{username}")
+    public ResponseEntity<PublicUserResponse> getPublicUser(@PathVariable String username) {
+        return ResponseEntity.ok(userService.getPublicUserByUsername(username));
     }
 
     @GetMapping("/{userId}")

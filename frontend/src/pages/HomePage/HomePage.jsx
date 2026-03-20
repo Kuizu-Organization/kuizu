@@ -1,10 +1,47 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Navbar, Footer } from '../../components/layout';
-import { Button } from '../../components/ui';
-import { BookOpen, Brain, Users, Sparkles, ArrowRight, CheckCircle2 } from 'lucide-react';
+import { Button, Card, Loader, EmptyState, ItemCard } from '../../components/ui';
+import { BookOpen, Brain, Users, Sparkles, ArrowRight, CheckCircle2, Globe, FolderOpen } from 'lucide-react';
+import { getSuggestedClasses } from '../../api/class';
+import { getPublicFolders } from '../../api/folder';
+import { getSuggestedSets } from '../../api/flashcardSet';
 import './HomePage.css';
 
 const HomePage = () => {
+    const navigate = useNavigate();
+    const [publicFolders, setPublicFolders] = useState([]);
+    const [suggestedSets, setSuggestedSets] = useState([]);
+    const [suggestedClasses, setSuggestedClasses] = useState([]);
+    const [isLoading, setIsLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchExploreData = async () => {
+            try {
+                setIsLoading(true);
+                const [folders, sets, classes] = await Promise.all([
+                    getPublicFolders(),
+                    getSuggestedSets(4),
+                    getSuggestedClasses(4)
+                ]);
+
+                setPublicFolders(folders);
+                setSuggestedSets(sets);
+                setSuggestedClasses(classes);
+            } catch (error) {
+                console.error("Failed to fetch explore data:", error);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
+        fetchExploreData();
+    }, []);
+
+    const handleClassClick = (classId) => {
+        navigate(`/classes/${classId}`);
+    };
+
     return (
         <div className="home-page">
             <Navbar />
@@ -28,7 +65,7 @@ const HomePage = () => {
                                 variant="primary"
                                 size="lg"
                                 className="cta-button"
-                                onClick={() => window.location.href = '/auth'}
+                                onClick={() => navigate('/auth')}
                                 rightIcon={<ArrowRight size={20} />}
                             >
                                 Get Started for Free
@@ -44,18 +81,33 @@ const HomePage = () => {
 
                         <div className="hero-stats">
                             <div className="stat-item">
-                                <span className="stat-number">50k+</span>
-                                <span className="stat-label">Active Students</span>
+                                <div className="stat-icon-wrapper blue">
+                                    <Users size={20} />
+                                </div>
+                                <div className="stat-content">
+                                    <span className="stat-number">50k+</span>
+                                    <span className="stat-label">Active Students</span>
+                                </div>
                             </div>
                             <div className="stat-divider"></div>
                             <div className="stat-item">
-                                <span className="stat-number">1M+</span>
-                                <span className="stat-label">Flashcards Created</span>
+                                <div className="stat-icon-wrapper purple">
+                                    <BookOpen size={20} />
+                                </div>
+                                <div className="stat-content">
+                                    <span className="stat-number">1M+</span>
+                                    <span className="stat-label">Flashcards Created</span>
+                                </div>
                             </div>
                             <div className="stat-divider"></div>
                             <div className="stat-item">
-                                <span className="stat-number">98%</span>
-                                <span className="stat-label">Success Rate</span>
+                                <div className="stat-icon-wrapper green">
+                                    <Sparkles size={20} />
+                                </div>
+                                <div className="stat-content">
+                                    <span className="stat-number">98%</span>
+                                    <span className="stat-label">Success Rate</span>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -95,7 +147,7 @@ const HomePage = () => {
                         <p className="section-subtitle">Powerful tools designed to help students learn faster and remember longer.</p>
                     </div>
 
-                    <div className="features-grid">
+                    <div className="features-grid-home">
                         <div className="feature-card">
                             <div className="feature-icon-wrapper">
                                 <Brain className="feature-icon" />
@@ -122,18 +174,123 @@ const HomePage = () => {
                     </div>
                 </section>
 
+                {/* Explore Section */}
+                <section className="explore-section">
+                    <div className="explore-container">
+                        <div className="section-header">
+                            <h2 className="section-title">Explore Kuizu</h2>
+                            <p className="section-subtitle">Discover public flashcard sets, classes, and folders created by our community.</p>
+                        </div>
+
+                        {isLoading ? (
+                            <div className="explore-loader">
+                                <Loader />
+                            </div>
+                        ) : (
+                            <div className="explore-content">
+                                {/* Suggested Flashcard Sets */}
+                                <div className="explore-subsection">
+                                    <div className="explore-subsection-header">
+                                        <h3>
+                                            <div className="subsection-icon sets">
+                                                <BookOpen size={20} />
+                                            </div>
+                                            Suggested Flashcard Sets
+                                        </h3>
+                                        <Button variant="ghost" size="sm" onClick={() => navigate('/search?q=')}>Explore all</Button>
+                                    </div>
+                                    {suggestedSets.length > 0 ? (
+                                        <div className="explore-grid">
+                                            {suggestedSets.map(set => (
+                                                <ItemCard
+                                                    key={set.setId}
+                                                    onClick={() => navigate(`/coming-soon?feature=Flashcard Set View`)}
+                                                    title={set.title}
+                                                    badge="Set"
+                                                    description={set.description || 'No description provided.'}
+                                                    footerText={`${set.flashcardCount} terms • by ${set.ownerDisplayName}`}
+                                                />
+                                            ))}
+                                        </div>
+                                    ) : (
+                                        <EmptyState description="No suggested sets available yet." />
+                                    )}
+                                </div>
+
+                                {/* Suggested Classes */}
+                                <div className="explore-subsection">
+                                    <div className="explore-subsection-header">
+                                        <h3>
+                                            <div className="subsection-icon classes">
+                                                <Users size={20} />
+                                            </div>
+                                            Suggested Classes
+                                        </h3>
+                                        <Button variant="ghost" size="sm" onClick={() => navigate('/search?q=')}>Explore all</Button>
+                                    </div>
+                                    {suggestedClasses.length > 0 ? (
+                                        <div className="explore-grid">
+                                            {suggestedClasses.map(cls => (
+                                                <ItemCard
+                                                    key={cls.classId}
+                                                    onClick={() => handleClassClick(cls.classId)}
+                                                    title={cls.className}
+                                                    badge="Class"
+                                                    description={cls.description || 'No description provided.'}
+                                                    footerText={`by ${cls.ownerDisplayName}`}
+                                                />
+                                            ))}
+                                        </div>
+                                    ) : (
+                                        <EmptyState description="No suggested classes available yet." />
+                                    )}
+                                </div>
+
+                                {/* Suggested Folders */}
+                                {publicFolders.length > 0 && (
+                                    <div className="explore-subsection">
+                                        <div className="explore-subsection-header">
+                                            <h3>
+                                                <div className="subsection-icon folders">
+                                                    <FolderOpen size={20} />
+                                                </div>
+                                                Suggested Folders
+                                            </h3>
+                                            <Button variant="ghost" size="sm" onClick={() => navigate('/search?q=')}>Explore all</Button>
+                                        </div>
+                                        <div className="explore-grid">
+                                            {publicFolders.slice(0, 4).map(folder => (
+                                                <ItemCard
+                                                    key={folder.folderId}
+                                                    onClick={() => navigate(`/folders/${folder.folderId}`)}
+                                                    title={folder.name}
+                                                    badge="Folder"
+                                                    description={folder.description || 'No description provided.'}
+                                                    footerText={`${folder.setCount} sets • by ${folder.ownerDisplayName}`}
+                                                />
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                        )}
+                    </div>
+                </section>
+
                 {/* CTA Section */}
                 <section className="bottom-cta-section">
-                    <div className="cta-card">
-                        <h2>Ready to boost your grades?</h2>
-                        <p>Join Kuizu today and start your journey towards academic excellence.</p>
-                        <Button
-                            variant="white"
-                            size="lg"
-                            onClick={() => window.location.href = '/auth'}
-                        >
-                            Create Your Account
-                        </Button>
+                    <div className="cta-container">
+                        <div className="cta-card">
+                            <h2>Ready to boost your grades?</h2>
+                            <p>Join Kuizu today and start your journey towards academic excellence.</p>
+                            <Button
+                                variant="white"
+                                size="lg"
+                                onClick={() => navigate('/auth')}
+                            >
+                                Create Your Account
+                            </Button>
+                        </div>
                     </div>
                 </section>
             </main>
