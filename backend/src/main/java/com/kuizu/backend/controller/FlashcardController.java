@@ -15,8 +15,11 @@ import java.util.List;
 @RequestMapping("/api/flashcards")
 public class FlashcardController {
 
-    @Autowired
-    private FlashcardService flashcardService;
+    private final FlashcardService flashcardService;
+
+    public FlashcardController(FlashcardService flashcardService) {
+        this.flashcardService = flashcardService;
+    }
 
     @GetMapping("/set/{setId}")
     public ResponseEntity<List<FlashcardResponse>> getFlashcardsBySetId(@PathVariable Long setId) {

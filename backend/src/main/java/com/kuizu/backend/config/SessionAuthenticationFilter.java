@@ -26,11 +26,13 @@ public class SessionAuthenticationFilter extends OncePerRequestFilter {
 
     private static final Logger logger = LoggerFactory.getLogger(SessionAuthenticationFilter.class);
 
-    @Autowired
-    private SessionService sessionService;
+    private final SessionService sessionService;
+    private final UserDetailsService userDetailsService;
 
-    @Autowired
-    private UserDetailsService userDetailsService;
+    public SessionAuthenticationFilter(SessionService sessionService, UserDetailsService userDetailsService) {
+        this.sessionService = sessionService;
+        this.userDetailsService = userDetailsService;
+    }
 
     @Override
     protected void doFilterInternal(

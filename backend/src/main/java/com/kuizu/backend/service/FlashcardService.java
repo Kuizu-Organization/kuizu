@@ -17,11 +17,13 @@ import java.util.stream.Collectors;
 @Service
 public class FlashcardService {
 
-    @Autowired
-    private FlashcardRepository flashcardRepository;
+    private final FlashcardRepository flashcardRepository;
+    private final FlashcardSetRepository flashcardSetRepository;
 
-    @Autowired
-    private FlashcardSetRepository flashcardSetRepository;
+    public FlashcardService(FlashcardRepository flashcardRepository, FlashcardSetRepository flashcardSetRepository) {
+        this.flashcardRepository = flashcardRepository;
+        this.flashcardSetRepository = flashcardSetRepository;
+    }
 
     public List<FlashcardResponse> getFlashcardsBySetId(Long setId) {
         FlashcardSet set = flashcardSetRepository.findById(setId)
