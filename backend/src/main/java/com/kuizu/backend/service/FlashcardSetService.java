@@ -92,8 +92,7 @@ public class FlashcardSetService {
                 .owner(owner)
                 .title(request.getTitle())
                 .description(request.getDescription())
-                .visibility(request.getVisibility() != null ? Visibility.valueOf(request.getVisibility().toUpperCase())
-                        : Visibility.PUBLIC)
+                .visibility(request.getVisibility() != null ? Visibility.valueOf(request.getVisibility().toUpperCase()) : Visibility.PUBLIC)
                 .status(com.kuizu.backend.entity.enumeration.ModerationStatus.PENDING)
                 .isDeleted(false)
                 .version(1)
@@ -105,19 +104,19 @@ public class FlashcardSetService {
 
         // Notify admins
         notificationService.notifyAdmins(
-                "New Flashcard Set Pending Review",
-                "A new flashcard set '" + set.getTitle() + "' was created by " + owner.getDisplayName() + " (@"
-                        + owner.getUsername() + ") and needs moderation.",
-                set.getSetId().toString());
+            "New Flashcard Set Pending Review",
+            "A new flashcard set '" + set.getTitle() + "' was created by " + owner.getDisplayName() + " (@" + owner.getUsername() + ") and needs moderation.",
+            set.getSetId().toString()
+        );
 
         // Notify user
         notificationService.sendNotification(
-                owner,
-                "Flashcard Set Under Review",
-                "Your newly created flashcard set '" + set.getTitle()
-                        + "' is currently pending moderation and awaiting review by the admins.",
-                "SYSTEM",
-                set.getSetId().toString());
+            owner,
+            "Flashcard Set Under Review",
+            "Your newly created flashcard set '" + set.getTitle() + "' is currently pending moderation and awaiting review by the admins.",
+            "SYSTEM",
+            set.getSetId().toString()
+        );
 
         return mapToResponse(set);
     }
