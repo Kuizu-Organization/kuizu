@@ -35,6 +35,22 @@ public class FlashcardSetService {
                 .collect(Collectors.toList());
     }
 
+    public List<FlashcardSetResponse> searchFlashcardSets(String query) {
+        return flashcardSetRepository.findByTitleContainingIgnoreCaseAndVisibilityAndIsDeletedFalse(query, Visibility.PUBLIC)
+                .stream()
+                .map(this::mapToResponse)
+                .collect(Collectors.toList());
+    }
+
+    public List<FlashcardSetResponse> getSuggestedSets(int limit) {
+        // Simple suggestion logic: return the first few public sets
+        return flashcardSetRepository.findByVisibilityAndIsDeletedFalse(Visibility.PUBLIC)
+                .stream()
+                .limit(limit)
+                .map(this::mapToResponse)
+                .collect(Collectors.toList());
+    }
+
     public List<FlashcardSetResponse> getSetsByOwner(String username) {
         User owner = userRepository.findByUsername(username)
                 .orElseThrow(() -> new ApiException("User not found"));

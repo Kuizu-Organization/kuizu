@@ -41,6 +41,11 @@ class ClassController {
         return ResponseEntity.ok(classService.findClassesByName(query));
     }
 
+    @GetMapping("/suggested")
+    public ResponseEntity<?> getSuggestedClasses(@RequestParam(defaultValue = "10") int limit) {
+        return ResponseEntity.ok(classService.getSuggestedClasses(limit));
+    }
+
     @GetMapping("/me")
     public ResponseEntity<?> getMyClasses(Principal principal) {
         if (principal == null) {

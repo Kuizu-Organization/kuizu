@@ -13,5 +13,5 @@ public interface FolderRepository extends JpaRepository<Folder, Long> {
     List<Folder> findByVisibilityAndIsDeletedFalse(String visibility);
     List<Folder> findByVisibilityAndIsDeletedFalseAndOwnerNot(String visibility, User owner);
     java.util.Optional<Folder> findByFolderIdAndIsDeletedFalse(Long folderId);
+    List<Folder> findByNameContainingIgnoreCaseAndVisibilityAndIsDeletedFalse(String name, String visibility);
 }
-

@@ -20,6 +20,11 @@ export const searchClasses = async (query) => {
     return response.data;
 };
 
+export const getSuggestedClasses = async (limit) => {
+    const response = await api.get('/classes/suggested', { params: { limit } });
+    return response.data;
+};
+
 export const joinClass = async (classId, joinData) => {
     const response = await api.post(`/classes/${classId}/join`, joinData);
     return response.data;
