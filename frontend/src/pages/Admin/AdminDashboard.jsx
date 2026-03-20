@@ -103,6 +103,12 @@ const AdminDashboard = () => {
     }, [userSearch]);
 
     useEffect(() => {
+        // Fetch pending counts for the header stats on mount
+        fetchPendingSets();
+        fetchPendingClasses();
+    }, []);
+
+    useEffect(() => {
         if (activeTab === 0) fetchUsers();
         else if (activeTab === 1) fetchPendingSets();
         else if (activeTab === 2) fetchPendingClasses();
