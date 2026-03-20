@@ -16,16 +16,26 @@ import {
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../../context/AuthContext';
+import { useToast } from '../../../context/ToastContext';
 import { Button, ComingSoonModal } from '../../ui';
 import { getPendingCount } from '../../../api/moderation';
 import './Sidebar.css';
 
 const Sidebar = ({ isCollapsed, onToggle, activePath = '/dashboard' }) => {
-    const { user } = useAuth();
+    const { user, logout } = useAuth();
     const navigate = useNavigate();
+    const toast = useToast();
     const [isComingSoonOpen, setIsComingSoonOpen] = useState(false);
     const [currentFeature, setCurrentFeature] = useState('');
     const [pendingCount, setPendingCount] = useState(0);
+
+    const isAdmin = user?.role === 'ROLE_ADMIN';
+
+    const handleLogout = () => {
+        logout();
+        toast.info('Logged out successfully', 6000);
+        navigate('/auth');
+    };
 
     const implementedRoutes = [
         '/dashboard',
@@ -66,9 +76,9 @@ const Sidebar = ({ isCollapsed, onToggle, activePath = '/dashboard' }) => {
     ];
 
     return (
-        <aside className={`sidebar ${isCollapsed ? 'collapsed' : ''}`}>
+        <aside className={`sidebar ${isCollapsed ? 'collapsed' : ''} ${isAdmin ? 'admin-sidebar' : ''}`}>
             <div className="sidebar-sections">
-                {user?.role !== 'ROLE_ADMIN' && (
+                {!isAdmin && (
                     <div className="sidebar-section">
                         {mainLinks.map((link, index) => (
                             <div
@@ -83,7 +93,7 @@ const Sidebar = ({ isCollapsed, onToggle, activePath = '/dashboard' }) => {
                     </div>
                 )}
 
-                {user?.role === 'ROLE_ADMIN' && (
+                {isAdmin && (
                     <div className="sidebar-section">
                         {!isCollapsed && <h6 className="sidebar-title">Administration</h6>}
                         {adminLinks.map((link, index) => (
@@ -99,7 +109,7 @@ const Sidebar = ({ isCollapsed, onToggle, activePath = '/dashboard' }) => {
                     </div>
                 )}
 
-                {user?.role !== 'ROLE_ADMIN' && (
+                {!isAdmin && (
                     <>
                         <div className="sidebar-divider"></div>
                         <div className="sidebar-section">
@@ -120,6 +130,20 @@ const Sidebar = ({ isCollapsed, onToggle, activePath = '/dashboard' }) => {
                     {isCollapsed ? <Menu size={20} /> : <ChevronLeft size={20} />}
                     {!isCollapsed && <span>Collapse</span>}
                 </button>
+
+                {isAdmin && user && (
+                    <div className="nav-profile-section">
+                        <img
+                            src={user.profilePictureUrl || 'https://api.dicebear.com/7.x/avataaars/svg?seed=Felix'}
+                            alt="Profile"
+                            className="nav-avatar"
+                            onClick={() => navigate('/profile')}
+                        />
+                        <Button variant="ghost" size="sm" onClick={handleLogout} className="logout-compact-btn">
+                            Log Out
+                        </Button>
+                    </div>
+                )}
             </div>
         </aside>
     );

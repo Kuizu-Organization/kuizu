@@ -148,6 +148,50 @@
     background-color: var(--input-bg);
 }
 
+.sidebar.admin-sidebar {
+    top: 0;
+    height: 100vh;
+}
+
+.sidebar-footer .nav-profile-section {
+    padding: 12px 14px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    border-top: 1px solid var(--border-color);
+    margin-top: 8px;
+}
+
+.sidebar.collapsed .sidebar-footer .nav-profile-section {
+    padding: 12px 0;
+    justify-content: center;
+}
+
+.sidebar.collapsed .sidebar-footer .logout-compact-btn {
+    display: none;
+}
+
+.sidebar-footer .nav-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    cursor: pointer;
+    border: 2px solid transparent;
+    transition: all 0.2s;
+}
+
+.sidebar-footer .nav-avatar:hover {
+    border-color: var(--primary);
+    transform: scale(1.05);
+}
+
+.sidebar-footer .logout-compact-btn {
+    height: 36px !important;
+    padding: 0 12px !important;
+    font-size: 14px !important;
+    border-radius: 18px !important;
+}
+
 .sidebar.collapsed .sidebar-item {
     justify-content: center;
     padding-left: 0;
