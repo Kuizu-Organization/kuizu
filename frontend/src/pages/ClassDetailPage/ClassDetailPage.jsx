@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { getClassDetails, leaveClass, getClassJoinCode, deleteClass, removeMember, processJoinRequest } from '../../api/class';
+import { getClassDetails, leaveClass, getClassJoinCode, deleteClass, removeMember, processJoinRequest, removeClassMaterial } from '../../api/class';
 import { Button } from '../../components/ui';
-import { Users, File, Calendar, Share2, MoreVertical, Copy, Check, Trash2 } from 'lucide-react';
+import { Users, File, Calendar, Share2, MoreVertical, Copy, Check, Trash2, Folder, Layers } from 'lucide-react';
 import JoinClassModal from '../../components/Class/JoinClassModal';
 import LeaveClassModal from '../../components/Class/LeaveClassModal';
 import EditClassModal from '../../components/Class/EditClassModal';
 import DeleteClassModal from '../../components/Class/DeleteClassModal';
 import RemoveMemberModal from '../../components/Class/RemoveMemberModal';
+import AddClassMaterialModal from '../../components/Class/AddClassMaterialModal';
 import './ClassDetailPage.css';
 
 const ClassDetailPage = () => {
@@ -21,6 +22,7 @@ const ClassDetailPage = () => {
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const [isRemoveModalOpen, setIsRemoveModalOpen] = useState(false);
+    const [isAddMaterialModalOpen, setIsAddMaterialModalOpen] = useState(false);
     const [localIsMember, setLocalIsMember] = useState(false);
     const [isLeaving, setIsLeaving] = useState(false);
     const [isDeleting, setIsDeleting] = useState(false);
@@ -150,6 +152,26 @@ const ClassDetailPage = () => {
             console.error(`Failed to ${status.toLowerCase()} join request:`, err);
             alert(`Failed to ${status.toLowerCase()} the join request. Please try again.`);
         }
+    };
+
+    const handleRemoveMaterial = async (materialId) => {
+        try {
+            await removeClassMaterial(classId, materialId);
+            setClassData(prev => ({
+                ...prev,
+                classMaterials: prev.classMaterials.filter(m => m.materialId !== materialId)
+            }));
+        } catch (err) {
+            console.error("Failed to remove material:", err);
+            alert("Failed to remove material from class. Please try again.");
+        }
+    };
+
+    const handleMaterialAdded = (newMaterial) => {
+        setClassData(prev => ({
+            ...prev,
+            classMaterials: [...(prev.classMaterials || []), newMaterial]
+        }));
     };
 
     const handleUpdateSuccess = (updatedClass) => {
@@ -315,23 +337,33 @@ const ClassDetailPage = () => {
                         <div className="class-materials-list">
                             <div className="materials-header">
                                 <h2>Class Materials</h2>
-                                <Button variant="outline" size="sm">Add Material</Button>
+                                {classData?.isOwner && (
+                                    <Button variant="outline" size="sm" onClick={() => setIsAddMaterialModalOpen(true)}>Add Material</Button>
+                                )}
                             </div>
 
                             {classData.classMaterials && classData.classMaterials.length > 0 ? (
                                 <div className="materials-grid">
-                                    {classData.classMaterials.map(material => (
-                                        <div key={material.materialId} className="material-card">
-                                            <div className="material-icon">
-                                                <File size={24} />
+                                    {classData.classMaterials.map(material => {
+                                        const isFolder = material.materialType === 'FOLDER';
+                                        return (
+                                            <div key={material.materialId} className="material-card">
+                                                <div className="material-icon">
+                                                    {isFolder ? <Folder size={32} /> : <Layers size={32} />}
+                                                </div>
+                                                <div className="material-info">
+                                                    <h4 className="material-title">{material.materialName || material.materialType}</h4>
+                                                    <p className="material-ref">{isFolder ? 'Folder' : 'Flashcard Set'}</p>
+                                                </div>
+                                                <div className="material-actions" style={{ display: 'flex', gap: '8px' }}>
+                                                    <Button variant="outline" size="sm" onClick={() => navigate(isFolder ? `/folders/${material.materialRefId}` : `/sets/${material.materialRefId}`)}>View</Button>
+                                                    {classData?.isOwner && (
+                                                        <Button variant="ghost" size="sm" className="text-red-500" onClick={() => handleRemoveMaterial(material.materialId)}>Remove</Button>
+                                                    )}
+                                                </div>
                                             </div>
-                                            <div className="material-info">
-                                                <h4 className="material-title">{material.materialType}</h4>
-                                                <p className="material-ref">ID: {material.materialRefId}</p>
-                                            </div>
-                                            <Button variant="outline" size="sm">View</Button>
-                                        </div>
-                                    ))}
+                                        );
+                                    })}
                                 </div>
                             ) : (
                                 <div className="empty-materials">
@@ -451,6 +483,13 @@ const ClassDetailPage = () => {
                 onConfirm={handleRemoveMemberConfirm}
                 isRemoving={isRemoving}
                 memberName={selectedMember?.displayName}
+            />
+
+            <AddClassMaterialModal
+                isOpen={isAddMaterialModalOpen}
+                onClose={() => setIsAddMaterialModalOpen(false)}
+                classId={classId}
+                onMaterialAdded={handleMaterialAdded}
             />
         </div>
     );
