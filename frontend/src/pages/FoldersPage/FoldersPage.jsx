@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getMyFolders, getPublicFolders } from '../../api/folder';
-import { Loader, Button } from '../../components/ui';
+import { Loader, Button, Card } from '../../components/ui';
 import CreateFolderModal from '../../components/Folder/CreateFolderModal';
 import { Folder, FolderOpen, Plus, Globe } from 'lucide-react';
 import './FoldersPage.css';
@@ -42,11 +42,6 @@ const FoldersPage = () => {
         setIsCreateOpen(false);
     };
 
-    const getInitials = (name) => {
-        if (!name) return '?';
-        return name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
-    };
-
     if (isLoading) {
         return <Loader fullPage={true} />;
     }
@@ -68,40 +63,28 @@ const FoldersPage = () => {
             {folders.length > 0 ? (
                 <div className="folders-grid">
                     {folders.map(folder => (
-                        <div
+                        <Card
                             key={folder.folderId}
-                            className="folder-card"
+                            className="folder-item-card"
                             onClick={() => handleFolderClick(folder.folderId)}
                         >
-                            <div className="folder-card-body">
-                                <div className="folder-card-meta">
-                                    <span className="folder-set-count">
-                                        {folder.setCount} sets
-                                    </span>
-                                    <div className="folder-owner-info">
-                                        <div className="folder-owner-avatar">
-                                            {getInitials(folder.ownerDisplayName)}
-                                        </div>
-                                        <span className="folder-owner-name">
-                                            {folder.ownerDisplayName}
-                                        </span>
-                                    </div>
-                                </div>
-                                <h3 className="folder-card-title">{folder.name}</h3>
-                                {folder.description && (
-                                    <p className="folder-card-description">{folder.description}</p>
-                                )}
-                            </div>
-                            <div className="folder-card-footer">
-                                <div className="folder-icon-wrapper">
-                                    <FolderOpen size={16} />
-                                    <span>Folder</span>
-                                </div>
-                                <span className={`folder-visibility ${folder.visibility?.toLowerCase()}`}>
-                                    {folder.visibility === 'PUBLIC' ? 'Public' : 'Private'}
+                            <div className="card-header-custom">
+                                <h3 className="card-title-custom">{folder.name}</h3>
+                                <span className="badge-custom">
+                                    <FolderOpen size={12} style={{ marginRight: 4, verticalAlign: 'middle' }} />
+                                    {folder.setCount} sets
                                 </span>
                             </div>
-                        </div>
+                            <div className="card-body-custom">
+                                <p className="card-description-custom">{folder.description || 'No description provided.'}</p>
+                            </div>
+                            <div className="card-footer-custom">
+                                <span className="owner-text">by {folder.ownerDisplayName}</span>
+                                <span className={`visibility-tag ${folder.visibility?.toLowerCase()}`}>
+                                    {folder.visibility === 'PUBLIC' ? '🌐 Public' : '🔒 Private'}
+                                </span>
+                            </div>
+                        </Card>
                     ))}
                 </div>
             ) : (
@@ -128,40 +111,26 @@ const FoldersPage = () => {
                     </div>
                     <div className="folders-grid">
                         {publicFolders.map(folder => (
-                            <div
+                            <Card
                                 key={folder.folderId}
-                                className="folder-card public-card"
+                                className="folder-item-card"
                                 onClick={() => handleFolderClick(folder.folderId)}
                             >
-                                <div className="folder-card-body">
-                                    <div className="folder-card-meta">
-                                        <span className="folder-set-count">
-                                            {folder.setCount} sets
-                                        </span>
-                                        <div className="folder-owner-info">
-                                            <div className="folder-owner-avatar">
-                                                {getInitials(folder.ownerDisplayName)}
-                                            </div>
-                                            <span className="folder-owner-name">
-                                                {folder.ownerDisplayName}
-                                            </span>
-                                        </div>
-                                    </div>
-                                    <h3 className="folder-card-title">{folder.name}</h3>
-                                    {folder.description && (
-                                        <p className="folder-card-description">{folder.description}</p>
-                                    )}
-                                </div>
-                                <div className="folder-card-footer">
-                                    <div className="folder-icon-wrapper">
-                                        <Globe size={14} />
-                                        <span>Public</span>
-                                    </div>
-                                    <span className="folder-visibility public">
-                                        Public
+                                <div className="card-header-custom">
+                                    <h3 className="card-title-custom">{folder.name}</h3>
+                                    <span className="badge-custom badge-green">
+                                        <Globe size={12} style={{ marginRight: 4, verticalAlign: 'middle' }} />
+                                        {folder.setCount} sets
                                     </span>
                                 </div>
-                            </div>
+                                <div className="card-body-custom">
+                                    <p className="card-description-custom">{folder.description || 'No description provided.'}</p>
+                                </div>
+                                <div className="card-footer-custom">
+                                    <span className="owner-text">by {folder.ownerDisplayName}</span>
+                                    <span className="visibility-tag public">🌐 Public</span>
+                                </div>
+                            </Card>
                         ))}
                     </div>
                 </div>
