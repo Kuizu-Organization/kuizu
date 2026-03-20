@@ -22,4 +22,6 @@ public interface ClassRepository extends JpaRepository<Class, Long> {
     List<Class> findByClassNameContainingIgnoreCaseAndVisibilityAndStatus(String name, com.kuizu.backend.entity.enumeration.Visibility visibility, ModerationStatus status);
 
     List<Class> findByStatus(ModerationStatus status);
+
+    List<Class> findByVisibility(com.kuizu.backend.entity.enumeration.Visibility visibility);
 }

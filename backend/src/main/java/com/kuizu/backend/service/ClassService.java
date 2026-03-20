@@ -143,6 +143,14 @@ public class ClassService {
                 .toList();
     }
 
+    public List<ClassResponse> getSuggestedClasses(int limit) {
+        return classRepository.findByVisibility(Visibility.PUBLIC)
+                .stream()
+                .limit(limit)
+                .map(this::convertToClassResponse)
+                .toList();
+    }
+
     private ClassResponse convertToClassResponse(Class c) {
         return new ClassResponse(
                 c.getClassId(),
