@@ -683,6 +683,87 @@ const AdminDashboard = () => {
                 )}
             </Modal>
 
+            {/* Flashcard Set Review Modal */}
+            <Modal isOpen={isSetModalOpen} onClose={() => setIsSetModalOpen(false)} title="Review Submission" size="lg">
+                {selectedSet && (
+                    <div className="moderation-modal-content">
+                        <div className="moderation-modal-header">
+                            <div className="header-title-row">
+                                <BookOpen className="header-icon" size={24} />
+                                <div>
+                                    <h3
+                                        className="modal-main-title cursor-pointer hover:underline text-primary"
+                                        onClick={() => navigate(`/admin/submissions/flashcards/${selectedSet.setId}`, { state: { selectedSet: selectedSet } })}
+                                        title="View full set"
+                                    >
+                                        {selectedSet.title}
+                                    </h3>
+                                    <div className="meta-row">
+                                        <Badge variant="primary">{selectedSet.visibility}</Badge>
+                                        <span className="meta-text"><Clock size={14} /> Submitted {formatDate(selectedSet.submittedAt)}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="moderation-grid-single">
+                            <div className="moderation-info-column">
+                                <div className="info-card">
+                                    <label className="section-label">Author Information</label>
+                                    <div className="author-info">
+                                        <div className="user-avatar-mini">
+                                            <img
+                                                src={selectedSet.ownerProfilePictureUrl || `https://api.dicebear.com/7.x/avataaars/svg?seed=${selectedSet.ownerUsername}`}
+                                                alt={selectedSet.ownerUsername}
+                                            />
+                                        </div>
+                                        <div>
+                                            <div className="font-bold text-slate-800">{selectedSet.ownerDisplayName}</div>
+                                            <div className="text-xs text-slate-500">@{selectedSet.ownerUsername}</div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className="info-card mt-4">
+                                    <label className="section-label">Description</label>
+                                    <p className="description-text">{selectedSet.description || 'No description provided.'}</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="moderation-footer">
+                            <div className="notes-field">
+                                <label><MessageSquare size={14} /> Moderation Feedback</label>
+                                <Textarea
+                                    className="w-full mt-3 mb-6"
+                                    placeholder="Provide a reason for approval or rejection (optional)..."
+                                    value={moderationNotes}
+                                    onChange={(e) => setModerationNotes(e.target.value)}
+                                    rows={4}
+                                />
+                            </div>
+                            <div className="actions-flex">
+                                <Button
+                                    variant="success"
+                                    className="flex-1 py-6"
+                                    onClick={() => handleModeration('SET', selectedSet.setId, 'APPROVE')}
+                                    disabled={isProcessingModeration}
+                                >
+                                    {isProcessingModeration ? <Loader size="xs" /> : <><CheckCircle size={20} /> Approve Set</>}
+                                </Button>
+                                <Button
+                                    variant="error"
+                                    className="flex-1 py-6"
+                                    onClick={() => handleModeration('SET', selectedSet.setId, 'REJECT')}
+                                    disabled={isProcessingModeration}
+                                >
+                                    {isProcessingModeration ? <Loader size="xs" /> : <><XCircle size={20} /> Reject Set</>}
+                                </Button>
+                            </div>
+                        </div>
+                    </div>
+                )}
+            </Modal>
 
             {/* Class Review Modal */}
             <Modal isOpen={isClassModalOpen} onClose={() => setIsClassModalOpen(false)} title="Review Submission" size="md">
