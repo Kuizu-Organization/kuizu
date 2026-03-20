@@ -36,6 +36,7 @@ public class ModerationService {
     private final UserRepository userRepository;
     private final FlashcardRepository flashcardRepository;
     private final NotificationService notificationService;
+    private final EmailService emailService;
 
     @Autowired
     public ModerationService(FlashcardSetRepository flashcardSetRepository,
@@ -43,13 +44,15 @@ public class ModerationService {
             ModerationHistoryRepository moderationHistoryRepository,
             UserRepository userRepository,
             FlashcardRepository flashcardRepository,
-            NotificationService notificationService) {
+            NotificationService notificationService,
+            EmailService emailService) {
         this.flashcardSetRepository = flashcardSetRepository;
         this.classRepository = classRepository;
         this.moderationHistoryRepository = moderationHistoryRepository;
         this.userRepository = userRepository;
         this.flashcardRepository = flashcardRepository;
         this.notificationService = notificationService;
+        this.emailService = emailService;
     }
 
     public List<FlashcardSetSubmissionResponse> getPendingFlashcardSets() {
@@ -100,6 +103,19 @@ public class ModerationService {
             "MODERATION",
             set.getSetId().toString()
         );
+
+        // Send Email
+        User owner = set.getOwner();
+        if (owner != null && owner.getEmail() != null) {
+            emailService.sendModerationEmail(
+                owner.getEmail(),
+                owner.getDisplayName() != null ? owner.getDisplayName() : owner.getUsername(),
+                set.getTitle(),
+                "Approved",
+                request.getNotes(),
+                "Flashcard Set"
+            );
+        }
     }
 
     @Transactional
@@ -123,6 +139,19 @@ public class ModerationService {
             "MODERATION",
             set.getSetId().toString()
         );
+
+        // Send Email
+        User owner = set.getOwner();
+        if (owner != null && owner.getEmail() != null) {
+            emailService.sendModerationEmail(
+                owner.getEmail(),
+                owner.getDisplayName() != null ? owner.getDisplayName() : owner.getUsername(),
+                set.getTitle(),
+                "Rejected",
+                request.getNotes(),
+                "Flashcard Set"
+            );
+        }
     }
 
     @Transactional
@@ -145,6 +174,19 @@ public class ModerationService {
             "MODERATION",
             cls.getClassId().toString()
         );
+
+        // Send Email
+        User owner = cls.getOwner();
+        if (owner != null && owner.getEmail() != null) {
+            emailService.sendModerationEmail(
+                owner.getEmail(),
+                owner.getDisplayName() != null ? owner.getDisplayName() : owner.getUsername(),
+                cls.getClassName(),
+                "Approved",
+                request.getNotes(),
+                "Class"
+            );
+        }
     }
 
     @Transactional
@@ -168,6 +210,19 @@ public class ModerationService {
             "MODERATION",
             cls.getClassId().toString()
         );
+
+        // Send Email
+        User owner = cls.getOwner();
+        if (owner != null && owner.getEmail() != null) {
+            emailService.sendModerationEmail(
+                owner.getEmail(),
+                owner.getDisplayName() != null ? owner.getDisplayName() : owner.getUsername(),
+                cls.getClassName(),
+                "Rejected",
+                request.getNotes(),
+                "Class"
+            );
+        }
     }
 
     private User getCurrentUser() {
