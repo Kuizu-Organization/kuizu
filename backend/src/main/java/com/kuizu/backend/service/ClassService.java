@@ -20,13 +20,7 @@ import com.kuizu.backend.repository.ClassJoinRequestRepository;
 import com.kuizu.backend.repository.ClassMemberRepository;
 import com.kuizu.backend.repository.ClassRepository;
 import com.kuizu.backend.repository.UserRepository;
-import com.kuizu.backend.repository.ClassMaterialRepository;
-import com.kuizu.backend.repository.FolderRepository;
-import com.kuizu.backend.repository.FlashcardSetRepository;
-import com.kuizu.backend.dto.request.AddClassMaterialRequest;
-import com.kuizu.backend.entity.ClassMaterial;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashSet;
 import java.util.List;
@@ -39,27 +33,20 @@ public class ClassService {
     private final ClassMemberRepository classMemberRepository;
     private final ClassJoinRequestRepository classJoinRequestRepository;
     private final NotificationService notificationService;
-    private final ClassMaterialRepository classMaterialRepository;
-    private final FolderRepository folderRepository;
-    private final FlashcardSetRepository flashcardSetRepository;
 
     public ClassService(ClassRepository classRepository, UserRepository userRepository, 
                         ClassMemberRepository classMemberRepository, ClassJoinRequestRepository classJoinRequestRepository,
-                        NotificationService notificationService,
-                        ClassMaterialRepository classMaterialRepository, FolderRepository folderRepository,
-                        FlashcardSetRepository flashcardSetRepository) {
+                        NotificationService notificationService) {
         this.classRepository = classRepository;
         this.userRepository = userRepository;
         this.classMemberRepository = classMemberRepository;
         this.classJoinRequestRepository = classJoinRequestRepository;
         this.notificationService = notificationService;
-        this.classMaterialRepository = classMaterialRepository;
-        this.folderRepository = folderRepository;
-        this.flashcardSetRepository = flashcardSetRepository;
     }
 
     public ClassInfoResponse findClassById(Long classId, String username) {
-        Class clazz = classRepository.findByClassId(classId).orElseThrow(() -> new ApiException("Class not found with id: " + classId));
+        Class clazz = classRepository.findByClassId(classId)
+                .orElseThrow(() -> new ApiException("Class not found with id: " + classId));
         return convertToClassInfoResponse(clazz, username);
     }
 
@@ -69,9 +56,8 @@ public class ClassService {
                 .map(m -> new ClassMaterialResponse(
                         m.getMaterialId(),
                         m.getMaterialType(),
-                        m.getMaterialRefId(),
-                        getMaterialName(m.getMaterialType(), m.getMaterialRefId())
-                )).toList();
+                        m.getMaterialRefId()))
+                .toList();
 
         Boolean isOwner = false;
         Boolean isMember = false;
@@ -80,7 +66,29 @@ public class ClassService {
             User user = userRepository.findByUsername(username).orElse(null);
             if (user != null) {
                 isOwner = clazz.getOwner().getUserId().equals(user.getUserId());
-                isMember = classMemberRepository.existsById(new ClassMember.ClassMemberId(clazz.getClassId(), user.getUserId()));
+                isMember = classMemberRepository
+                        .existsById(new ClassMember.ClassMemberId(clazz.getClassId(), user.getUserId()));
+            }
+        }
+
+        // Enforcement: If not owner/member, must be public and active
+        if (!isOwner && !isMember) {
+            if (clazz.getVisibility() != Visibility.PUBLIC || clazz.getStatus() != ModerationStatus.ACTIVE) {
+                throw new ApiException("Access denied: class is private or pending moderation.");
+            }
+        }
+
+        // Enforcement: If not owner/member, must be public and active
+        if (!isOwner && !isMember) {
+            if (clazz.getVisibility() != Visibility.PUBLIC || clazz.getStatus() != ModerationStatus.ACTIVE) {
+                throw new ApiException("Access denied: class is private or pending moderation.");
+            }
+        }
+
+        // Enforcement: If not owner/member, must be public and active
+        if (!isOwner && !isMember) {
+            if (clazz.getVisibility() != Visibility.PUBLIC || clazz.getStatus() != ModerationStatus.ACTIVE) {
+                throw new ApiException("Access denied: class is private or pending moderation.");
             }
         }
 
@@ -93,16 +101,16 @@ public class ClassService {
                             m.getUser().getUserId(),
                             m.getUser().getDisplayName(),
                             m.getRole(),
-                            m.getJoinedAt()
-                    )).toList();
-            
+                            m.getJoinedAt()))
+                    .toList();
+
             members = new java.util.ArrayList<>(members);
             // Add owner to the members list as well for display
             members.add(0, new ClassMemberResponse(
-                clazz.getOwner().getUserId(),
-                clazz.getOwner().getDisplayName(),
-                "OWNER",
-                null // Owner doesn't have joinedAt in ClassMember
+                    clazz.getOwner().getUserId(),
+                    clazz.getOwner().getDisplayName(),
+                    "OWNER",
+                    null // Owner doesn't have joinedAt in ClassMember
             ));
 
             joinRequests = classJoinRequestRepository.findByClazzAndStatus(clazz, "PENDING").stream()
@@ -112,8 +120,8 @@ public class ClassService {
                             r.getUser().getDisplayName(),
                             r.getMessage(),
                             r.getStatus(),
-                            r.getRequestedAt()
-                    )).toList();
+                            r.getRequestedAt()))
+                    .toList();
         }
 
         return new ClassInfoResponse(
@@ -127,12 +135,20 @@ public class ClassService {
                 isMember,
                 isOwner,
                 members,
-                joinRequests
-        );
+                joinRequests);
     }
 
     public List<ClassResponse> findClassesByName(String name) {
-        return classRepository.findByClassNameContainingIgnoreCase(name)
+        return classRepository
+                .findByClassNameContainingIgnoreCaseAndVisibilityAndStatus(name, Visibility.PUBLIC,
+                        ModerationStatus.ACTIVE)
+                .stream()
+                .map(this::convertToClassResponse)
+                .toList();
+    }
+
+    public List<ClassResponse> getSuggestedClasses(int limit) {
+        return classRepository.findRandomPublicClasses(limit)
                 .stream()
                 .map(this::convertToClassResponse)
                 .toList();
@@ -145,23 +161,22 @@ public class ClassService {
                 c.getOwner().getDisplayName(),
                 c.getClassName(),
                 c.getDescription(),
-                c.getVisibility()
-        );
+                c.getVisibility());
     }
 
     public List<ClassResponse> getUserClasses(String username) {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new ApiException("User not found: " + username));
-        
+
         List<Class> ownedClasses = classRepository.findByOwner(user);
         List<Class> joinedClasses = classMemberRepository.findByUser(user)
                 .stream()
                 .map(ClassMember::getClazz)
                 .toList();
-                
+
         Set<Class> allClasses = new HashSet<>(ownedClasses);
         allClasses.addAll(joinedClasses);
-        
+
         return allClasses.stream()
                 .map(this::convertToClassResponse)
                 .toList();
@@ -182,7 +197,8 @@ public class ClassService {
                 .className(request.getClassName())
                 .description(request.getDescription())
                 .visibility(request.getVisibility() != null ? request.getVisibility() : Visibility.PUBLIC)
-                .status(request.getVisibility() == Visibility.PUBLIC ? ModerationStatus.PENDING : ModerationStatus.ACTIVE)
+                .status(request.getVisibility() == Visibility.PUBLIC ? ModerationStatus.PENDING
+                        : ModerationStatus.ACTIVE)
                 .joinCode(joinCode)
                 .submittedBy(user.getUserId())
                 .build();
@@ -202,7 +218,6 @@ public class ClassService {
 
         return convertToClassInfoResponse(newClass, username);
     }
-
     private String generateJoinCode() {
         return UUID.randomUUID().toString().substring(0, 8).toUpperCase();
     }
@@ -210,7 +225,7 @@ public class ClassService {
     public void joinClass(Long classId, String username, String joinCode, String message) {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new ApiException("User not found: " + username));
-        
+
         Class clazz = classRepository.findByClassId(classId)
                 .orElseThrow(() -> new ApiException("Class not found: " + classId));
 
@@ -244,7 +259,7 @@ public class ClassService {
                 .role("MEMBER")
                 .joinedBy(user.getUserId())
                 .build();
-        
+
         classMemberRepository.save(member);
     }
 
@@ -255,14 +270,14 @@ public class ClassService {
                 .message(message)
                 .status("PENDING")
                 .build();
-                
+
         classJoinRequestRepository.save(request);
     }
 
     public void leaveClass(Long classId, String username) {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new ApiException("User not found: " + username));
-        
+
         Class clazz = classRepository.findByClassId(classId)
                 .orElseThrow(() -> new ApiException("Class not found: " + classId));
 
@@ -280,7 +295,7 @@ public class ClassService {
     public String getJoinCode(Long classId, String username) {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new ApiException("User not found: " + username));
-        
+
         Class clazz = classRepository.findByClassId(classId)
                 .orElseThrow(() -> new ApiException("Class not found: " + classId));
 
@@ -297,7 +312,7 @@ public class ClassService {
     public ClassInfoResponse updateClass(Long classId, UpdateClassRequest request, String username) {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new ApiException("User not found: " + username));
-        
+
         Class clazz = classRepository.findByClassId(classId)
                 .orElseThrow(() -> new ApiException("Class not found: " + classId));
 
@@ -308,7 +323,7 @@ public class ClassService {
         if (request.getClassName() != null && !request.getClassName().isBlank()) {
             clazz.setClassName(request.getClassName());
         }
-        
+
         if (request.getDescription() != null) {
             clazz.setDescription(request.getDescription());
         }
@@ -325,7 +340,7 @@ public class ClassService {
     public void deleteClass(Long classId, String username) {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new ApiException("User not found: " + username));
-        
+
         Class clazz = classRepository.findByClassId(classId)
                 .orElseThrow(() -> new ApiException("Class not found: " + classId));
 
@@ -339,7 +354,7 @@ public class ClassService {
     public void removeMember(Long classId, String targetUserId, String requesterUsername) {
         User requester = userRepository.findByUsername(requesterUsername)
                 .orElseThrow(() -> new ApiException("User not found: " + requesterUsername));
-        
+
         Class clazz = classRepository.findByClassId(classId)
                 .orElseThrow(() -> new ApiException("Class not found: " + classId));
 
@@ -361,7 +376,7 @@ public class ClassService {
     public void processJoinRequest(Long classId, Long requestId, JoinRequestAction action, String requesterUsername) {
         User requester = userRepository.findByUsername(requesterUsername)
                 .orElseThrow(() -> new ApiException("User not found: " + requesterUsername));
-        
+
         Class clazz = classRepository.findByClassId(classId)
                 .orElseThrow(() -> new ApiException("Class not found: " + classId));
 
@@ -383,7 +398,7 @@ public class ClassService {
         String status = action.getStatus();
         if ("ACCEPTED".equalsIgnoreCase(status)) {
             request.setStatus("ACCEPTED");
-            
+
             // Add user as member
             ClassMember member = ClassMember.builder()
                     .id(new ClassMember.ClassMemberId(clazz.getClassId(), request.getUser().getUserId()))
@@ -392,7 +407,7 @@ public class ClassService {
                     .role("MEMBER")
                     .joinedBy(requester.getUserId())
                     .build();
-            
+
             classMemberRepository.save(member);
         } else if ("REJECTED".equalsIgnoreCase(status)) {
             request.setStatus("REJECTED");
@@ -403,80 +418,5 @@ public class ClassService {
         request.setRespondedAt(java.time.LocalDateTime.now());
         request.setRespondedBy(requester.getUserId());
         classJoinRequestRepository.save(request);
-    }
-
-    @Transactional
-    public ClassMaterialResponse addMaterial(Long classId, AddClassMaterialRequest request, String username) {
-        User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new ApiException("User not found: " + username));
-        
-        Class clazz = classRepository.findByClassId(classId)
-                .orElseThrow(() -> new ApiException("Class not found: " + classId));
-
-        if (!clazz.getOwner().getUserId().equals(user.getUserId())) {
-            throw new ApiException("Only the class owner can add materials");
-        }
-
-        String type = request.getMaterialType();
-        Long refId = request.getMaterialRefId();
-
-        if ("FOLDER".equals(type)) {
-            folderRepository.findByFolderIdAndIsDeletedFalse(refId)
-                    .orElseThrow(() -> new ApiException("Folder not found"));
-        } else if ("FLASHCARD_SET".equals(type)) {
-            flashcardSetRepository.findById(refId)
-                    .filter(s -> s.getIsDeleted() == null || !s.getIsDeleted())
-                    .orElseThrow(() -> new ApiException("Flashcard set not found"));
-        } else {
-            throw new ApiException("Invalid material type");
-        }
-
-        boolean exists = classMaterialRepository.findByClazz_ClassId(classId).stream()
-                .anyMatch(m -> m.getMaterialType().equals(type) && m.getMaterialRefId().equals(refId));
-        if (exists) {
-            throw new ApiException("Material already exists in this class");
-        }
-
-        ClassMaterial material = ClassMaterial.builder()
-                .clazz(clazz)
-                .materialType(type)
-                .materialRefId(refId)
-                .addedBy(user.getUserId())
-                .build();
-        
-        material = classMaterialRepository.save(material);
-
-        return new ClassMaterialResponse(material.getMaterialId(), material.getMaterialType(), material.getMaterialRefId(), getMaterialName(material.getMaterialType(), material.getMaterialRefId()));
-    }
-
-    private String getMaterialName(String type, Long refId) {
-        if ("FOLDER".equals(type)) {
-            return folderRepository.findById(refId).map(com.kuizu.backend.entity.Folder::getName).orElse("Unknown Folder");
-        } else if ("FLASHCARD_SET".equals(type)) {
-            return flashcardSetRepository.findById(refId).map(com.kuizu.backend.entity.FlashcardSet::getTitle).orElse("Unknown Flashcard Set");
-        }
-        return "Unknown Material";
-    }
-
-    @Transactional
-    public void removeMaterial(Long classId, Long materialId, String username) {
-        User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new ApiException("User not found: " + username));
-        
-        Class clazz = classRepository.findByClassId(classId)
-                .orElseThrow(() -> new ApiException("Class not found: " + classId));
-
-        if (!clazz.getOwner().getUserId().equals(user.getUserId())) {
-            throw new ApiException("Only the class owner can remove materials");
-        }
-
-        ClassMaterial material = classMaterialRepository.findById(materialId)
-                .orElseThrow(() -> new ApiException("Material not found: " + materialId));
-
-        if (!material.getClazz().getClassId().equals(classId)) {
-            throw new ApiException("Material does not belong to this class");
-        }
-
-        classMaterialRepository.delete(material);
     }
 }

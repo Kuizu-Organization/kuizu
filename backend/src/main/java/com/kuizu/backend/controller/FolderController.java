@@ -29,7 +29,8 @@ public class FolderController {
     }
 
     @PutMapping("/{folderId}")
-    public ResponseEntity<?> updateFolder(@PathVariable Long folderId, @Valid @RequestBody UpdateFolderRequest request, Principal principal) {
+    public ResponseEntity<?> updateFolder(@PathVariable Long folderId, @Valid @RequestBody UpdateFolderRequest request,
+            Principal principal) {
         if (principal == null) {
             return ResponseEntity.status(401).build();
         }
@@ -55,18 +56,14 @@ public class FolderController {
 
     @GetMapping("/public")
     public ResponseEntity<?> getPublicFolders(Principal principal) {
-        if (principal == null) {
-            return ResponseEntity.status(401).build();
-        }
-        return ResponseEntity.ok(folderService.getPublicFolders(principal.getName()));
+        String username = principal != null ? principal.getName() : null;
+        return ResponseEntity.ok(folderService.getPublicFolders(username));
     }
 
     @GetMapping("/{folderId}")
     public ResponseEntity<?> getFolderDetail(@PathVariable Long folderId, Principal principal) {
-        if (principal == null) {
-            return ResponseEntity.status(401).build();
-        }
-        return ResponseEntity.ok(folderService.getFolderDetail(folderId, principal.getName()));
+        String username = principal != null ? principal.getName() : null;
+        return ResponseEntity.ok(folderService.getFolderDetail(folderId, username));
     }
 
     @GetMapping("/{folderId}/available-sets")
@@ -86,7 +83,8 @@ public class FolderController {
     }
 
     @PostMapping("/{folderId}/sets/{setId}")
-    public ResponseEntity<?> addSetToFolder(@PathVariable Long folderId, @PathVariable Long setId, Principal principal) {
+    public ResponseEntity<?> addSetToFolder(@PathVariable Long folderId, @PathVariable Long setId,
+            Principal principal) {
         if (principal == null) {
             return ResponseEntity.status(401).build();
         }
@@ -95,11 +93,22 @@ public class FolderController {
     }
 
     @DeleteMapping("/{folderId}/sets/{setId}")
-    public ResponseEntity<?> removeSetFromFolder(@PathVariable Long folderId, @PathVariable Long setId, Principal principal) {
+    public ResponseEntity<?> removeSetFromFolder(@PathVariable Long folderId, @PathVariable Long setId,
+            Principal principal) {
         if (principal == null) {
             return ResponseEntity.status(401).build();
         }
         folderService.removeSetFromFolder(folderId, setId, principal.getName());
         return ResponseEntity.ok(Map.of("message", "Set removed from folder successfully"));
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<?> searchFolders(@RequestParam String query) {
+        return ResponseEntity.ok(folderService.findFoldersByName(query));
+    }
+
+    @GetMapping("/suggested")
+    public ResponseEntity<?> getSuggestedFolders(@RequestParam(defaultValue = "4") int limit) {
+        return ResponseEntity.ok(folderService.getSuggestedFolders(limit));
     }
 }

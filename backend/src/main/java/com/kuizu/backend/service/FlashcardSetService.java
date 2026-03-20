@@ -2,8 +2,11 @@ package com.kuizu.backend.service;
 
 import com.kuizu.backend.dto.request.FlashcardSetRequest;
 import com.kuizu.backend.dto.response.FlashcardSetResponse;
+import com.kuizu.backend.entity.Flashcard;
 import com.kuizu.backend.entity.FlashcardSet;
 import com.kuizu.backend.entity.User;
+import com.kuizu.backend.entity.enumeration.ModerationStatus;
+import com.kuizu.backend.entity.enumeration.Visibility;
 import com.kuizu.backend.exception.ApiException;
 import com.kuizu.backend.repository.FlashcardRepository;
 import com.kuizu.backend.repository.FlashcardSetRepository;
@@ -12,7 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.kuizu.backend.entity.enumeration.Visibility;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -29,7 +32,7 @@ public class FlashcardSetService {
     private UserRepository userRepository;
 
     public List<FlashcardSetResponse> getAllPublicSets() {
-        return flashcardSetRepository.findByVisibilityAndIsDeletedFalse(Visibility.PUBLIC)
+        return flashcardSetRepository.findByVisibilityAndStatusAndIsDeletedFalse(Visibility.PUBLIC, ModerationStatus.APPROVED)
                 .stream()
                 .map(this::mapToResponse)
                 .collect(Collectors.toList());
@@ -51,23 +54,67 @@ public class FlashcardSetService {
         return mapToResponse(set);
     }
 
+    public FlashcardSetResponse getFlashcardSet(Long setId, String username) {
+        FlashcardSet set = flashcardSetRepository.findById(setId)
+                .filter(s -> s.getIsDeleted() == null || !s.getIsDeleted())
+                .orElseThrow(() -> new ApiException("Flashcard set not found"));
+
+        boolean isOwner = false;
+        if (username != null) {
+            User user = userRepository.findByUsername(username).orElse(null);
+            if (user != null) {
+                isOwner = set.getOwner().getUserId().equals(user.getUserId());
+            }
+        }
+
+        if (!isOwner) {
+            if (set.getVisibility() != Visibility.PUBLIC || set.getStatus() != ModerationStatus.APPROVED) {
+                throw new ApiException("Access denied: flashcard set is private or pending moderation.");
+            }
+        }
+
+        return mapToResponse(set);
+    }
+
     @Transactional
     public FlashcardSetResponse createSet(String username, FlashcardSetRequest request) {
         User owner = userRepository.findByUsername(username)
                 .orElseThrow(() -> new ApiException("User not found"));
 
+        Visibility visibility = request.getVisibility() != null ? 
+            Visibility.valueOf(request.getVisibility().toUpperCase()) : Visibility.PUBLIC;
+        
+        ModerationStatus status = (visibility == Visibility.PUBLIC) ? 
+            ModerationStatus.PENDING : ModerationStatus.ACTIVE;
+
         FlashcardSet set = FlashcardSet.builder()
                 .owner(owner)
                 .title(request.getTitle())
                 .description(request.getDescription())
-                .visibility(request.getVisibility() != null ? Visibility.valueOf(request.getVisibility().toUpperCase()) : Visibility.PUBLIC)
-                .status(com.kuizu.backend.entity.enumeration.ModerationStatus.ACTIVE)
+                .visibility(visibility)
+                .status(status)
                 .isDeleted(false)
                 .version(1)
+                .submittedAt(status == ModerationStatus.PENDING ? LocalDateTime.now() : null)
                 .build();
 
-        set = flashcardSetRepository.save(set);
-        return mapToResponse(set);
+        final FlashcardSet savedSet = flashcardSetRepository.save(set);
+
+        if (request.getFlashcards() != null && !request.getFlashcards().isEmpty()) {
+            List<Flashcard> flashcards = request.getFlashcards().stream()
+                    .map(item -> Flashcard.builder()
+                            .flashcardSet(savedSet)
+                            .term(item.getTerm())
+                            .definition(item.getDefinition())
+                            .orderIndex(item.getOrderIndex())
+                            .createdBy(owner.getUserId())
+                            .isDeleted(false)
+                            .build())
+                    .collect(Collectors.toList());
+            flashcardRepository.saveAll(flashcards);
+        }
+
+        return mapToResponse(savedSet);
     }
 
     @Transactional
@@ -82,10 +129,21 @@ public class FlashcardSetService {
 
         if (request.getTitle() != null) set.setTitle(request.getTitle());
         if (request.getDescription() != null) set.setDescription(request.getDescription());
-        if (request.getVisibility() != null) set.setVisibility(Visibility.valueOf(request.getVisibility().toUpperCase()));
+        if (request.getVisibility() != null) {
+            Visibility newVisibility = Visibility.valueOf(request.getVisibility().toUpperCase());
+            if (set.getVisibility() != newVisibility) {
+                set.setVisibility(newVisibility);
+                if (newVisibility == Visibility.PUBLIC) {
+                    set.setStatus(ModerationStatus.PENDING);
+                    set.setSubmittedAt(LocalDateTime.now());
+                } else {
+                    set.setStatus(ModerationStatus.ACTIVE);
+                }
+            }
+        }
 
-        set = flashcardSetRepository.save(set);
-        return mapToResponse(set);
+        FlashcardSet updatedSet = flashcardSetRepository.save(set);
+        return mapToResponse(updatedSet);
     }
 
     @Transactional
@@ -100,6 +158,20 @@ public class FlashcardSetService {
 
         set.setIsDeleted(true);
         flashcardSetRepository.save(set);
+    }
+
+    public List<FlashcardSetResponse> findSetsByTitle(String title) {
+        return flashcardSetRepository.findByTitleContainingIgnoreCaseAndVisibilityAndStatusAndIsDeletedFalse(
+                title, Visibility.PUBLIC, ModerationStatus.APPROVED).stream()
+                .map(this::mapToResponse)
+                .collect(Collectors.toList());
+    }
+
+    public List<FlashcardSetResponse> getSuggestedSets(int limit) {
+        return flashcardSetRepository.findRandomPublicSets(limit)
+                .stream()
+                .map(this::mapToResponse)
+                .collect(Collectors.toList());
     }
 
     private FlashcardSetResponse mapToResponse(FlashcardSet set) {

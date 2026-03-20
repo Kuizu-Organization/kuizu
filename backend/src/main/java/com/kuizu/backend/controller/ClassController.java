@@ -13,8 +13,6 @@ import com.kuizu.backend.dto.request.JoinClassRequest;
 import com.kuizu.backend.dto.request.CreateClassRequest;
 import com.kuizu.backend.dto.request.UpdateClassRequest;
 import com.kuizu.backend.dto.request.JoinRequestAction;
-import com.kuizu.backend.dto.request.AddClassMaterialRequest;
-import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import java.security.Principal;
@@ -39,6 +37,11 @@ class ClassController {
     @GetMapping("/search")
     public ResponseEntity<?> getClassesByName(@RequestParam String query) {
         return ResponseEntity.ok(classService.findClassesByName(query));
+    }
+
+    @GetMapping("/suggested")
+    public ResponseEntity<?> getSuggestedClasses(@RequestParam(defaultValue = "4") int limit) {
+        return ResponseEntity.ok(classService.getSuggestedClasses(limit));
     }
 
     @GetMapping("/me")
@@ -134,26 +137,6 @@ class ClassController {
         
         Map<String, String> response = new HashMap<>();
         response.put("message", "Join request processed successfully");
-        return ResponseEntity.ok(response);
-    }
-
-    @PostMapping("/{classId}/materials")
-    public ResponseEntity<?> addMaterial(@PathVariable Long classId, @Valid @RequestBody AddClassMaterialRequest request, Principal principal) {
-        if (principal == null) {
-            return ResponseEntity.status(401).build();
-        }
-        return ResponseEntity.ok(classService.addMaterial(classId, request, principal.getName()));
-    }
-
-    @DeleteMapping("/{classId}/materials/{materialId}")
-    public ResponseEntity<?> removeMaterial(@PathVariable Long classId, @PathVariable Long materialId, Principal principal) {
-        if (principal == null) {
-            return ResponseEntity.status(401).build();
-        }
-        classService.removeMaterial(classId, materialId, principal.getName());
-        
-        Map<String, String> response = new HashMap<>();
-        response.put("message", "Material removed successfully");
         return ResponseEntity.ok(response);
     }
 }

@@ -90,8 +90,7 @@ public class FolderService {
                             "title", s.getTitle() != null ? s.getTitle() : "",
                             "description", s.getDescription() != null ? s.getDescription() : "",
                             "termCount", termCount,
-                            "createdAt", s.getCreatedAt() != null ? s.getCreatedAt().toString() : ""
-                    );
+                            "createdAt", s.getCreatedAt() != null ? s.getCreatedAt().toString() : "");
                 })
                 .collect(Collectors.toList());
     }
@@ -140,8 +139,9 @@ public class FolderService {
         // Soft delete the folder
         folder.setIsDeleted(true);
         folderRepository.save(folder);
-        
-        // Optional: Depending on logic, might want to remove all FolderSets or just leave them
+
+        // Optional: Depending on logic, might want to remove all FolderSets or just
+        // leave them
         // Setting folder.isDeleted=true is usually enough if queries filter by it.
     }
 
@@ -219,8 +219,7 @@ public class FolderService {
                             "title", s.getTitle() != null ? s.getTitle() : "",
                             "description", s.getDescription() != null ? s.getDescription() : "",
                             "termCount", termCount,
-                            "createdAt", s.getCreatedAt() != null ? s.getCreatedAt().toString() : ""
-                    );
+                            "createdAt", s.getCreatedAt() != null ? s.getCreatedAt().toString() : "");
                 })
                 .collect(Collectors.toList());
     }
@@ -236,10 +235,27 @@ public class FolderService {
 
     @Transactional(readOnly = true)
     public List<FolderResponse> getPublicFolders(String username) {
-        User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+        List<Folder> folders;
+        if (username != null) {
+            User user = userRepository.findByUsername(username)
+                    .orElseThrow(() -> new RuntimeException("User not found"));
+            folders = folderRepository.findByVisibilityAndIsDeletedFalseAndOwnerNot("PUBLIC", user);
+        } else {
+            folders = folderRepository.findByVisibilityAndIsDeletedFalse("PUBLIC");
+        }
+        return mapFoldersToResponse(folders);
+    }
 
-        List<Folder> folders = folderRepository.findByVisibilityAndIsDeletedFalseAndOwnerNot("PUBLIC", user);
+    @Transactional(readOnly = true)
+    public List<FolderResponse> findFoldersByName(String query) {
+        List<Folder> folders = folderRepository.findByNameContainingIgnoreCaseAndVisibilityAndIsDeletedFalse(query,
+                "PUBLIC");
+        return mapFoldersToResponse(folders);
+    }
+
+    @Transactional(readOnly = true)
+    public List<FolderResponse> getSuggestedFolders(int limit) {
+        List<Folder> folders = folderRepository.findRandomPublicFolders(limit);
         return mapFoldersToResponse(folders);
     }
 
@@ -252,8 +268,7 @@ public class FolderService {
                 .setCount(folderSetRepository.countByFolder(folder))
                 .ownerDisplayName(folder.getOwner().getDisplayName())
                 .createdAt(folder.getCreatedAt())
-                .build()
-        ).collect(Collectors.toList());
+                .build()).collect(Collectors.toList());
     }
 
     @Transactional(readOnly = true)
@@ -263,6 +278,26 @@ public class FolderService {
 
         if (folder.getIsDeleted() != null && folder.getIsDeleted()) {
             throw new RuntimeException("Folder not found");
+        }
+
+        if (username == null && !"PUBLIC".equals(folder.getVisibility())) {
+            throw new RuntimeException("Access denied: folder is private");
+        }
+
+        // If logged in, check if private and not owner
+        if (username != null && !"PUBLIC".equals(folder.getVisibility())
+                && !folder.getOwner().getUsername().equals(username)) {
+            throw new RuntimeException("Access denied: folder is private");
+        }
+
+        if (username == null && !"PUBLIC".equals(folder.getVisibility())) {
+            throw new RuntimeException("Access denied: folder is private");
+        }
+
+        // If logged in, check if private and not owner
+        if (username != null && !"PUBLIC".equals(folder.getVisibility())
+                && !folder.getOwner().getUsername().equals(username)) {
+            throw new RuntimeException("Access denied: folder is private");
         }
 
         List<FolderSet> folderSets = folderSetRepository.findByFolder(folder);

@@ -43,6 +43,17 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/classes/search").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/classes/suggested").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/classes/{classId}").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/flashcard-sets/search").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/flashcard-sets/suggested").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/flashcard-sets/{setId}").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/folders/search").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/folders/{folderId}").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/folders/public").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/users/public/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/users/search").permitAll()
                         .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/flashcard-sets/**").permitAll()
                         .anyRequest().authenticated())
                 .sessionManagement(session -> session
@@ -56,7 +67,8 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOriginPatterns(List.of("http://localhost:5173", "http://127.0.0.1:5173"));
+        configuration.setAllowedOriginPatterns(List.of("http://localhost:5173", "http://127.0.0.1:5173",
+                "http://localhost:5174", "http://127.0.0.1:5174"));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
         configuration.setAllowedHeaders(Arrays.asList("*"));
         configuration.setExposedHeaders(Arrays.asList("Authorization"));
