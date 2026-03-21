@@ -740,7 +740,6 @@ const AdminDashboard = () => {
                     </div>
                 )}
             </Modal>
-
             {/* Moderation History Details Modal */}
             <Modal isOpen={isHistoryModalOpen} onClose={() => setIsHistoryModalOpen(false)} title="Action Details" size="md">
                 {selectedHistory && (
@@ -765,7 +764,6 @@ const AdminDashboard = () => {
                                 </div>
                             </div>
                         </div>
-
                         <div className="detail-modal-grid">
                             <div className="detail-item">
                                 <label>Moderator</label>
