@@ -399,7 +399,7 @@ const AdminDashboard = () => {
                             <Button variant="ghost" size="sm" onClick={fetchHistory}>Refresh</Button>
                         </div>
                         <Table
-                            columns={['Moderator', 'Action', 'Entity', 'Time', 'Notes', 'Details']}
+                            columns={['Action', 'Entity', 'Time', 'Notes', 'Details']}
                             isLoading={isHistoryLoading}
                             data={modHistory}
                             emptyIcon={HistoryIcon}
@@ -407,11 +407,10 @@ const AdminDashboard = () => {
                             emptyDescription="There are no moderation history records found."
                             renderRow={(entry) => (
                                 <tr key={entry.modId}>
-                                    <td>{entry.moderatorDisplayName}</td>
                                     <td>
                                         <Badge variant={
-                                            entry.action === 'APPROVE' ? 'success' :
-                                                entry.action === 'REJECT' ? 'error' :
+                                            entry.action === 'APPROVE' || entry.action === 'RESTORED' ? 'success' :
+                                                entry.action === 'REJECT' || entry.action === 'SUSPENDED' ? 'error' :
                                                     entry.action.includes('UPDATE') ? 'info' : 'primary'
                                         }>
                                             {entry.action.replace('_', ' ')}
@@ -430,9 +429,9 @@ const AdminDashboard = () => {
                                     <td>{formatDate(entry.createdAt)}</td>
                                     <td className="max-w-xs truncate" title={entry.notes}>{entry.notes || '-'}</td>
                                     <td>
-                                        <Button 
-                                            variant="ghost" 
-                                            size="icon" 
+                                        <Button
+                                            variant="ghost"
+                                            size="icon"
                                             onClick={() => { setSelectedHistory(entry); setIsHistoryModalOpen(true); }}
                                         >
                                             <Info size={18} />
@@ -673,7 +672,7 @@ const AdminDashboard = () => {
                     </div>
                 )}
             </Modal>
-            
+
             {/* Moderation History Details Modal */}
             <Modal isOpen={isHistoryModalOpen} onClose={() => setIsHistoryModalOpen(false)} title="Action Details" size="md">
                 {selectedHistory && (
@@ -686,8 +685,8 @@ const AdminDashboard = () => {
                                 <h3>{selectedHistory.entityName}</h3>
                                 <div className="meta-row">
                                     <Badge variant={
-                                        selectedHistory.action === 'APPROVE' ? 'success' :
-                                            selectedHistory.action === 'REJECT' ? 'error' :
+                                        selectedHistory.action === 'APPROVE' || selectedHistory.action === 'RESTORED' ? 'success' :
+                                            selectedHistory.action === 'REJECT' || selectedHistory.action === 'SUSPENDED' ? 'error' :
                                                 selectedHistory.action.includes('UPDATE') ? 'info' : 'primary'
                                     }>
                                         {selectedHistory.action.replace('_', ' ')}
@@ -698,7 +697,7 @@ const AdminDashboard = () => {
                                 </div>
                             </div>
                         </div>
-                        
+
                         <div className="detail-modal-grid">
                             <div className="detail-item">
                                 <label>Moderator</label>

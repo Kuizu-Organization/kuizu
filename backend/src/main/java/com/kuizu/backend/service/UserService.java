@@ -114,7 +114,8 @@ public class UserService {
             sessionService.revokeAllUserSessions(user);
         }
 
-        moderationService.logUserModeration(userId, "STATUS_UPDATE", "Status changed to " + status);
+        String action = (status == User.UserStatus.SUSPENDED) ? "SUSPENDED" : "RESTORED";
+        moderationService.logUserModeration(userId, action, "Status changed to " + status);
 
         return mapToUserResponse(user);
     }
