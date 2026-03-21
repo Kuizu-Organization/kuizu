@@ -66,30 +66,17 @@ const FlashcardSetDetailsPage = () => {
         }
     };
 
-    const handleSetUpdateSuccess = (updatedSet) => {
-        setSet(updatedSet);
-    };
-
-    const handleCardSuccess = async () => {
-        // Refresh cards and progress
+    const handleReRequestReview = async () => {
         try {
-            const [cardsData, progressData] = await Promise.all([
-                getFlashcardsBySetId(setId),
-                getStudyProgress(setId)
-            ]);
-            setCards(cardsData);
-            setProgress(progressData);
+            setIsReRequesting(true);
+            await reRequestFlashcardSetReview(setId);
+            addToast('Review requested successfully!', 'success');
+            fetchData();
         } catch (err) {
-            console.error('Error refreshing cards:', err);
+            addToast(err.response?.data?.message || 'Failed to request review', 'error');
+        } finally {
+            setIsReRequesting(false);
         }
-    };
-
-    const handleAddCardClick = () => {
-        openCardModal(setId, null, handleCardSuccess);
-    };
-
-    const handleEditCardClick = (cardId) => {
-        openCardModal(setId, cardId, handleCardSuccess);
     };
 
     const handleDeleteCard = async () => {

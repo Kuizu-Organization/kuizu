@@ -88,8 +88,6 @@ public class FlashcardSetService {
                 .description(request.getDescription())
                 .visibility(request.getVisibility() != null ? Visibility.valueOf(request.getVisibility().toUpperCase())
                         : Visibility.PUBLIC)
-                .visibility(request.getVisibility() != null ? Visibility.valueOf(request.getVisibility().toUpperCase())
-                        : Visibility.PUBLIC)
                 .status(com.kuizu.backend.entity.enumeration.ModerationStatus.PENDING)
                 .isDeleted(false)
                 .version(1)
@@ -133,12 +131,7 @@ public class FlashcardSetService {
             set.setDescription(request.getDescription());
         if (request.getVisibility() != null)
             set.setVisibility(Visibility.valueOf(request.getVisibility().toUpperCase()));
-        if (request.getTitle() != null)
-            set.setTitle(request.getTitle());
-        if (request.getDescription() != null)
-            set.setDescription(request.getDescription());
-        if (request.getVisibility() != null)
-            set.setVisibility(Visibility.valueOf(request.getVisibility().toUpperCase()));
+
 
         set = flashcardSetRepository.save(set);
         return mapToResponse(set);
@@ -219,3 +212,5 @@ public class FlashcardSetService {
                 .build();
     }
 }
+
+                        

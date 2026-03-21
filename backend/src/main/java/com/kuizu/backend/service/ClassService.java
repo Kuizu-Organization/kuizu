@@ -367,7 +367,6 @@ public class ClassService {
     public ClassInfoResponse reRequestReview(Long classId, String username) {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new ApiException("User not found: " + username));
-
         Class clazz = classRepository.findByClassId(classId)
                 .orElseThrow(() -> new ApiException("Class not found: " + classId));
 
