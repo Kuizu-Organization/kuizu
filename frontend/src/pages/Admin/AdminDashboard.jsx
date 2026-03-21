@@ -558,6 +558,9 @@ const AdminDashboard = () => {
                             columns={['Action', 'Entity', 'Time', 'Notes', 'Details']}
                             isLoading={isHistoryLoading && modHistory.length === 0}
                             data={filteredHistory}
+                            columns={['Moderator', 'Action', 'Entity', 'Time', 'Notes', 'Details']}
+                            isLoading={isHistoryLoading}
+                            data={modHistory}
                             emptyIcon={HistoryIcon}
                             emptyTitle="No moderation history"
                             emptyDescription="There are no moderation history records found."
@@ -588,6 +591,9 @@ const AdminDashboard = () => {
                                         <Button
                                             variant="ghost"
                                             size="icon"
+                                        <Button 
+                                            variant="ghost" 
+                                            size="icon" 
                                             onClick={() => { setSelectedHistory(entry); setIsHistoryModalOpen(true); }}
                                         >
                                             <Info size={18} />
@@ -842,6 +848,8 @@ const AdminDashboard = () => {
                                     <Badge variant={
                                         selectedHistory.action === 'APPROVE' || selectedHistory.action === 'RESTORED' ? 'success' :
                                             selectedHistory.action === 'REJECT' || selectedHistory.action === 'SUSPENDED' ? 'error' :
+                                        selectedHistory.action === 'APPROVE' ? 'success' :
+                                            selectedHistory.action === 'REJECT' ? 'error' :
                                                 selectedHistory.action.includes('UPDATE') ? 'info' : 'primary'
                                     }>
                                         {selectedHistory.action.replace('_', ' ')}
