@@ -347,6 +347,36 @@ public class ClassService {
         classRepository.delete(clazz);
     }
 
+    @Transactional
+    public ClassInfoResponse reRequestReview(Long classId, String username) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new ApiException("User not found: " + username));
+        
+        Class clazz = classRepository.findByClassId(classId)
+                .orElseThrow(() -> new ApiException("Class not found: " + classId));
+
+        if (!clazz.getOwner().getUserId().equals(user.getUserId())) {
+            throw new ApiException("Only the class owner can re-request review");
+        }
+
+        if (clazz.getStatus() != ModerationStatus.REJECTED) {
+            throw new ApiException("Only rejected classes can be re-requested for review");
+        }
+
+        clazz.setStatus(ModerationStatus.PENDING);
+        clazz.setSubmittedAt(java.time.LocalDateTime.now());
+        clazz = classRepository.save(clazz);
+
+        // Notify admins
+        notificationService.notifyAdmins(
+            "Class Re-requested for Review",
+            "Class '" + clazz.getClassName() + "' was re-requested for review by " + user.getDisplayName() + " (@" + user.getUsername() + ").",
+            clazz.getClassId().toString()
+        );
+
+        return convertToClassInfoResponse(clazz, username);
+    }
+
     public void removeMember(Long classId, String targetUserId, String requesterUsername) {
         User requester = userRepository.findByUsername(requesterUsername)
                 .orElseThrow(() -> new ApiException("User not found: " + requesterUsername));

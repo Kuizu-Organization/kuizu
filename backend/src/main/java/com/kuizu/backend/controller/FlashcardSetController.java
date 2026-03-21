@@ -51,4 +51,9 @@ public class FlashcardSetController {
         flashcardSetService.deleteSet(setId, principal.getName());
         return ResponseEntity.noContent().build();
     }
+
+    @PostMapping("/{setId}/re-request")
+    public ResponseEntity<FlashcardSetResponse> reRequestReview(@PathVariable Long setId, Principal principal) {
+        return ResponseEntity.ok(flashcardSetService.reRequestReview(setId, principal.getName()));
+    }
 }

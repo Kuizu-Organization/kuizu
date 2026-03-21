@@ -130,6 +130,33 @@ public class FlashcardSetService {
         flashcardSetRepository.save(set);
     }
 
+    @Transactional
+    public FlashcardSetResponse reRequestReview(Long setId, String username) {
+        FlashcardSet set = flashcardSetRepository.findById(setId)
+                .filter(s -> s.getIsDeleted() == null || !s.getIsDeleted())
+                .orElseThrow(() -> new ApiException("Flashcard set not found"));
+
+        if (!set.getOwner().getUsername().equals(username)) {
+            throw new ApiException("You do not have permission to re-request review for this set");
+        }
+
+        if (set.getStatus() != com.kuizu.backend.entity.enumeration.ModerationStatus.REJECTED) {
+            throw new ApiException("Only rejected flashcard sets can be re-requested for review");
+        }
+
+        set.setStatus(com.kuizu.backend.entity.enumeration.ModerationStatus.PENDING);
+        set.setSubmittedAt(java.time.LocalDateTime.now());
+        set = flashcardSetRepository.save(set);
+
+        // Notify admins
+        notificationService.notifyAdmins(
+                "Flashcard Set Re-requested for Review",
+                "Flashcard set '" + set.getTitle() + "' was re-requested for review by " + set.getOwner().getDisplayName() + " (@" + set.getOwner().getUsername() + ").",
+                set.getSetId().toString());
+
+        return mapToResponse(set);
+    }
+
     private FlashcardSetResponse mapToResponse(FlashcardSet set) {
         long count = flashcardRepository.countByFlashcardSetAndIsDeletedFalse(set);
         return FlashcardSetResponse.builder()

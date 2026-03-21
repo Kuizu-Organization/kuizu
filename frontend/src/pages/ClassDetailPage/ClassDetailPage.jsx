@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { getClassDetails, leaveClass, getClassJoinCode, deleteClass, removeMember, processJoinRequest, removeClassMaterial } from '../../api/class';
+import { getClassDetails, leaveClass, getClassJoinCode, deleteClass, removeMember, processJoinRequest, removeClassMaterial, reRequestClassReview } from '../../api/class';
 import { Button } from '../../components/ui';
 import { Users, File, Calendar, Share2, MoreVertical, Copy, Check, Trash2, Folder, Layers } from 'lucide-react';
 import JoinClassModal from '../../components/Class/JoinClassModal';
@@ -9,11 +9,13 @@ import EditClassModal from '../../components/Class/EditClassModal';
 import DeleteClassModal from '../../components/Class/DeleteClassModal';
 import RemoveMemberModal from '../../components/Class/RemoveMemberModal';
 import AddClassMaterialModal from '../../components/Class/AddClassMaterialModal';
+import { useToast } from '../../context/ToastContext';
 import './ClassDetailPage.css';
 
 const ClassDetailPage = () => {
     const { classId } = useParams();
     const navigate = useNavigate();
+    const { addToast } = useToast();
     const [classData, setClassData] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -27,6 +29,7 @@ const ClassDetailPage = () => {
     const [isLeaving, setIsLeaving] = useState(false);
     const [isDeleting, setIsDeleting] = useState(false);
     const [isRemoving, setIsRemoving] = useState(false);
+    const [isReRequesting, setIsReRequesting] = useState(false);
     const [selectedMember, setSelectedMember] = useState(null);
     const [joinCode, setJoinCode] = useState(null);
     const [isLoadingCode, setIsLoadingCode] = useState(false);
@@ -92,6 +95,22 @@ const ClassDetailPage = () => {
         }
     };
 
+    const handleReRequestReview = async () => {
+        try {
+            setIsReRequesting(true);
+            await reRequestClassReview(classId);
+            addToast('Review requested successfully!', 'success');
+
+            // Re-fetch class details
+            const data = await getClassDetails(classId);
+            setClassData(data);
+        } catch (err) {
+            addToast(err.response?.data?.message || 'Failed to request review', 'error');
+        } finally {
+            setIsReRequesting(false);
+        }
+    };
+
     const handleRemoveMemberClick = (member) => {
         setSelectedMember(member);
         setIsRemoveModalOpen(true);
@@ -103,13 +122,13 @@ const ClassDetailPage = () => {
         try {
             setIsRemoving(true);
             await removeMember(classId, selectedMember.userId);
-            
+
             // Update local state
             setClassData(prev => ({
                 ...prev,
                 members: prev.members.filter(m => m.userId !== selectedMember.userId)
             }));
-            
+
             setIsRemoveModalOpen(false);
             setSelectedMember(null);
         } catch (err) {
@@ -123,15 +142,15 @@ const ClassDetailPage = () => {
     const handleProcessJoinRequest = async (requestId, status) => {
         try {
             await processJoinRequest(classId, requestId, status);
-            
+
             // Find the request to get user info if accepted
             const request = classData.joinRequests.find(r => r.requestId === requestId);
-            
+
             // Update local state
             setClassData(prev => {
                 const updatedRequests = prev.joinRequests.filter(r => r.requestId !== requestId);
                 let updatedMembers = prev.members;
-                
+
                 if (status === 'ACCEPTED' && request) {
                     const newMember = {
                         userId: request.userId,
@@ -141,7 +160,7 @@ const ClassDetailPage = () => {
                     };
                     updatedMembers = [...prev.members, newMember];
                 }
-                
+
                 return {
                     ...prev,
                     joinRequests: updatedRequests,
@@ -239,6 +258,16 @@ const ClassDetailPage = () => {
                     <p className="class-owner">Created by <strong>{classData.ownerDisplayName}</strong></p>
 
                     <div className="class-actions">
+                        {classData?.isOwner && classData?.status === 'REJECTED' && (
+                            <Button
+                                variant="outline"
+                                className="action-btn text-blue-600 border-blue-200 hover:bg-blue-50 hover:text-blue-700"
+                                onClick={handleReRequestReview}
+                                isLoading={isReRequesting}
+                            >
+                                <span>Request Review Again</span>
+                            </Button>
+                        )}
                         {(classData?.isOwner || classData?.isMember || localIsMember) && (
                             <Button
                                 variant="outline"
@@ -280,9 +309,9 @@ const ClassDetailPage = () => {
                                     <Share2 size={18} />
                                     <span>Edit Class</span>
                                 </Button>
-                                <Button 
-                                    variant="outline" 
-                                    className="action-btn text-red-600 hover:bg-red-50 hover:text-red-700 border-red-200" 
+                                <Button
+                                    variant="outline"
+                                    className="action-btn text-red-600 hover:bg-red-50 hover:text-red-700 border-red-200"
                                     onClick={() => setIsDeleteModalOpen(true)}
                                 >
                                     <Trash2 size={18} />
@@ -319,14 +348,14 @@ const ClassDetailPage = () => {
                 <div className="class-content-area">
                     {classData?.isOwner && (
                         <div className="class-tabs">
-                            <button 
+                            <button
                                 className={`tab-btn ${activeTab === 'materials' ? 'active' : ''}`}
                                 onClick={() => setActiveTab('materials')}
                             >
                                 <File size={18} />
                                 <span>Materials</span>
                             </button>
-                            <button 
+                            <button
                                 className={`tab-btn ${activeTab === 'members' ? 'active' : ''}`}
                                 onClick={() => setActiveTab('members')}
                             >
@@ -334,7 +363,7 @@ const ClassDetailPage = () => {
                                 <span>Members</span>
                                 <span className="tab-count">{classData.members?.length || 0}</span>
                             </button>
-                            <button 
+                            <button
                                 className={`tab-btn ${activeTab === 'requests' ? 'active' : ''}`}
                                 onClick={() => setActiveTab('requests')}
                             >
@@ -405,9 +434,9 @@ const ClassDetailPage = () => {
                                             <span className={`member-role ${member.role.toLowerCase()}`}>{member.role}</span>
                                         </div>
                                         {member.userId !== classData.ownerUserId && (
-                                            <Button 
-                                                variant="ghost" 
-                                                size="sm" 
+                                            <Button
+                                                variant="ghost"
+                                                size="sm"
                                                 className="text-red-500"
                                                 onClick={() => handleRemoveMemberClick(member)}
                                             >

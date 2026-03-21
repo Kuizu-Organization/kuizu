@@ -113,6 +113,14 @@ class ClassController {
         return ResponseEntity.ok(response);
     }
 
+    @PostMapping("/{classId}/re-request")
+    public ResponseEntity<?> reRequestReview(@PathVariable Long classId, Principal principal) {
+        if (principal == null) {
+            return ResponseEntity.status(401).build();
+        }
+        return ResponseEntity.ok(classService.reRequestReview(classId, principal.getName()));
+    }
+
     @DeleteMapping("/{classId}/members/{userId}")
     public ResponseEntity<?> removeMember(@PathVariable Long classId, @PathVariable String userId, Principal principal) {
         if (principal == null) {
