@@ -128,12 +128,12 @@ public class FlashcardSetService {
 
         // Notify user
         notificationService.sendNotification(
-            owner,
-            "Flashcard Set Under Review",
-            "Your newly created flashcard set '" + set.getTitle() + "' is currently pending moderation and awaiting review by the admins.",
-            "SYSTEM",
-            set.getSetId().toString()
-        );
+                owner,
+                "Flashcard Set Under Review",
+                "Your newly created flashcard set '" + set.getTitle()
+                        + "' is currently pending moderation and awaiting review by the admins.",
+                "SYSTEM",
+                set.getSetId().toString());
 
         return mapToResponse(set);
     }
