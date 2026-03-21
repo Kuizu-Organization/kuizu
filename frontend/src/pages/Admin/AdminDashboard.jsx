@@ -108,6 +108,13 @@ const AdminDashboard = () => {
         fetchPendingClasses();
     }, []);
 
+    // Debounce search terms
+    const [debouncedUserSearch, setDebouncedUserSearch] = useState(userSearch);
+    useEffect(() => {
+        const timer = setTimeout(() => setDebouncedUserSearch(userSearch), 500);
+        return () => clearTimeout(timer);
+    }, [userSearch]);
+
     useEffect(() => {
         if (activeTab === 0) fetchUsers();
         else if (activeTab === 1) fetchPendingSets();
