@@ -18,8 +18,6 @@ const LoginForm = ({ onToggle }) => {
     const { login } = useAuth();
     const navigate = useNavigate();
     const location = useLocation();
-    const from = location.state?.from?.pathname || '/dashboard';
-
     const handleSubmit = async (e) => {
         e.preventDefault();
         setLoading(true);
@@ -27,7 +25,8 @@ const LoginForm = ({ onToggle }) => {
             const data = await loginApi(formData.identifier, formData.password);
             await login(data, data.token);
             toast.success('Welcome back!');
-            navigate(from, { replace: true });
+            const target = location.state?.from?.pathname || (data.role === 'ROLE_ADMIN' ? '/admin/users' : '/dashboard');
+            navigate(target, { replace: true });
         } catch (err) {
             const msg = err.response?.data?.message || 'Invalid email or password';
             toast.error(msg);

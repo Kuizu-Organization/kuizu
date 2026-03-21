@@ -31,8 +31,12 @@ public class UserController {
 
     @GetMapping
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<Page<UserResponse>> getAllUsers(Pageable pageable) {
-        return ResponseEntity.ok(userService.getAllUsers(pageable));
+    public ResponseEntity<Page<UserResponse>> getAllUsers(
+            @RequestParam(required = false) String search,
+            @RequestParam(required = false) User.UserRole role,
+            @RequestParam(required = false) User.UserStatus status,
+            Pageable pageable) {
+        return ResponseEntity.ok(userService.getAllUsers(search, role, status, pageable));
     }
 
     @GetMapping("/{userId}")
@@ -86,5 +90,10 @@ public class UserController {
             @PathVariable String userId,
             @RequestParam User.UserRole role) {
         return ResponseEntity.ok(userService.updateUserRole(userId, role));
-    }
-}
+    }}
+
+    
+    
+        
+    
+

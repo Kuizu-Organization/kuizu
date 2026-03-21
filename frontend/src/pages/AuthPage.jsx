@@ -45,7 +45,8 @@ const AuthPage = () => {
     }, [location, toast]);
 
     if (user) {
-        return <Navigate to="/dashboard" replace />;
+        const from = location.state?.from?.pathname || (user.role === 'ROLE_ADMIN' ? '/admin/users' : '/dashboard');
+        return <Navigate to={from} replace />;
     }
 
     const handleGoogleSuccess = async (credentialResponse) => {
@@ -64,6 +65,8 @@ const AuthPage = () => {
 
             await login(userData, data.token);
             toast.success('Successfully logged in with Google!');
+            const target = location.state?.from?.pathname || (data.role === 'ROLE_ADMIN' ? '/admin/users' : '/dashboard');
+            navigate(target, { replace: true });
         } catch (error) {
             console.error('Google login error:', error);
             toast.error(error.response?.data?.message || 'Google login failed. Please try again.');
