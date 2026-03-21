@@ -32,6 +32,9 @@ public class FlashcardSetService {
     @Autowired
     private NotificationService notificationService;
 
+    @Autowired
+    private NotificationService notificationService;
+
     public List<FlashcardSetResponse> getAllPublicSets() {
         return flashcardSetRepository.findByVisibilityAndIsDeletedFalse(Visibility.PUBLIC)
                 .stream()
