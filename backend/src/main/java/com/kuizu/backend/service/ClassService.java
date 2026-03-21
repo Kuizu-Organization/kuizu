@@ -394,10 +394,10 @@ public class ClassService {
 
         // Notify admins
         notificationService.notifyAdmins(
-                "Class Re-requested for Review",
-                "Class '" + clazz.getClassName() + "' was re-requested for review by " + user.getDisplayName() + " (@"
-                        + user.getUsername() + ").",
-                clazz.getClassId().toString());
+            "Class Re-requested for Review",
+            "Class '" + clazz.getClassName() + "' was re-requested for review by " + user.getDisplayName() + " (@" + user.getUsername() + ").",
+            clazz.getClassId().toString()
+        );
 
         return convertToClassInfoResponse(clazz, username);
     }

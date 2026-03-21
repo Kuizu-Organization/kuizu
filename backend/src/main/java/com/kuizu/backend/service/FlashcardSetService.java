@@ -175,6 +175,8 @@ public class FlashcardSetService {
 
         if (set.getStatus() == com.kuizu.backend.entity.enumeration.ModerationStatus.PENDING) {
             throw new ApiException("Flashcard set is already pending review");
+        if (set.getStatus() != com.kuizu.backend.entity.enumeration.ModerationStatus.REJECTED) {
+            throw new ApiException("Only rejected flashcard sets can be re-requested for review");
         }
 
         set.setStatus(com.kuizu.backend.entity.enumeration.ModerationStatus.PENDING);
@@ -198,6 +200,8 @@ public class FlashcardSetService {
                 "Flashcard Set Re-submitted",
                 "Your flashcard set '" + set.getTitle() + "' has been successfully re-submitted for review.",
                 "SYSTEM",
+                "Flashcard Set Re-requested for Review",
+                "Flashcard set '" + set.getTitle() + "' was re-requested for review by " + set.getOwner().getDisplayName() + " (@" + set.getOwner().getUsername() + ").",
                 set.getSetId().toString());
 
         return mapToResponse(set);
