@@ -2,14 +2,18 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ChevronLeft, Play, Plus, Pencil, Trash2, User, Layers, BookOpen } from 'lucide-react';
 import './FlashcardSetDetailsPage.css';
-import { getFlashcardSetById, getFlashcardsBySetId, deleteFlashcard } from '../api/flashcards';
+import { getFlashcardSetById, getFlashcardsBySetId, deleteFlashcard, reRequestFlashcardSetReview } from '../api/flashcards';
 import { getStudyProgress, resetStudyProgress } from '../api/study';
 import { Button, Card, Loader, ConfirmationModal, CelebrationModal } from '../components/ui';
 import MainLayout from '../components/layout';
+import { useAuth } from '../context/AuthContext';
+import { useToast } from '../context/ToastContext';
 
 const FlashcardSetDetailsPage = () => {
     const { setId } = useParams();
     const navigate = useNavigate();
+    const { user } = useAuth();
+    const { addToast } = useToast();
     const [set, setSet] = useState(null);
     const [cards, setCards] = useState([]);
     const [progress, setProgress] = useState(null);
@@ -20,6 +24,7 @@ const FlashcardSetDetailsPage = () => {
     const [cardToDelete, setCardToDelete] = useState(null);
     const [isResetting, setIsResetting] = useState(false);
     const [isCelebrationOpen, setIsCelebrationOpen] = useState(false);
+    const [isReRequesting, setIsReRequesting] = useState(false);
 
     useEffect(() => {
         fetchData();
@@ -41,6 +46,19 @@ const FlashcardSetDetailsPage = () => {
             setError('Could not load set details.');
         } finally {
             setLoading(false);
+        }
+    };
+
+    const handleReRequestReview = async () => {
+        try {
+            setIsReRequesting(true);
+            await reRequestFlashcardSetReview(setId);
+            addToast('Review requested successfully!', 'success');
+            fetchData();
+        } catch (err) {
+            addToast(err.response?.data?.message || 'Failed to request review', 'error');
+        } finally {
+            setIsReRequesting(false);
         }
     };
 
@@ -88,6 +106,8 @@ const FlashcardSetDetailsPage = () => {
     if (loading) return <MainLayout><div className="loading-container"><Loader /></div></MainLayout>;
     if (error) return <MainLayout><div className="error-container">{error}</div></MainLayout>;
 
+    const isOwner = user?.userId === set?.ownerId;
+
     return (
         <MainLayout>
             <div className="set-details-container">
@@ -131,6 +151,17 @@ const FlashcardSetDetailsPage = () => {
                     </div>
 
                     <div className="set-actions">
+                        {isOwner && set.status === 'REJECTED' && (
+                            <Button
+                                variant="outline"
+                                size="lg"
+                                className="mr-2"
+                                onClick={handleReRequestReview}
+                                isLoading={isReRequesting}
+                            >
+                                Request Review Again
+                            </Button>
+                        )}
                         <Button
                             className="study-btn"
                             size="lg"

@@ -70,8 +70,6 @@ public class FlashcardSetService {
                 .description(request.getDescription())
                 .visibility(request.getVisibility() != null ? Visibility.valueOf(request.getVisibility().toUpperCase())
                         : Visibility.PUBLIC)
-                .visibility(request.getVisibility() != null ? Visibility.valueOf(request.getVisibility().toUpperCase())
-                        : Visibility.PUBLIC)
                 .status(com.kuizu.backend.entity.enumeration.ModerationStatus.PENDING)
                 .isDeleted(false)
                 .version(1)
@@ -115,12 +113,7 @@ public class FlashcardSetService {
             set.setDescription(request.getDescription());
         if (request.getVisibility() != null)
             set.setVisibility(Visibility.valueOf(request.getVisibility().toUpperCase()));
-        if (request.getTitle() != null)
-            set.setTitle(request.getTitle());
-        if (request.getDescription() != null)
-            set.setDescription(request.getDescription());
-        if (request.getVisibility() != null)
-            set.setVisibility(Visibility.valueOf(request.getVisibility().toUpperCase()));
+
 
         set = flashcardSetRepository.save(set);
         return mapToResponse(set);
@@ -140,6 +133,49 @@ public class FlashcardSetService {
         flashcardSetRepository.save(set);
     }
 
+    @Transactional
+    public FlashcardSetResponse reRequestReview(Long setId, String username) {
+        FlashcardSet set = flashcardSetRepository.findById(setId)
+                .filter(s -> s.getIsDeleted() == null || !s.getIsDeleted())
+                .orElseThrow(() -> new ApiException("Flashcard set not found"));
+
+        if (!set.getOwner().getUsername().equals(username)) {
+            throw new ApiException("You do not have permission to re-request review for this set");
+        }
+
+        if (set.getStatus() == com.kuizu.backend.entity.enumeration.ModerationStatus.APPROVED) {
+            throw new ApiException("Flashcard set is already approved");
+        }
+
+        if (set.getStatus() == com.kuizu.backend.entity.enumeration.ModerationStatus.PENDING) {
+            throw new ApiException("Flashcard set is already pending review");
+        }
+
+        set.setStatus(com.kuizu.backend.entity.enumeration.ModerationStatus.PENDING);
+        set.setSubmittedAt(java.time.LocalDateTime.now());
+        set.setSubmittedBy(set.getOwner().getUserId());
+        set.setVersion(set.getVersion() == null ? 1 : set.getVersion() + 1);
+
+        set = flashcardSetRepository.save(set);
+
+        // Notify admins
+        notificationService.notifyAdmins(
+                "Flashcard Set Re-submission",
+                "Flashcard set '" + set.getTitle() + "' was re-submitted for review by " + set.getOwner().getDisplayName()
+                        + " (@" + set.getOwner().getUsername() + ").",
+                set.getSetId().toString());
+
+        // Notify user
+        notificationService.sendNotification(
+                set.getOwner(),
+                "Flashcard Set Re-submitted",
+                "Your flashcard set '" + set.getTitle() + "' has been successfully re-submitted for review.",
+                "SYSTEM",
+                set.getSetId().toString());
+
+        return mapToResponse(set);
+    }
+
     private FlashcardSetResponse mapToResponse(FlashcardSet set) {
         long count = flashcardRepository.countByFlashcardSetAndIsDeletedFalse(set);
         return FlashcardSetResponse.builder()
@@ -157,3 +193,5 @@ public class FlashcardSetService {
                 .build();
     }
 }
+
+                        

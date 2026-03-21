@@ -25,6 +25,11 @@ export const updateFlashcardSet = async (setId, setData) => {
     return response.data;
 };
 
+export const reRequestFlashcardSetReview = async (setId) => {
+    const response = await api.post(`/flashcard-sets/${setId}/re-request`);
+    return response.data;
+};
+
 export const deleteFlashcardSet = async (setId) => {
     await api.delete(`/flashcard-sets/${setId}`);
 };

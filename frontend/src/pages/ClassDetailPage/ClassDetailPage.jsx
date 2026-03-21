@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { getClassDetails, leaveClass, getClassJoinCode, deleteClass, removeMember, processJoinRequest, removeClassMaterial } from '../../api/class';
+import { getClassDetails, leaveClass, getClassJoinCode, deleteClass, removeMember, processJoinRequest, removeClassMaterial, reRequestClassReview } from '../../api/class';
 import { Button } from '../../components/ui';
 import { Users, File, Calendar, Share2, MoreVertical, Copy, Check, Trash2, Folder, Layers } from 'lucide-react';
 import JoinClassModal from '../../components/Class/JoinClassModal';
@@ -10,11 +10,13 @@ import DeleteClassModal from '../../components/Class/DeleteClassModal';
 import RemoveMemberModal from '../../components/Class/RemoveMemberModal';
 import AddClassMaterialModal from '../../components/Class/AddClassMaterialModal';
 import RemoveMaterialModal from '../../components/Class/RemoveMaterialModal';
+import { useToast } from '../../context/ToastContext';
 import './ClassDetailPage.css';
 
 const ClassDetailPage = () => {
     const { classId } = useParams();
     const navigate = useNavigate();
+    const { addToast } = useToast();
     const [classData, setClassData] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -30,6 +32,7 @@ const ClassDetailPage = () => {
     const [isDeleting, setIsDeleting] = useState(false);
     const [isRemoving, setIsRemoving] = useState(false);
     const [isRemovingMaterial, setIsRemovingMaterial] = useState(false);
+    const [isReRequesting, setIsReRequesting] = useState(false);
     const [selectedMember, setSelectedMember] = useState(null);
     const [selectedMaterial, setSelectedMaterial] = useState(null);
     const [joinCode, setJoinCode] = useState(null);
@@ -93,6 +96,22 @@ const ClassDetailPage = () => {
             console.error("Failed to delete class:", err);
             alert("Failed to delete the class. Please try again.");
             setIsDeleting(false);
+        }
+    };
+
+    const handleReRequestReview = async () => {
+        try {
+            setIsReRequesting(true);
+            await reRequestClassReview(classId);
+            addToast('Review requested successfully!', 'success');
+
+            // Re-fetch class details
+            const data = await getClassDetails(classId);
+            setClassData(data);
+        } catch (err) {
+            addToast(err.response?.data?.message || 'Failed to request review', 'error');
+        } finally {
+            setIsReRequesting(false);
         }
     };
 
@@ -255,6 +274,16 @@ const ClassDetailPage = () => {
                     <p className="class-owner">Created by <strong>{classData.ownerDisplayName}</strong></p>
 
                     <div className="class-actions">
+                        {classData?.isOwner && classData?.status === 'REJECTED' && (
+                            <Button
+                                variant="outline"
+                                className="action-btn text-blue-600 border-blue-200 hover:bg-blue-50 hover:text-blue-700"
+                                onClick={handleReRequestReview}
+                                isLoading={isReRequesting}
+                            >
+                                <span>Request Review Again</span>
+                            </Button>
+                        )}
                         {(classData?.isOwner || classData?.isMember || localIsMember) && (
                             <Button
                                 variant="outline"
