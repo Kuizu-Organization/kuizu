@@ -81,6 +81,8 @@ const AdminDashboard = () => {
     // -- HISTORY STATE --
     const [modHistory, setModHistory] = useState([]);
     const [isHistoryLoading, setIsHistoryLoading] = useState(false);
+    const [selectedHistory, setSelectedHistory] = useState(null);
+    const [isHistoryModalOpen, setIsHistoryModalOpen] = useState(false);
 
     useEffect(() => {
         // Fetch pending counts for the header stats on mount
@@ -402,7 +404,7 @@ const AdminDashboard = () => {
                             <Button variant="ghost" size="sm" onClick={fetchHistory}>Refresh</Button>
                         </div>
                         <Table
-                            columns={['Moderator', 'Action', 'Entity', 'Time', 'Notes']}
+                            columns={['Moderator', 'Action', 'Entity', 'Time', 'Notes', 'Details']}
                             isLoading={isHistoryLoading}
                             data={modHistory}
                             emptyIcon={HistoryIcon}
@@ -432,6 +434,15 @@ const AdminDashboard = () => {
                                     </td>
                                     <td>{formatDate(entry.createdAt)}</td>
                                     <td className="max-w-xs truncate" title={entry.notes}>{entry.notes || '-'}</td>
+                                    <td>
+                                        <Button 
+                                            variant="ghost" 
+                                            size="icon" 
+                                            onClick={() => { setSelectedHistory(entry); setIsHistoryModalOpen(true); }}
+                                        >
+                                            <Info size={18} />
+                                        </Button>
+                                    </td>
                                 </tr>
                             )}
                         />
@@ -711,6 +722,64 @@ const AdminDashboard = () => {
                                     {isProcessingModeration ? <Loader size="xs" /> : <><XCircle size={20} /> Reject Class</>}
                                 </Button>
                             </div>
+                        </div>
+                    </div>
+                )}
+            </Modal>
+            
+            {/* Moderation History Details Modal */}
+            <Modal isOpen={isHistoryModalOpen} onClose={() => setIsHistoryModalOpen(false)} title="Action Details" size="md">
+                {selectedHistory && (
+                    <div className="user-detail-modal-content">
+                        <div className="detail-modal-header">
+                            <div className="header-icon">
+                                <HistoryIcon size={28} />
+                            </div>
+                            <div className="header-text">
+                                <h3>{selectedHistory.entityName}</h3>
+                                <div className="meta-row">
+                                    <Badge variant={
+                                        selectedHistory.action === 'APPROVE' ? 'success' :
+                                            selectedHistory.action === 'REJECT' ? 'error' :
+                                                selectedHistory.action.includes('UPDATE') ? 'info' : 'primary'
+                                    }>
+                                        {selectedHistory.action.replace('_', ' ')}
+                                    </Badge>
+                                    <span className="meta-text">
+                                        <Shield size={14} /> {selectedHistory.entityType.replace('_', ' ')}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div className="detail-modal-grid">
+                            <div className="detail-item">
+                                <label>Moderator</label>
+                                <span>{selectedHistory.moderatorDisplayName}</span>
+                            </div>
+                            <div className="detail-item">
+                                <label>Entity ID</label>
+                                <span>{selectedHistory.entityId}</span>
+                            </div>
+                            <div className="detail-item">
+                                <label><Clock size={14} /> Dated</label>
+                                <span>{formatDate(selectedHistory.createdAt)}</span>
+                            </div>
+                            <div className="detail-item">
+                                <label>Action Type</label>
+                                <Badge variant="outline">{selectedHistory.action}</Badge>
+                            </div>
+                        </div>
+
+                        <div className="detail-item role-management-section">
+                            <label><MessageSquare size={14} /> Moderation Notes</label>
+                            <div className="description-text mt-2">
+                                {selectedHistory.notes || 'No notes were provided for this action.'}
+                            </div>
+                        </div>
+
+                        <div className="detail-modal-actions">
+                            <Button variant="outline" onClick={() => setIsHistoryModalOpen(false)} className="w-full">Close</Button>
                         </div>
                     </div>
                 )}
