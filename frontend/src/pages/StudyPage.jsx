@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
-import { ChevronLeft, RotateCcw, CheckCircle2, XCircle, Trophy, Keyboard, Shuffle, Star } from 'lucide-react';
+import { ChevronLeft, RotateCcw, CheckCircle2, XCircle, Trophy, Keyboard, Shuffle, Star, ArrowLeftRight } from 'lucide-react';
 import { getFlashcardsBySetId } from '../api/flashcards';
 import { updateStudyProgress } from '../api/study';
 import { useToast } from '../context/ToastContext';
@@ -22,6 +22,7 @@ const StudyPage = () => {
     const [isFinished, setIsFinished] = useState(false);
     const [hasTriggeredFinish, setHasTriggeredFinish] = useState(false);
     const [starredCardIds, setStarredCardIds] = useState(new Set());
+    const [isSwapped, setIsSwapped] = useState(false);
 
     const progress = cards.length > 0 ? ((currentIndex + 1) / cards.length) * 100 : 0;
 
@@ -64,6 +65,11 @@ const StudyPage = () => {
         const shuffled = shuffleArray(cards);
         setCards(shuffled);
         setCurrentIndex(0);
+        setIsFlipped(false);
+    };
+
+    const handleSwap = () => {
+        setIsSwapped(!isSwapped);
         setIsFlipped(false);
     };
 
@@ -213,6 +219,13 @@ const StudyPage = () => {
                             >
                                 <Shuffle size={18} />
                             </button>
+                            <button
+                                className={`shuffle-btn ${isSwapped ? 'active' : ''}`}
+                                onClick={handleSwap}
+                                title="Swap Term/Definition"
+                            >
+                                <ArrowLeftRight size={18} />
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -237,8 +250,8 @@ const StudyPage = () => {
                             >
                                 <Star size={24} fill={starredCardIds.has(currentCard.cardId) ? "currentColor" : "none"} />
                             </button>
-                            <span className="face-label">Term</span>
-                            <div className="card-text">{currentCard.term}</div>
+                            <span className="face-label">{isSwapped ? 'Definition' : 'Term'}</span>
+                            <div className="card-text">{isSwapped ? currentCard.definition : currentCard.term}</div>
                             <span className="card-hint">Click or press Space to flip</span>
                         </div>
 
@@ -251,8 +264,8 @@ const StudyPage = () => {
                             >
                                 <Star size={24} fill={starredCardIds.has(currentCard.cardId) ? "currentColor" : "none"} />
                             </button>
-                            <span className="face-label">Definition</span>
-                            <div className="card-text">{currentCard.definition}</div>
+                            <span className="face-label">{isSwapped ? 'Term' : 'Definition'}</span>
+                            <div className="card-text">{isSwapped ? currentCard.term : currentCard.definition}</div>
                             <span className="card-hint">Click or press Space to flip back</span>
                         </div>
                     </div>

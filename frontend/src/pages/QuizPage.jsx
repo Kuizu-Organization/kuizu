@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
-import { ChevronLeft, CheckCircle2, XCircle, AlertCircle } from 'lucide-react';
+import { ChevronLeft, CheckCircle2, XCircle, AlertCircle, ArrowLeftRight } from 'lucide-react';
 import { getFlashcardsBySetId } from '../api/flashcards';
 import { submitQuiz } from '../api/study';
 import { Button, Card, Loader, Modal } from '../components/ui';
@@ -22,6 +22,7 @@ const QuizPage = () => {
     const [isFinished, setIsFinished] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [showFinishModal, setShowFinishModal] = useState(false);
+    const [isSwapped, setIsSwapped] = useState(false);
 
     useEffect(() => {
         if (cards.length > 0) {
@@ -30,6 +31,12 @@ const QuizPage = () => {
             fetchCards();
         }
     }, [setId]);
+
+    useEffect(() => {
+        if (cards.length > 0) {
+            generateQuestions(cards, isSwapped);
+        }
+    }, [isSwapped]);
 
     const fetchCards = async () => {
         try {
@@ -40,7 +47,7 @@ const QuizPage = () => {
                 return;
             }
             setCards(data);
-            generateQuestions(data);
+            generateQuestions(data, isSwapped);
         } catch (err) {
             setError('Failed to load cards for quiz.');
         } finally {
@@ -48,15 +55,17 @@ const QuizPage = () => {
         }
     };
 
-    const generateQuestions = (cardsData) => {
+    const generateQuestions = (cardsData, swapped) => {
         const shuffled = [...cardsData].sort(() => 0.5 - Math.random());
         const generated = shuffled.map(card => {
-            const correctAnswer = card.definition;
-            const otherDefinitions = cardsData
+            const questionTerm = swapped ? card.definition : card.term;
+            const correctAnswer = swapped ? card.term : card.definition;
+            
+            const otherAnswers = cardsData
                 .filter(c => c.cardId !== card.cardId)
-                .map(c => c.definition);
+                .map(c => swapped ? c.term : c.definition);
 
-            const distractors = [...otherDefinitions]
+            const distractors = [...otherAnswers]
                 .sort(() => 0.5 - Math.random())
                 .slice(0, 3);
 
@@ -64,12 +73,15 @@ const QuizPage = () => {
 
             return {
                 cardId: card.cardId,
-                term: card.term,
+                term: questionTerm,
                 correctAnswer,
                 options
             };
         });
         setQuestions(generated);
+        setCurrentQuestionIndex(0);
+        setAnswers([]);
+        setSelectedOption(null);
     };
 
     const handleOptionSelect = (option) => {
@@ -191,6 +203,13 @@ const QuizPage = () => {
                         <div className="quiz-progress-text">
                             Question <span className="current">{currentQuestionIndex + 1}</span> of <span className="total">{questions.length}</span>
                         </div>
+                        <button
+                            className={`shuffle-btn ${isSwapped ? 'active' : ''}`}
+                            onClick={() => setIsSwapped(!isSwapped)}
+                            title="Swap Question/Answer"
+                        >
+                            <ArrowLeftRight size={18} />
+                        </button>
                         <Button 
                             variant="primary" 
                             size="sm"

@@ -26,7 +26,33 @@
 .quiz-header-right {
     display: flex;
     align-items: center;
-    gap: 2rem;
+    gap: 1rem;
+}
+
+.shuffle-btn {
+    background: var(--input-bg);
+    border: 1px solid var(--border-color);
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-light);
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.shuffle-btn:hover {
+    background: #f0f2ff;
+    color: var(--primary);
+    border-color: var(--primary);
+}
+
+.shuffle-btn.active {
+    background: var(--primary);
+    color: var(--white);
+    border-color: var(--primary);
 }
 
 .quiz-progress-text {
