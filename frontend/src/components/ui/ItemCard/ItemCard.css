@@ -5,12 +5,16 @@
     flex-direction: column;
     min-height: 180px;
     height: 100%;
+    border: 2px solid var(--border-color);
+    border-radius: 20px;
+    overflow: hidden;
+    background: var(--white);
 }
 
 .item-card:hover {
-    transform: translateY(-6px);
+    transform: translateY(-8px);
     border-color: var(--primary);
-    box-shadow: 0 12px 30px rgba(66, 85, 255, 0.12);
+    box-shadow: 0 12px 30px rgba(66, 85, 255, 0.15);
 }
 
 .item-card-header {
@@ -23,15 +27,17 @@
 
 .item-card-title {
     margin: 0;
+    font-size: 1.15rem;
+    font-weight: 700;
 }
 
 .item-card-badge {
-    background-color: var(--primary-light, rgba(66, 85, 255, 0.1));
+    background-color: #ebefff;
     color: var(--primary);
     font-size: 11px;
-    font-weight: 700;
+    font-weight: 800;
     padding: 4px 10px;
-    border-radius: 20px;
+    border-radius: 8px;
     text-transform: uppercase;
     letter-spacing: 0.5px;
 }
@@ -43,8 +49,10 @@
 
 .item-card-description {
     margin: 0;
+    font-size: 0.95rem;
+    color: var(--text-light);
+    line-height: 1.6;
     display: -webkit-box;
-    line-clamp: 3;
     -webkit-line-clamp: 3;
     -webkit-box-orient: vertical;
     overflow: hidden;

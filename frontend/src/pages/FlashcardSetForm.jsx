@@ -82,67 +82,69 @@ const FlashcardSetForm = () => {
                     <div className="center"><Loader /></div>
                 ) : (
                     <Card className="form-card">
-                        <form onSubmit={handleSubmit}>
-                            {error && <div className="error-msg">{error}</div>}
+                        <Card.Body>
+                            <form onSubmit={handleSubmit}>
+                                {error && <div className="error-msg">{error}</div>}
 
-                            <div className="form-group">
-                                <label htmlFor="title">Title</label>
-                                <Input
-                                    id="title"
-                                    name="title"
-                                    placeholder='e.g. "Biology 101: Cell Structure"'
-                                    value={formData.title}
-                                    onChange={handleChange}
-                                    required
-                                />
-                            </div>
+                                <div className="form-group">
+                                    <label htmlFor="title">Title</label>
+                                    <Input
+                                        id="title"
+                                        name="title"
+                                        placeholder='e.g. "Biology 101: Cell Structure"'
+                                        value={formData.title}
+                                        onChange={handleChange}
+                                        required
+                                    />
+                                </div>
 
-                            <div className="form-group">
-                                <label htmlFor="description">Description (Optional)</label>
-                                <textarea
-                                    id="description"
-                                    name="description"
-                                    rows="4"
-                                    placeholder="Add a bio to your profile..."
-                                    className="custom-textarea"
-                                    value={formData.description}
-                                    onChange={handleChange}
-                                />
-                            </div>
+                                <div className="form-group">
+                                    <label htmlFor="description">Description (Optional)</label>
+                                    <textarea
+                                        id="description"
+                                        name="description"
+                                        rows="4"
+                                        placeholder="Add a bio to your profile..."
+                                        className="custom-textarea"
+                                        value={formData.description}
+                                        onChange={handleChange}
+                                    />
+                                </div>
 
-                            <div className="form-group">
-                                <label htmlFor="visibility">Visibility</label>
-                                <select
-                                    id="visibility"
-                                    name="visibility"
-                                    className="custom-select"
-                                    value={formData.visibility}
-                                    onChange={handleChange}
-                                >
-                                    <option value="PUBLIC">Public (Everyone can see)</option>
-                                    <option value="PRIVATE">Private (Only you can see)</option>
-                                    <option value="UNLISTED">Unlisted (Anyone with the link can see)</option>
-                                </select>
-                            </div>
+                                <div className="form-group">
+                                    <label htmlFor="visibility">Visibility</label>
+                                    <select
+                                        id="visibility"
+                                        name="visibility"
+                                        className="custom-select"
+                                        value={formData.visibility}
+                                        onChange={handleChange}
+                                    >
+                                        <option value="PUBLIC">Public (Everyone can see)</option>
+                                        <option value="PRIVATE">Private (Only you can see)</option>
+                                        <option value="UNLISTED">Unlisted (Anyone with the link can see)</option>
+                                    </select>
+                                </div>
 
-                            <div className="form-actions">
-                                <Button
-                                    type="button"
-                                    variant="outline"
-                                    onClick={() => navigate(-1)}
-                                    disabled={submitting}
-                                >
-                                    Cancel
-                                </Button>
-                                <Button
-                                    type="submit"
-                                    disabled={submitting}
-                                    className="submit-btn"
-                                >
-                                    {submitting ? <Loader size="sm" /> : <><Save size={18} /> {isEdit ? 'Save Changes' : 'Create Set'}</>}
-                                </Button>
-                            </div>
-                        </form>
+                                <div className="form-actions">
+                                    <Button
+                                        type="button"
+                                        variant="outline"
+                                        onClick={() => navigate(-1)}
+                                        disabled={submitting}
+                                    >
+                                        Cancel
+                                    </Button>
+                                    <Button
+                                        type="submit"
+                                        disabled={submitting}
+                                        className="submit-btn"
+                                    >
+                                        {submitting ? <Loader size="sm" /> : <><Save size={18} /> {isEdit ? 'Save Changes' : 'Create Set'}</>}
+                                    </Button>
+                                </div>
+                            </form>
+                        </Card.Body>
                     </Card>
                 )}
             </div>

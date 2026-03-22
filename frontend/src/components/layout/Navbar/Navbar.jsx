@@ -4,12 +4,14 @@ import { Button, Dropdown, SearchBar } from '../../ui';
 import './Navbar.css';
 import { useAuth } from '../../../context/AuthContext';
 import { useToast } from '../../../context/ToastContext';
+import { useModal } from '../../../context/ModalContext';
 import { useNavigate } from 'react-router-dom';
 import { searchClasses } from '../../../api/class';
 
 
 const Navbar = ({ isSidebarCollapsed, onToggleSidebar }) => {
     const { user, logout } = useAuth();
+    const { openSetModal } = useModal();
     const navigate = useNavigate();
     const toast = useToast();
 
@@ -53,13 +55,17 @@ const Navbar = ({ isSidebarCollapsed, onToggleSidebar }) => {
     ];
 
     const createItems = [
-        { label: 'Flashcard Set', icon: <BookOpen size={16} />, path: '/create/flashcards' },
+        { label: 'Flashcard Set', icon: <BookOpen size={16} />, type: 'flashcard-set' },
         { label: 'Folder', icon: <Folder size={16} />, path: '/create/folder' },
         { label: 'Class', icon: <GraduationCap size={16} />, path: '/create/class' },
     ];
 
     const handleDropdownItemClick = (item) => {
-        if (item.path) {
+        if (item.type === 'flashcard-set') {
+            openSetModal(null, (newSet) => {
+                navigate(`/flashcard-sets/${newSet.setId}`);
+            });
+        } else if (item.path) {
             navigate(item.path);
         } else {
             navigate(`/search?q=${encodeURIComponent(item.label)}`);

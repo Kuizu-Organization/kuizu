@@ -2,16 +2,21 @@ import React, { useState, useEffect } from 'react';
 import { Search, Plus, User, Pencil, Trash2 } from 'lucide-react';
 import './FlashcardSetsPage.css';
 import { getPublicFlashcardSets, getMyFlashcardSets, deleteFlashcardSet } from '../api/flashcards';
-import { Button, Card, Loader } from '../components/ui';
+import { Button, Card, Loader, ConfirmationModal } from '../components/ui';
+import { useModal } from '../context/ModalContext';
 import MainLayout from '../components/layout';
 import { useNavigate } from 'react-router-dom';
 
 const FlashcardSetsPage = () => {
+    const { openSetModal } = useModal();
     const [sets, setSets] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [activeTab, setActiveTab] = useState('public');
     const [searchQuery, setSearchQuery] = useState('');
+    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+    const [setToDelete, setSetToDelete] = useState(null);
+    const [isDeleting, setIsDeleting] = useState(false);
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -33,15 +38,43 @@ const FlashcardSetsPage = () => {
         }
     };
 
-    const handleDelete = async (e, setId) => {
+    const handleSetSuccess = (updatedSet) => {
+        const existing = sets.find(s => s.setId === updatedSet.setId);
+        if (existing) {
+            setSets(sets.map(s => s.setId === updatedSet.setId ? updatedSet : s));
+        } else {
+            setSets([updatedSet, ...sets]);
+        }
+    };
+
+    const handleCreateClick = () => {
+        openSetModal(null, handleSetSuccess);
+    };
+
+    const handleEditClick = (e, setId) => {
         e.stopPropagation();
-        if (window.confirm('Are you sure you want to delete this set?')) {
-            try {
-                await deleteFlashcardSet(setId);
-                setSets(sets.filter(s => s.setId !== setId));
-            } catch (err) {
-                alert('Failed to delete set');
-            }
+        openSetModal(setId, handleSetSuccess);
+    };
+
+    const handleDelete = (e, setId) => {
+        e.stopPropagation();
+        setSetToDelete(setId);
+        setIsDeleteModalOpen(true);
+    };
+
+    const confirmDeleteSet = async () => {
+        if (!setToDelete) return;
+        try {
+            setIsDeleting(true);
+            await deleteFlashcardSet(setToDelete);
+            setSets(sets.filter(s => s.setId !== setToDelete));
+            setIsDeleteModalOpen(false);
+            setSetToDelete(null);
+        } catch (err) {
+            console.error('Delete failed:', err);
+            alert('Failed to delete set');
+        } finally {
+            setIsDeleting(false);
         }
     };
 
@@ -58,7 +91,7 @@ const FlashcardSetsPage = () => {
                         <h1 className="sets-title">Flashcard Sets</h1>
                         <Button
                             className="create-btn"
-                            onClick={() => navigate('/flashcard-sets/create')}
+                            onClick={handleCreateClick}
                         >
                             <Plus size={20} />
                             Create Set
@@ -111,23 +144,14 @@ const FlashcardSetsPage = () => {
                                     className="set-card"
                                     onClick={() => navigate(`/flashcard-sets/${set.setId}`)}
                                 >
-                                    <div className="set-card-header">
-                                        <h3 className="set-title">
-                                            {set.title}
-                                            {set.status === 'PENDING' && (
-                                                <span style={{ fontSize: '0.75rem', backgroundColor: '#eab308', color: 'black', padding: '2px 6px', borderRadius: '4px', marginLeft: '8px', verticalAlign: 'middle', fontWeight: 600 }}>Pending Review</span>
-                                            )}
-                                            {set.status === 'REJECTED' && (
-                                                <span style={{ fontSize: '0.75rem', backgroundColor: '#ef4444', color: 'white', padding: '2px 6px', borderRadius: '4px', marginLeft: '8px', verticalAlign: 'middle', fontWeight: 600 }}>Rejected</span>
-                                            )}
-                                            {set.status === 'APPROVED' && activeTab === 'my' && (
-                                                <span style={{ fontSize: '0.75rem', backgroundColor: '#22c55e', color: 'white', padding: '2px 6px', borderRadius: '4px', marginLeft: '8px', verticalAlign: 'middle', fontWeight: 600 }}>Approved</span>
-                                            )}
-                                        </h3>
+                                    <Card.Header className="set-card-header">
+                                        <Card.Title className="set-title">{set.title}</Card.Title>
                                         <span className="card-count">{set.cardCount || 0} terms</span>
-                                    </div>
-                                    <p className="set-description">{set.description || 'No description provided.'}</p>
-                                    <div className="set-card-footer">
+                                    </Card.Header>
+                                    <Card.Body>
+                                        <p className="set-description">{set.description || 'No description provided.'}</p>
+                                    </Card.Body>
+                                    <Card.Footer className="set-card-footer">
                                         <div className="user-info">
                                             <div className="user-avatar">
                                                 <User size={14} />
@@ -139,10 +163,7 @@ const FlashcardSetsPage = () => {
                                                 <Button
                                                     variant="ghost"
                                                     size="sm"
-                                                    onClick={(e) => {
-                                                        e.stopPropagation();
-                                                        navigate(`/flashcard-sets/edit/${set.setId}`);
-                                                    }}
+                                                    onClick={(e) => handleEditClick(e, set.setId)}
                                                 >
                                                     <Pencil size={16} />
                                                 </Button>
@@ -156,7 +177,7 @@ const FlashcardSetsPage = () => {
                                                 </Button>
                                             </div>
                                         )}
-                                    </div>
+                                    </Card.Footer>
                                 </Card>
                             ))
                         ) : (
@@ -167,6 +188,17 @@ const FlashcardSetsPage = () => {
                         )}
                     </div>
                 )}
+
+                <ConfirmationModal
+                    isOpen={isDeleteModalOpen}
+                    onClose={() => setIsDeleteModalOpen(false)}
+                    onConfirm={confirmDeleteSet}
+                    title="Delete Flashcard Set"
+                    message="Are you sure you want to delete this set? This action cannot be undone and all cards inside will be permanently removed."
+                    confirmText="Delete Set"
+                    type="danger"
+                    isLoading={isDeleting}
+                />
             </div>
         </MainLayout>
     );

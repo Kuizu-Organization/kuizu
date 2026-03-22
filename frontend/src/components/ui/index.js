@@ -4,6 +4,7 @@ export { default as Textarea } from "./Textarea/Textarea";
 export { default as Checkbox } from "./Checkbox/Checkbox";
 export { default as Card } from "./Card/Card";
 export { default as ItemCard } from "./ItemCard/ItemCard";
+export { default as Select } from "./Select/Select";
 export { default as Modal } from "./Modal/Modal";
 export { default as ConfirmationModal } from "./Modal/ConfirmationModal";
 export { default as Accordion } from "./Accordion/Accordion";

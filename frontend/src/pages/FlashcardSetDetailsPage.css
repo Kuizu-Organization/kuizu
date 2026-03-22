@@ -71,12 +71,7 @@
     min-width: 240px;
 }
 
-.study-btn {
-    background-color: var(--primary);
-    color: white;
-    font-weight: 700;
-}
-
+.study-btn,
 .play-btn {
     font-weight: 700;
 }
@@ -104,16 +99,20 @@
 }
 
 .flashcard-item {
-    display: flex;
-    padding: 1.5rem !important;
-    gap: 1.5rem;
     position: relative;
     border: 2px solid var(--border-color);
     transition: border-color 0.2s;
+    overflow: hidden;
 }
 
 .flashcard-item:hover {
     border-color: var(--primary);
+}
+
+.flashcard-item-body {
+    display: flex;
+    padding: 1.5rem !important;
+    gap: 1.5rem;
 }
 
 .card-index {
