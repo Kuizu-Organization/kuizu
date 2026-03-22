@@ -184,7 +184,6 @@ const ClassDetailPage = () => {
 
     const handleRemoveMaterialConfirm = async () => {
         if (!selectedMaterial) return;
-
         try {
             setIsRemovingMaterial(true);
             await removeClassMaterial(classId, selectedMaterial.materialId);
