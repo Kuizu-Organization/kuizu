@@ -18,7 +18,8 @@ const ProtectedRoute = ({ children, allowedRoles = [] }) => {
 
     if (allowedRoles.length > 0 && !allowedRoles.includes(user.role)) {
         // User doesn't have the required role
-        return <Navigate to="/dashboard" replace />;
+        const target = user.role === 'ROLE_ADMIN' ? '/admin/users' : '/dashboard';
+        return <Navigate to={target} replace />;
     }
 
     return children;

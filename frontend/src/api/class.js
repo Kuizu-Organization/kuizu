@@ -40,6 +40,11 @@ export const updateClass = async (classId, classData) => {
     return response.data;
 };
 
+export const reRequestClassReview = async (classId) => {
+    const response = await api.post(`/classes/${classId}/re-request`);
+    return response.data;
+};
+
 export const deleteClass = async (classId) => {
     const response = await api.delete(`/classes/${classId}`);
     return response.data;

@@ -33,8 +33,8 @@ public class UserService {
         this.moderationService = moderationService;
     }
 
-    public Page<UserResponse> getAllUsers(Pageable pageable) {
-        return userRepository.findAll(pageable)
+    public Page<UserResponse> getAllUsers(String search, User.UserRole role, User.UserStatus status, Pageable pageable) {
+        return userRepository.searchUsers(search, role, status, pageable)
                 .map(this::mapToUserResponse);
     }
 
@@ -114,7 +114,8 @@ public class UserService {
             sessionService.revokeAllUserSessions(user);
         }
 
-        moderationService.logUserModeration(userId, "STATUS_UPDATE", "Status changed to " + status);
+        String action = (status == User.UserStatus.SUSPENDED) ? "SUSPENDED" : "RESTORED";
+        moderationService.logUserModeration(userId, action, "Status changed to " + status);
 
         return mapToUserResponse(user);
     }
