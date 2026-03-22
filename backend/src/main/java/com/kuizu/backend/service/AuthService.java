@@ -36,9 +36,10 @@ public class AuthService {
     private final EmailService emailService;
     private final OAuthAccountRepository oauthAccountRepository;
     private final SocialAuthService socialAuthService;
+    private final StatisticService statisticService;
     private static final Random random = new Random();
 
-    public AuthService(UserRepository userRepository, AuthenticationManager authenticationManager, PasswordEncoder passwordEncoder, SessionService sessionService, RateLimiterService rateLimiterService, OtpService otpService, EmailService emailService, OAuthAccountRepository oauthAccountRepository, SocialAuthService socialAuthService) {
+    public AuthService(UserRepository userRepository, AuthenticationManager authenticationManager, PasswordEncoder passwordEncoder, SessionService sessionService, RateLimiterService rateLimiterService, OtpService otpService, EmailService emailService, OAuthAccountRepository oauthAccountRepository, SocialAuthService socialAuthService, StatisticService statisticService) {
         this.userRepository = userRepository;
         this.authenticationManager = authenticationManager;
         this.passwordEncoder = passwordEncoder;
@@ -48,6 +49,7 @@ public class AuthService {
         this.emailService = emailService;
         this.oauthAccountRepository = oauthAccountRepository;
         this.socialAuthService = socialAuthService;
+        this.statisticService = statisticService;
     }
 
     @Transactional
