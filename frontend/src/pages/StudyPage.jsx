@@ -158,7 +158,7 @@ const StudyPage = () => {
                                         setIsFinished(false);
                                         setHasTriggeredFinish(false);
                                     }}
-                                    style={{ backgroundColor: '#f59e0b', color: 'white', borderColor: '#f59e0b' }}
+                                    style={{ backgroundColor: '#ffce3a', color: '#1a1a1a', borderColor: '#ffce3a', fontWeight: 'bold' }}
                                 >
                                     <Star size={18} fill="currentColor" />
                                     Study Starred ({starredCards.length})
