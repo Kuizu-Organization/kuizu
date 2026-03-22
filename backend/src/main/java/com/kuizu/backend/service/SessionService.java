@@ -14,8 +14,11 @@ import java.util.UUID;
 @Service
 public class SessionService {
 
-    @Autowired
-    private UserSessionRepository userSessionRepository;
+    private final UserSessionRepository userSessionRepository;
+
+    public SessionService(UserSessionRepository userSessionRepository) {
+        this.userSessionRepository = userSessionRepository;
+    }
 
     public UserSession createSession(User user, HttpServletRequest request) {
         String token = UUID.randomUUID().toString();

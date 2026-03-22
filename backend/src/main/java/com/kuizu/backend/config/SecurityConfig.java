@@ -29,11 +29,13 @@ import java.util.List;
 @EnableMethodSecurity
 public class SecurityConfig {
 
-    @Autowired
-    private SessionAuthenticationFilter sessionAuthFilter;
+    private final SessionAuthenticationFilter sessionAuthFilter;
+    private final UserDetailsServiceImpl userDetailsService;
 
-    @Autowired
-    private UserDetailsServiceImpl userDetailsService;
+    public SecurityConfig(SessionAuthenticationFilter sessionAuthFilter, UserDetailsServiceImpl userDetailsService) {
+        this.sessionAuthFilter = sessionAuthFilter;
+        this.userDetailsService = userDetailsService;
+    }
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {

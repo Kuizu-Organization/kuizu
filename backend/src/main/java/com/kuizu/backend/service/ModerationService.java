@@ -7,7 +7,6 @@ import com.kuizu.backend.dto.response.FlashcardSetSubmissionResponse;
 import com.kuizu.backend.dto.response.ModerationHistoryResponse;
 import com.kuizu.backend.entity.*;
 import com.kuizu.backend.entity.Class;
-import com.kuizu.backend.entity.Class;
 import com.kuizu.backend.entity.enumeration.ModerationStatus;
 import com.kuizu.backend.repository.ClassRepository;
 import com.kuizu.backend.repository.FlashcardRepository;
