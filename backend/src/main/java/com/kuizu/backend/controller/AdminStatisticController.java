@@ -33,4 +33,29 @@ public class AdminStatisticController {
             @RequestParam(defaultValue = "10") int size) {
         return ResponseEntity.ok(statisticService.getFlashcardSetStatistics(page, size));
     }
+
+    @GetMapping("/classes")
+    public ResponseEntity<Page<com.kuizu.backend.dto.response.ClassStatisticResponse>> getClassStatistics(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        return ResponseEntity.ok(statisticService.getClassStatistics(page, size));
+    }
+
+    @GetMapping("/summary")
+    public ResponseEntity<java.util.Map<String, Object>> getDashboardSummary(
+            @RequestParam(defaultValue = "7") int days) {
+        return ResponseEntity.ok(statisticService.getDashboardSummary(days));
+    }
+
+    @GetMapping("/flashcards/summary")
+    public ResponseEntity<java.util.Map<String, Object>> getFlashcardSummary(
+            @RequestParam(defaultValue = "7") int days) {
+        return ResponseEntity.ok(statisticService.getFlashcardSummary(days));
+    }
+
+    @GetMapping("/classes/summary")
+    public ResponseEntity<java.util.Map<String, Object>> getClassSummary(
+            @RequestParam(defaultValue = "7") int days) {
+        return ResponseEntity.ok(statisticService.getClassSummary(days));
+    }
 }

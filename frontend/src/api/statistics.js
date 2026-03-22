@@ -25,3 +25,37 @@ export const getFlashcardSetStatistics = async (page = 0, size = 10) => {
     });
     return response.data;
 };
+
+export const getClassStatistics = async (page = 0, size = 10) => {
+    const response = await api.get('/admin/statistics/classes', {
+        params: { page, size }
+    });
+    return response.data;
+};
+
+/**
+ * Get dashboard summary metrics and chart data.
+ * @param {number} days - Number of days for the chart data
+ */
+export const getDashboardSummary = async (days = 7) => {
+    const response = await api.get('/admin/statistics/summary', { params: { days } });
+    return response.data;
+};
+
+export const getFlashcardSummary = async (days = 7) => {
+    const response = await api.get('/admin/statistics/flashcards/summary', { params: { days } });
+    return response.data;
+};
+
+export const getClassSummary = async (days = 7) => {
+    const response = await api.get('/admin/statistics/classes/summary', { params: { days } });
+    return response.data;
+};
+
+/**
+ * Seed mock data.
+ */
+export const seedMockData = async () => {
+    const response = await api.post('/admin/dev/seed-data');
+    return response.data;
+};

@@ -138,12 +138,15 @@ public class AuthService {
             throw new ApiException("Too many login attempts. Please try again later.");
         }
 
-        User user = userRepository.findByUsername(identifier)
-                .orElseGet(() -> userRepository.findByEmail(identifier)
-                        .orElseThrow(() -> {
-                            rateLimiterService.registerLoginFailedAttempt(rateLimitKey);
-                            return new ApiException("Invalid username or email");
-                        }));
+        java.util.Optional<User> userOpt = userRepository.findByUsername(identifier);
+        if (userOpt.isEmpty()) {
+            userOpt = userRepository.findByEmail(identifier);
+        }
+        
+        User user = userOpt.orElseThrow(() -> {
+            rateLimiterService.registerLoginFailedAttempt(rateLimitKey);
+            return new ApiException("Invalid username or email");
+        });
 
         if (user.getStatus() == User.UserStatus.SUSPENDED) {
             throw new ApiException("Your account is suspended. Please contact support.");
