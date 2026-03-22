@@ -5,6 +5,7 @@ import com.kuizu.backend.entity.enumeration.Visibility;
 import com.kuizu.backend.entity.enumeration.ModerationStatus;
 import com.kuizu.backend.repository.*;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -12,11 +13,14 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 import java.util.UUID;
 
 @Configuration
 @RequiredArgsConstructor
+@Slf4j
 public class DataInitializer {
 
         private final UserRepository userRepository;
@@ -423,6 +427,89 @@ public class DataInitializer {
                                         .build());
 
                         System.out.println("Sample data initialized!");
+                };
+        }
+
+        @Bean
+        @org.springframework.core.annotation.Order(2)
+        @Profile("!test")
+        public CommandLineRunner initMockData() {
+                return args -> {
+                        try {
+                                if (userRepository.existsByUsernameStartingWith("mockUser")) {
+                                        return;
+                                }
+
+                                Random rnd = new Random();
+                                String encodedPassword = passwordEncoder.encode("password");
+
+                        // --- 50 Mock Users + UserStatistics ---
+                        List<User> mockUsers = new ArrayList<>();
+                        for (int i = 1; i <= 50; i++) {
+                                User user = User.builder()
+                                                .username("mockUser" + i)
+                                                .email("mockuser" + i + (i % 3 == 0 ? "@gmail.com" : "@domain.com"))
+                                                .passwordHash(encodedPassword)
+                                                .displayName("Mock User " + i)
+                                                .role(i % 10 == 0 ? User.UserRole.ROLE_TEACHER : User.UserRole.ROLE_STUDENT)
+                                                .status(User.UserStatus.ACTIVE)
+                                                .createdAt(LocalDateTime.now().minusDays(rnd.nextInt(60)))
+                                                .build();
+                                user = userRepository.save(user);
+                                mockUsers.add(user);
+
+                                userStatisticRepository.save(UserStatistic.builder()
+                                                .user(user)
+                                                .userId(user.getUserId())
+                                                .totalSets((long) rnd.nextInt(10))
+                                                .totalCards((long) rnd.nextInt(100))
+                                                .quizzesTaken((long) rnd.nextInt(20))
+                                                .avgScore(java.math.BigDecimal.valueOf(rnd.nextInt(100)))
+                                                .lastActiveAt(LocalDateTime.now().minusDays(rnd.nextInt(10)))
+                                                .build());
+                        }
+
+                        // --- 30 Mock FlashcardSets + FlashcardSetStatistics ---
+                        for (int i = 1; i <= 30; i++) {
+                                User owner = mockUsers.get(rnd.nextInt(mockUsers.size()));
+                                FlashcardSet set = FlashcardSet.builder()
+                                                .owner(owner)
+                                                .title("Mock Flashcard Set " + i)
+                                                .description("This is a mock flashcard set for testing purposes.")
+                                                .visibility(Visibility.PUBLIC)
+                                                .isDeleted(false)
+                                                .status(ModerationStatus.APPROVED)
+                                                .build();
+                                set = flashcardSetRepository.save(set);
+
+                                flashcardSetStatisticRepository.save(FlashcardSetStatistic.builder()
+                                                .flashcardSet(set)
+                                                .setId(set.getSetId())
+                                                .viewCount((long) rnd.nextInt(500))
+                                                .quizCount((long) rnd.nextInt(100))
+                                                .retentionRate(java.math.BigDecimal.valueOf(rnd.nextInt(100)))
+                                                .lastViewedAt(LocalDateTime.now().minusDays(rnd.nextInt(5)))
+                                                .build());
+                        }
+
+                        // --- 10 Mock Classes ---
+                        for (int i = 1; i <= 10; i++) {
+                                User owner = mockUsers.get(rnd.nextInt(mockUsers.size()));
+                                classRepository.save(com.kuizu.backend.entity.Class.builder()
+                                                .owner(owner)
+                                                .className("Mock Class " + i)
+                                                .description("This is a mock class for testing purposes.")
+                                                .joinCode(UUID.randomUUID().toString().substring(0, 8).toUpperCase())
+                                                .visibility(Visibility.PUBLIC)
+                                                .status(ModerationStatus.APPROVED)
+                                                .build());
+                        }
+
+                        log.info("Mock data initialization completed successfully! Created 50 users, 30 sets, and 10 classes.");
+                        System.out.println("Mock data initialized!");
+                        } catch (Exception e) {
+                                log.error("Error during mock data initialization!", e);
+                        }
                 };
         }
 }

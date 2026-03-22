@@ -15,8 +15,12 @@ export const changePassword = async (passwordData) => {
   return response.data;
 };
 
-export const getAllUsers = async (page = 0, size = 10) => {
-  const response = await api.get(`/users?page=${page}&size=${size}`);
+export const getAllUsers = async (page = 0, size = 10, search = '', role = 'ALL', status = 'ALL') => {
+  let url = `/users?page=${page}&size=${size}`;
+  if (search) url += `&search=${encodeURIComponent(search)}`;
+  if (role && role !== 'ALL') url += `&role=${role}`;
+  if (status && status !== 'ALL') url += `&status=${status}`;
+  const response = await api.get(url);
   return response.data;
 };
 

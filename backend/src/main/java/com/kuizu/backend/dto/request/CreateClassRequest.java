@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import com.kuizu.backend.entity.enumeration.Visibility;
+import java.util.List;
 
 @Data
 @Builder
@@ -15,4 +16,5 @@ public class CreateClassRequest {
     private String className;
     private String description;
     private Visibility visibility;
+    private List<AddClassMaterialRequest> materials;
 }

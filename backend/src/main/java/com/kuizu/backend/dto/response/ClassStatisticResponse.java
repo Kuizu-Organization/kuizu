@@ -11,16 +11,13 @@ import java.time.LocalDateTime;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class FlashcardSetResponse {
-    private Long setId;
-    private String ownerId;
+public class ClassStatisticResponse {
+    private Long classId;
+    private String className;
+    private String ownerUsername;
     private String ownerDisplayName;
-    private String title;
-    private String description;
-    private String visibility;
+    private int memberCount;
+    private int materialCount;
     private String status;
-    private String moderationNotes;
-    private Integer cardCount;
     private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
 }

@@ -22,6 +22,8 @@ const FolderDetailPage = () => {
     const [isDeleteOpen, setIsDeleteOpen] = useState(false);
     const [isDeleting, setIsDeleting] = useState(false);
     const [removingSetId, setRemovingSetId] = useState(null);
+    const [removeConfirmSetId, setRemoveConfirmSetId] = useState(null);
+    const [isRemoving, setIsRemoving] = useState(false);
 
     const fetchFolder = async () => {
         try {
@@ -82,19 +84,22 @@ const FolderDetailPage = () => {
         setExpandedSets({});
     };
 
-    const handleRemoveSet = async (e, setId) => {
+    const handleRemoveSet = (e, setId) => {
         e.stopPropagation();
-        if (!confirm('Are you sure you want to remove this set from the folder?')) return;
+        setRemoveConfirmSetId(setId);
+    };
 
+    const confirmRemoveSet = async () => {
         try {
-            setRemovingSetId(setId);
-            await removeSetFromFolder(folderId, setId);
+            setIsRemoving(true);
+            await removeSetFromFolder(folderId, removeConfirmSetId);
             toast.success('Set removed from folder');
+            setRemoveConfirmSetId(null);
             fetchFolder();
         } catch (error) {
             toast.error('Failed to remove set');
         } finally {
-            setRemovingSetId(null);
+            setIsRemoving(false);
         }
     };
 
@@ -253,7 +258,8 @@ const FolderDetailPage = () => {
                                 <div key={set.setId} className={`fd-set-group ${isExpanded ? 'expanded' : ''}`}>
                                     <div
                                         className="fd-set-title-bar"
-                                        onClick={() => toggleSetExpand(set.setId)}
+                                        onClick={() => navigate(`/flashcard-sets/${set.setId}`)}
+                                        style={{ cursor: 'pointer' }}
                                     >
                                         <div className="fd-set-title-left">
                                             <BookOpen size={18} />
@@ -271,13 +277,16 @@ const FolderDetailPage = () => {
                                                 <button
                                                     className="fd-remove-set-btn"
                                                     onClick={(e) => handleRemoveSet(e, set.setId)}
-                                                    disabled={removingSetId === set.setId}
+                                                    disabled={isRemoving && removeConfirmSetId === set.setId}
                                                     title="Remove from folder"
                                                 >
                                                     <Trash2 size={14} />
                                                 </button>
                                             )}
-                                            <div className="fd-set-toggle">
+                                            <div
+                                                className="fd-set-toggle"
+                                                onClick={(e) => { e.stopPropagation(); toggleSetExpand(set.setId); }}
+                                            >
                                                 {isExpanded ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
                                             </div>
                                         </div>
@@ -359,6 +368,32 @@ const FolderDetailPage = () => {
                     <p style={{ fontSize: '14px', color: 'var(--text-light)', lineHeight: '1.5' }}>
                         This action will permanently delete the folder <strong>"{folder.name}"</strong>. 
                         The flashcard sets inside this folder <strong>WILL NOT</strong> be deleted. Are you sure you want to proceed?
+                    </p>
+                </div>
+            </Modal>
+
+            {/* Remove set confirmation modal */}
+            <Modal
+                isOpen={!!removeConfirmSetId}
+                onClose={() => setRemoveConfirmSetId(null)}
+                title="Remove set from folder"
+                size="sm"
+                footer={
+                    <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end', width: '100%' }}>
+                        <Button variant="outline" onClick={() => setRemoveConfirmSetId(null)} disabled={isRemoving}>Cancel</Button>
+                        <Button variant="danger" onClick={confirmRemoveSet} isLoading={isRemoving}>Remove</Button>
+                    </div>
+                }
+            >
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', padding: '16px 0' }}>
+                    <div style={{ width: '48px', height: '48px', borderRadius: '50%', background: 'rgba(239, 68, 68, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#ef4444', marginBottom: '16px' }}>
+                        <AlertTriangle size={24} />
+                    </div>
+                    <h3 style={{ fontSize: '18px', fontWeight: '600', color: 'var(--text-dark)', marginBottom: '8px' }}>
+                        Remove this set?
+                    </h3>
+                    <p style={{ fontSize: '14px', color: 'var(--text-light)', lineHeight: '1.5' }}>
+                        Are you sure you want to remove this set from the folder? The set itself will not be deleted.
                     </p>
                 </div>
             </Modal>

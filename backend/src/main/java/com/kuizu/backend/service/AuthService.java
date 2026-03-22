@@ -27,34 +27,30 @@ import java.util.Random;
 @Service
 public class AuthService {
 
-    @Autowired
-    private UserRepository userRepository;
-
-    @Autowired
-    private AuthenticationManager authenticationManager;
-
-    @Autowired
-    private PasswordEncoder passwordEncoder;
-
-    @Autowired
-    private SessionService sessionService;
-
-    @Autowired
-    private RateLimiterService rateLimiterService;
-
-    @Autowired
-    private OtpService otpService;
-
-    @Autowired
-    private EmailService emailService;
-
-    @Autowired
-    private OAuthAccountRepository oauthAccountRepository;
-
-    @Autowired
-    private SocialAuthService socialAuthService;
-
+    private final UserRepository userRepository;
+    private final AuthenticationManager authenticationManager;
+    private final PasswordEncoder passwordEncoder;
+    private final SessionService sessionService;
+    private final RateLimiterService rateLimiterService;
+    private final OtpService otpService;
+    private final EmailService emailService;
+    private final OAuthAccountRepository oauthAccountRepository;
+    private final SocialAuthService socialAuthService;
+    private final StatisticService statisticService;
     private static final Random random = new Random();
+
+    public AuthService(UserRepository userRepository, AuthenticationManager authenticationManager, PasswordEncoder passwordEncoder, SessionService sessionService, RateLimiterService rateLimiterService, OtpService otpService, EmailService emailService, OAuthAccountRepository oauthAccountRepository, SocialAuthService socialAuthService, StatisticService statisticService) {
+        this.userRepository = userRepository;
+        this.authenticationManager = authenticationManager;
+        this.passwordEncoder = passwordEncoder;
+        this.sessionService = sessionService;
+        this.rateLimiterService = rateLimiterService;
+        this.otpService = otpService;
+        this.emailService = emailService;
+        this.oauthAccountRepository = oauthAccountRepository;
+        this.socialAuthService = socialAuthService;
+        this.statisticService = statisticService;
+    }
 
     @Transactional
     public AuthResponse register(RegisterRequest request, HttpServletRequest httpServletRequest) {
@@ -120,6 +116,7 @@ public class AuthService {
         userRepository.save(user);
 
         UserSession session = sessionService.createSession(user, httpServletRequest);
+        statisticService.updateUserActivity(user);
 
         return AuthResponse.builder()
                 .token(session.getSessionToken())
@@ -141,12 +138,15 @@ public class AuthService {
             throw new ApiException("Too many login attempts. Please try again later.");
         }
 
-        User user = userRepository.findByUsername(identifier)
-                .orElseGet(() -> userRepository.findByEmail(identifier)
-                        .orElseThrow(() -> {
-                            rateLimiterService.registerLoginFailedAttempt(rateLimitKey);
-                            return new ApiException("Invalid username or email");
-                        }));
+        java.util.Optional<User> userOpt = userRepository.findByUsername(identifier);
+        if (userOpt.isEmpty()) {
+            userOpt = userRepository.findByEmail(identifier);
+        }
+        
+        User user = userOpt.orElseThrow(() -> {
+            rateLimiterService.registerLoginFailedAttempt(rateLimitKey);
+            return new ApiException("Invalid username or email");
+        });
 
         if (user.getStatus() == User.UserStatus.SUSPENDED) {
             throw new ApiException("Your account is suspended. Please contact support.");
@@ -169,6 +169,7 @@ public class AuthService {
         userRepository.save(user);
 
         UserSession session = sessionService.createSession(user, httpServletRequest);
+        statisticService.updateUserActivity(user);
 
         return AuthResponse.builder()
                 .token(session.getSessionToken())
@@ -233,6 +234,7 @@ public class AuthService {
         userRepository.save(user);
 
         UserSession session = sessionService.createSession(user, httpServletRequest);
+        statisticService.updateUserActivity(user);
 
         return AuthResponse.builder()
                 .token(session.getSessionToken())

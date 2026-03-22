@@ -7,6 +7,7 @@ import ProtectedRoute from './components/layout/ProtectedRoute';
 import DashboardPage from './pages/DashboardPage/DashboardPage';
 import AdminDashboard from './pages/Admin/AdminDashboard';
 import AdminSetPreviewPage from './pages/Admin/AdminSetPreviewPage';
+import StatisticsPage from './pages/Admin/StatisticsPage';
 import ClassDetailPage from './pages/ClassDetailPage/ClassDetailPage';
 import SearchPage from './pages/SearchPage/SearchPage';
 import ComingSoonPage from './pages/ComingSoonPage';
@@ -109,17 +110,25 @@ function App() {
         } />
 
         <Route path="/admin/stats/flashcards" element={
-          <MainLayout activePath="/admin/stats/flashcards">
+          <MainLayout activePath="/admin/stats/users">
             <ProtectedRoute allowedRoles={['ROLE_ADMIN']}>
-              <AdminDashboard />
+              <StatisticsPage />
             </ProtectedRoute>
           </MainLayout>
         } />
 
-        <Route path="/admin/stats/system" element={
-          <MainLayout activePath="/admin/stats/system">
+        <Route path="/admin/stats/users" element={
+          <MainLayout activePath="/admin/stats/users">
             <ProtectedRoute allowedRoles={['ROLE_ADMIN']}>
-              <AdminDashboard />
+              <StatisticsPage />
+            </ProtectedRoute>
+          </MainLayout>
+        } />
+
+        <Route path="/admin/stats/classes" element={
+          <MainLayout activePath="/admin/stats/users">
+            <ProtectedRoute allowedRoles={['ROLE_ADMIN']}>
+              <StatisticsPage />
             </ProtectedRoute>
           </MainLayout>
         } />
