@@ -28,24 +28,18 @@
 /* FOLDER INFO CARD     */
 /* ==================== */
 .fd-info-card {
-    background: linear-gradient(135deg, #2e3856 0%, #282e3e 100%);
+    background: var(--white);
     border-radius: 20px;
     padding: 32px;
     margin-bottom: 36px;
-    border: 1px solid rgba(255, 255, 255, 0.06);
+    border: 1px solid var(--border-color);
     position: relative;
     overflow: hidden;
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.03);
 }
 
 .fd-info-card::after {
-    content: '';
-    position: absolute;
-    top: -40px;
-    right: -40px;
-    width: 200px;
-    height: 200px;
-    background: radial-gradient(circle, rgba(66, 85, 255, 0.1) 0%, transparent 70%);
-    pointer-events: none;
+    display: none;
 }
 
 .fd-info-header {
@@ -63,14 +57,14 @@
 }
 
 .fd-info-icon {
-    width: 56px;
-    height: 56px;
-    border-radius: 14px;
-    background: rgba(66, 85, 255, 0.15);
+    width: 64px;
+    height: 64px;
+    border-radius: 16px;
+    background: rgba(66, 85, 255, 0.1);
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #a8b4ff;
+    color: var(--primary);
     flex-shrink: 0;
 }
 
@@ -93,36 +87,37 @@
     border-radius: 10px;
     font-size: 13px;
     font-weight: 500;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    background: rgba(255, 255, 255, 0.05);
-    color: #a8b4ff;
+    border: 1px solid var(--border-color);
+    background: var(--white);
+    color: var(--text-dark);
     cursor: pointer;
     transition: all 0.2s ease;
 }
 
 .fd-action-btn:hover {
-    background: rgba(255, 255, 255, 0.1);
-    border-color: rgba(255, 255, 255, 0.2);
-    color: #ffffff;
+    background: var(--input-bg);
+    border-color: var(--primary);
+    color: var(--primary);
 }
 
 .fd-action-btn.delete-btn:hover {
-    background: rgba(239, 68, 68, 0.15);
+    background: rgba(239, 68, 68, 0.1);
     border-color: rgba(239, 68, 68, 0.3);
-    color: #ef4444;
+    color: var(--error, #ef4444);
 }
 
 .fd-name {
     font-family: 'Outfit', sans-serif;
-    font-size: 28px;
-    font-weight: 700;
-    color: #ffffff;
+    font-size: 32px;
+    font-weight: 800;
+    color: var(--text-dark);
     margin: 0 0 8px 0;
-    line-height: 1.3;
+    line-height: 1.2;
+    letter-spacing: -0.5px;
 }
 
 .fd-description {
-    color: rgba(255, 255, 255, 0.55);
+    color: var(--text-light);
     font-size: 15px;
     line-height: 1.6;
     margin: 0;
@@ -134,14 +129,14 @@
     grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
     gap: 16px;
     padding-top: 24px;
-    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    border-top: 1px solid var(--border-color);
 }
 
 .fd-info-item {
     display: flex;
     align-items: flex-start;
     gap: 12px;
-    color: rgba(255, 255, 255, 0.5);
+    color: var(--text-light);
 }
 
 .fd-info-item > svg {
@@ -152,21 +147,21 @@
 .fd-info-item > div {
     display: flex;
     flex-direction: column;
-    gap: 2px;
+    gap: 4px;
 }
 
 .fd-info-label {
     font-size: 11px;
     font-weight: 600;
     text-transform: uppercase;
-    letter-spacing: 0.6px;
-    color: rgba(255, 255, 255, 0.4);
+    letter-spacing: 0.5px;
+    color: var(--text-light);
 }
 
 .fd-info-value {
     font-size: 14px;
     font-weight: 600;
-    color: #ffffff;
+    color: var(--text-dark);
 }
 
 /* ==================== */
