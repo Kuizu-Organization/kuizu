@@ -18,6 +18,8 @@ public interface ClassRepository extends JpaRepository<Class, Long> {
     Optional<Class> findByJoinCode(String joinCode);
 
     List<Class> findByClassNameContainingIgnoreCase(String name);
+    
+    List<Class> findByClassNameContainingIgnoreCaseAndVisibilityAndStatus(String name, com.kuizu.backend.entity.enumeration.Visibility visibility, ModerationStatus status);
 
     List<Class> findByStatus(ModerationStatus status);
 }

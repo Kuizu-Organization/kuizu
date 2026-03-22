@@ -236,6 +236,11 @@ const ClassDetailPage = () => {
                 <div className="class-header-content">
                     <div className="class-badges">
                         <span className="badge badge-primary">Class</span>
+                        {classData?.isOwner && classData?.status && (
+                            <span className={`badge ${classData.status === 'ACTIVE' ? 'badge-success' : classData.status === 'PENDING' ? 'badge-warning' : 'badge-danger'}`} style={{ marginLeft: '8px' }}>
+                                {classData.status === 'ACTIVE' ? 'Approved' : classData.status.charAt(0) + classData.status.slice(1).toLowerCase()}
+                            </span>
+                        )}
                     </div>
                     <h1 className="class-title">{classData.className}</h1>
                     <p className="class-owner">Created by <strong>{classData.ownerDisplayName}</strong></p>

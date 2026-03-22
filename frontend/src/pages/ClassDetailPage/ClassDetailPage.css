@@ -43,6 +43,21 @@
     color: var(--primary);
 }
 
+.badge-success {
+    background-color: rgba(72, 187, 120, 0.1);
+    color: #48bb78;
+}
+
+.badge-warning {
+    background-color: rgba(245, 158, 11, 0.1);
+    color: #f59e0b;
+}
+
+.badge-danger {
+    background-color: rgba(239, 68, 68, 0.1);
+    color: #ef4444;
+}
+
 .class-title {
     font-size: 48px;
     font-weight: 800;

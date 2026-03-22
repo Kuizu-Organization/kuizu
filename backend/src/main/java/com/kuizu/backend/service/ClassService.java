@@ -123,6 +123,7 @@ public class ClassService {
                 clazz.getClassName(),
                 clazz.getDescription(),
                 clazz.getVisibility(),
+                clazz.getStatus(),
                 classMaterialResponseList,
                 isMember,
                 isOwner,
@@ -132,7 +133,7 @@ public class ClassService {
     }
 
     public List<ClassResponse> findClassesByName(String name) {
-        return classRepository.findByClassNameContainingIgnoreCase(name)
+        return classRepository.findByClassNameContainingIgnoreCaseAndVisibilityAndStatus(name, Visibility.PUBLIC, ModerationStatus.ACTIVE)
                 .stream()
                 .map(this::convertToClassResponse)
                 .toList();
@@ -145,7 +146,8 @@ public class ClassService {
                 c.getOwner().getDisplayName(),
                 c.getClassName(),
                 c.getDescription(),
-                c.getVisibility()
+                c.getVisibility(),
+                c.getStatus()
         );
     }
 
