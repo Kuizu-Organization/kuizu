@@ -147,29 +147,31 @@ const FlashcardSetDetailsPage = () => {
                 {progress && (
                     <div className="progress-section">
                         <Card className="progress-card">
-                            <div className="progress-summary">
-                                <div className="progress-text">
-                                    <h3>Your Progress</h3>
-                                    <div className="progress-stats">
-                                        <span className="stat mastered">Mastered: {progress.masteredCards}</span>
-                                        <span className="stat learning">Learning: {progress.learningCards}</span>
-                                        <span className="stat new">New: {progress.newCards}</span>
+                            <Card.Body>
+                                <div className="progress-summary">
+                                    <div className="progress-text">
+                                        <h3>Your Progress</h3>
+                                        <div className="progress-stats">
+                                            <span className="stat mastered">Mastered: {progress.masteredCards}</span>
+                                            <span className="stat learning">Learning: {progress.learningCards}</span>
+                                            <span className="stat new">New: {progress.newCards}</span>
+                                        </div>
+                                    </div>
+                                    <div className="progress-action">
+                                        <Button variant="ghost" size="sm" onClick={() => setIsResetModalOpen(true)}>
+                                            <Trash2 size={16} />
+                                            Reset Progress
+                                        </Button>
                                     </div>
                                 </div>
-                                <div className="progress-action">
-                                    <Button variant="ghost" size="sm" onClick={() => setIsResetModalOpen(true)}>
-                                        <Trash2 size={16} />
-                                        Reset Progress
-                                    </Button>
+                                <div className="progress-bar-container">
+                                    <div
+                                        className="progress-bar-fill"
+                                        style={{ width: `${progress.progressPercentage}%` }}
+                                    ></div>
+                                    <span className="progress-percentage">{Math.round(progress.progressPercentage)}%</span>
                                 </div>
-                            </div>
-                            <div className="progress-bar-container">
-                                <div
-                                    className="progress-bar-fill"
-                                    style={{ width: `${progress.progressPercentage}%` }}
-                                ></div>
-                                <span className="progress-percentage">{Math.round(progress.progressPercentage)}%</span>
-                            </div>
+                            </Card.Body>
                         </Card>
                     </div>
                 )}
@@ -191,35 +193,37 @@ const FlashcardSetDetailsPage = () => {
                         {cards.length > 0 ? (
                             cards.map((card, index) => (
                                 <Card key={card.cardId} className="flashcard-item">
-                                    <div className="card-index">{index + 1}</div>
-                                    <div className="card-content">
-                                        <div className="term-side">
-                                            <div className="side-label">TERM</div>
-                                            <div className="side-text">{card.term}</div>
+                                    <Card.Body className="flashcard-item-body">
+                                        <div className="card-index">{index + 1}</div>
+                                        <div className="card-content">
+                                            <div className="term-side">
+                                                <div className="side-label">TERM</div>
+                                                <div className="side-text">{card.term}</div>
+                                            </div>
+                                            <div className="divider"></div>
+                                            <div className="definition-side">
+                                                <div className="side-label">DEFINITION</div>
+                                                <div className="side-text">{card.definition}</div>
+                                            </div>
                                         </div>
-                                        <div className="divider"></div>
-                                        <div className="definition-side">
-                                            <div className="side-label">DEFINITION</div>
-                                            <div className="side-text">{card.definition}</div>
+                                        <div className="card-actions">
+                                            <Button
+                                                variant="ghost"
+                                                size="sm"
+                                                onClick={() => navigate(`/flashcards/edit/${card.cardId}`)}
+                                            >
+                                                <Pencil size={18} />
+                                            </Button>
+                                            <Button
+                                                variant="ghost"
+                                                size="sm"
+                                                className="delete-btn"
+                                                onClick={() => setCardToDelete(card.cardId)}
+                                            >
+                                                <Trash2 size={18} />
+                                            </Button>
                                         </div>
-                                    </div>
-                                    <div className="card-actions">
-                                        <Button
-                                            variant="ghost"
-                                            size="sm"
-                                            onClick={() => navigate(`/flashcards/edit/${card.cardId}`)}
-                                        >
-                                            <Pencil size={18} />
-                                        </Button>
-                                        <Button
-                                            variant="ghost"
-                                            size="sm"
-                                            className="delete-btn"
-                                            onClick={() => setCardToDelete(card.cardId)}
-                                        >
-                                            <Trash2 size={18} />
-                                        </Button>
-                                    </div>
+                                    </Card.Body>
                                 </Card>
                             ))
                         ) : (

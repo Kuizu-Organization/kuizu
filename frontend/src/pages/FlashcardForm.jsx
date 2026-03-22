@@ -91,64 +91,66 @@ const FlashcardForm = () => {
                     <div className="center"><Loader /></div>
                 ) : (
                     <Card className="form-card">
-                        <form onSubmit={handleSubmit}>
-                            {error && <div className="error-msg">{error}</div>}
+                        <Card.Body>
+                            <form onSubmit={handleSubmit}>
+                                {error && <div className="error-msg">{error}</div>}
 
-                            <div className="form-group">
-                                <label htmlFor="term">Term</label>
-                                <Input
-                                    id="term"
-                                    name="term"
-                                    placeholder="Enter the concept or word..."
-                                    value={formData.term}
-                                    onChange={handleChange}
-                                    required
-                                />
-                            </div>
+                                <div className="form-group">
+                                    <label htmlFor="term">Term</label>
+                                    <Input
+                                        id="term"
+                                        name="term"
+                                        placeholder="Enter the concept or word..."
+                                        value={formData.term}
+                                        onChange={handleChange}
+                                        required
+                                    />
+                                </div>
 
-                            <div className="form-group">
-                                <label htmlFor="definition">Definition</label>
-                                <textarea
-                                    id="definition"
-                                    name="definition"
-                                    rows="4"
-                                    placeholder="Enter the explanation..."
-                                    className="custom-textarea"
-                                    value={formData.definition}
-                                    onChange={handleChange}
-                                    required
-                                />
-                            </div>
+                                <div className="form-group">
+                                    <label htmlFor="definition">Definition</label>
+                                    <textarea
+                                        id="definition"
+                                        name="definition"
+                                        rows="4"
+                                        placeholder="Enter the explanation..."
+                                        className="custom-textarea"
+                                        value={formData.definition}
+                                        onChange={handleChange}
+                                        required
+                                    />
+                                </div>
 
-                            <div className="form-group">
-                                <label htmlFor="orderIndex">Order Index (Optional)</label>
-                                <Input
-                                    id="orderIndex"
-                                    name="orderIndex"
-                                    type="number"
-                                    value={formData.orderIndex}
-                                    onChange={handleChange}
-                                />
-                            </div>
+                                <div className="form-group">
+                                    <label htmlFor="orderIndex">Order Index (Optional)</label>
+                                    <Input
+                                        id="orderIndex"
+                                        name="orderIndex"
+                                        type="number"
+                                        value={formData.orderIndex}
+                                        onChange={handleChange}
+                                    />
+                                </div>
 
-                            <div className="form-actions">
-                                <Button
-                                    type="button"
-                                    variant="outline"
-                                    onClick={() => navigate(-1)}
-                                    disabled={submitting}
-                                >
-                                    Cancel
-                                </Button>
-                                <Button
-                                    type="submit"
-                                    disabled={submitting}
-                                    className="submit-btn"
-                                >
-                                    {submitting ? <Loader size="sm" /> : <><Save size={18} /> {isEdit ? 'Save Card' : 'Add Card'}</>}
-                                </Button>
-                            </div>
-                        </form>
+                                <div className="form-actions">
+                                    <Button
+                                        type="button"
+                                        variant="outline"
+                                        onClick={() => navigate(-1)}
+                                        disabled={submitting}
+                                    >
+                                        Cancel
+                                    </Button>
+                                    <Button
+                                        type="submit"
+                                        disabled={submitting}
+                                        className="submit-btn"
+                                    >
+                                        {submitting ? <Loader size="sm" /> : <><Save size={18} /> {isEdit ? 'Save Card' : 'Add Card'}</>}
+                                    </Button>
+                                </div>
+                            </form>
+                        </Card.Body>
                     </Card>
                 )}
             </div>
