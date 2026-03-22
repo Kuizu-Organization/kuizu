@@ -356,7 +356,7 @@ const ClassDetailPage = () => {
                                                     <p className="material-ref">{isFolder ? 'Folder' : 'Flashcard Set'}</p>
                                                 </div>
                                                 <div className="material-actions" style={{ display: 'flex', gap: '8px' }}>
-                                                    <Button variant="outline" size="sm" onClick={() => navigate(isFolder ? `/folders/${material.materialRefId}` : `/sets/${material.materialRefId}`)}>View</Button>
+                                                    <Button variant="outline" size="sm" onClick={() => navigate(isFolder ? `/folders/${material.materialRefId}` : `/flashcard-sets/${material.materialRefId}`)}>View</Button>
                                                     {classData?.isOwner && (
                                                         <Button variant="ghost" size="sm" className="text-red-500" onClick={() => handleRemoveMaterial(material.materialId)}>Remove</Button>
                                                     )}
