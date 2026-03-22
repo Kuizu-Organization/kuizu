@@ -161,7 +161,7 @@ const FlashcardSetDetailsPage = () => {
 
                     <div className="set-actions">
                         <Button
-                            className="study-btn"
+                            className="study-btn w-full"
                             size="lg"
                             variant="outline"
                             onClick={() => navigate(`/study/${setId}`, { state: { cards } })}
@@ -170,7 +170,7 @@ const FlashcardSetDetailsPage = () => {
                             Study
                         </Button>
                         <Button
-                            className="play-btn"
+                            className="play-btn w-full"
                             size="lg"
                             variant="outline"
                             onClick={() => navigate(`/quiz/${setId}`, { state: { cards } })}
@@ -180,6 +180,7 @@ const FlashcardSetDetailsPage = () => {
                             Take Quiz
                         </Button>
                         <Button
+                            className="w-full"
                             variant="outline"
                             size="lg"
                             onClick={() => openSetModal(setId, handleSetUpdateSuccess)}
