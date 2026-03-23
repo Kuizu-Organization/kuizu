@@ -14,7 +14,6 @@ import com.kuizu.backend.exception.ApiException;
 import com.kuizu.backend.repository.OAuthAccountRepository;
 import com.kuizu.backend.repository.UserRepository;
 import jakarta.servlet.http.HttpServletRequest;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -39,7 +38,10 @@ public class AuthService {
     private final StatisticService statisticService;
     private static final Random random = new Random();
 
-    public AuthService(UserRepository userRepository, AuthenticationManager authenticationManager, PasswordEncoder passwordEncoder, SessionService sessionService, RateLimiterService rateLimiterService, OtpService otpService, EmailService emailService, OAuthAccountRepository oauthAccountRepository, SocialAuthService socialAuthService, StatisticService statisticService) {
+    public AuthService(UserRepository userRepository, AuthenticationManager authenticationManager,
+            PasswordEncoder passwordEncoder, SessionService sessionService, RateLimiterService rateLimiterService,
+            OtpService otpService, EmailService emailService, OAuthAccountRepository oauthAccountRepository,
+            SocialAuthService socialAuthService, StatisticService statisticService) {
         this.userRepository = userRepository;
         this.authenticationManager = authenticationManager;
         this.passwordEncoder = passwordEncoder;
@@ -142,7 +144,7 @@ public class AuthService {
         if (userOpt.isEmpty()) {
             userOpt = userRepository.findByEmail(identifier);
         }
-        
+
         User user = userOpt.orElseThrow(() -> {
             rateLimiterService.registerLoginFailedAttempt(rateLimitKey);
             return new ApiException("Invalid username or email");
