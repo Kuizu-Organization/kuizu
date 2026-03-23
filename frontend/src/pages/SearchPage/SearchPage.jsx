@@ -48,12 +48,17 @@ const SearchPage = () => {
                         users: (usersRes.content || []).length >= limits.users
                     });
                 } else {
-                    const [classes, folders, sets, usersRes] = await Promise.all([
+                    const resultsRaw = await Promise.allSettled([
                         searchClasses(query),
                         searchFolders(query),
                         searchFlashcardSets(query),
                         searchPublicUsers(query, 0, limits.users)
                     ]);
+
+                    const classes = resultsRaw[0].status === 'fulfilled' ? resultsRaw[0].value : [];
+                    const folders = resultsRaw[1].status === 'fulfilled' ? resultsRaw[1].value : [];
+                    const sets = resultsRaw[2].status === 'fulfilled' ? resultsRaw[2].value : [];
+                    const usersRes = resultsRaw[4]?.status === 'fulfilled' ? resultsRaw[4].value : (resultsRaw[3].status === 'fulfilled' ? resultsRaw[3].value : { content: [] });
 
                     const lowerQuery = query.toLowerCase();
                     const filterFn = (text) => {

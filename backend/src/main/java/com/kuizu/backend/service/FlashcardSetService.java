@@ -8,7 +8,6 @@ import com.kuizu.backend.exception.ApiException;
 import com.kuizu.backend.repository.FlashcardRepository;
 import com.kuizu.backend.repository.FlashcardSetRepository;
 import com.kuizu.backend.repository.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,28 +22,19 @@ public class FlashcardSetService {
     private final FlashcardRepository flashcardRepository;
     private final UserRepository userRepository;
     private final NotificationService notificationService;
-
-    @Autowired
-    private StatisticService statisticService;
+    private final StatisticService statisticService;
 
     public FlashcardSetService(FlashcardSetRepository flashcardSetRepository,
             FlashcardRepository flashcardRepository,
             UserRepository userRepository,
-            NotificationService notificationService) {
+            NotificationService notificationService,
+            StatisticService statisticService) {
         this.flashcardSetRepository = flashcardSetRepository;
         this.flashcardRepository = flashcardRepository;
         this.userRepository = userRepository;
         this.notificationService = notificationService;
+        this.statisticService = statisticService;
     }
-
-    @Autowired
-    private NotificationService notificationService;
-
-    @Autowired
-    private UserRepository userRepository;
-
-    @Autowired
-    private StatisticService statisticService;
 
     public List<FlashcardSetResponse> getAllPublicSets() {
         return flashcardSetRepository.findByVisibilityAndIsDeletedFalse(Visibility.PUBLIC)

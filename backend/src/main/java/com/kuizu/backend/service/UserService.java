@@ -58,7 +58,7 @@ public class UserService {
     }
 
     public Page<PublicUserResponse> searchPublicUsers(String query, Pageable pageable) {
-        return userRepository.searchUsers(query, User.UserStatus.SUSPENDED, pageable)
+        return userRepository.searchUsers(query, null, User.UserStatus.ACTIVE, pageable)
                 .map(this::mapToPublicUserResponse);
     }
 

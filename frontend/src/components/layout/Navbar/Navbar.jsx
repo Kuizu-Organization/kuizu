@@ -21,12 +21,17 @@ const Navbar = ({ isSidebarCollapsed, onToggleSidebar }) => {
     const handleSearchInput = async (query) => {
         const lowerQuery = query.toLowerCase();
         try {
-            const [classes, folders, sets, usersRes] = await Promise.all([
+            const resultsRaw = await Promise.allSettled([
                 searchClasses(query),
                 searchFolders(query),
                 searchFlashcardSets(query),
                 searchPublicUsers(query, 0, 10)
             ]);
+
+            const classes = resultsRaw[0].status === 'fulfilled' ? resultsRaw[0].value : [];
+            const folders = resultsRaw[1].status === 'fulfilled' ? resultsRaw[1].value : [];
+            const sets = resultsRaw[2].status === 'fulfilled' ? resultsRaw[2].value : [];
+            const usersRes = resultsRaw[3].status === 'fulfilled' ? resultsRaw[3].value : { content: [] };
 
             const filterFn = (text) => {
                 if (!text) return false;
