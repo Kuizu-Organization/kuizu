@@ -1,24 +1,20 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate, useLocation } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { ChevronLeft, Save, Loader } from 'lucide-react';
-import './FlashcardForm.css';
-import { getFlashcardById, createFlashcard, updateFlashcard } from '../api/flashcards';
-import { Button, Card, Input } from '../components/ui';
-import MainLayout from '../components/layout';
+import './FlashcardSetForm.css';
+import { getFlashcardSetById, createFlashcardSet, updateFlashcardSet } from '../../api/flashcards';
+import { Button, Card, Input } from '../../components/ui';
+import MainLayout from '../../components/layout';
 
-const FlashcardForm = () => {
-    const { cardId } = useParams();
+const FlashcardSetForm = () => {
+    const { setId } = useParams();
     const navigate = useNavigate();
-    const location = useLocation();
-    const queryParams = new URLSearchParams(location.search);
-    const setId = queryParams.get('setId');
-
-    const isEdit = !!cardId;
+    const isEdit = !!setId;
 
     const [formData, setFormData] = useState({
-        term: '',
-        definition: '',
-        orderIndex: 0
+        title: '',
+        description: '',
+        visibility: 'PUBLIC'
     });
     const [loading, setLoading] = useState(isEdit);
     const [submitting, setSubmitting] = useState(false);
@@ -26,20 +22,20 @@ const FlashcardForm = () => {
 
     useEffect(() => {
         if (isEdit) {
-            fetchCard();
+            fetchSet();
         }
-    }, [cardId]);
+    }, [setId]);
 
-    const fetchCard = async () => {
+    const fetchSet = async () => {
         try {
-            const data = await getFlashcardById(cardId);
+            const data = await getFlashcardSetById(setId);
             setFormData({
-                term: data.term,
-                definition: data.definition,
-                orderIndex: data.orderIndex || 0
+                title: data.title,
+                description: data.description || '',
+                visibility: data.visibility || 'PUBLIC'
             });
         } catch (err) {
-            setError('Failed to load flashcard data');
+            setError('Failed to load set data');
         } finally {
             setLoading(false);
         }
@@ -52,21 +48,16 @@ const FlashcardForm = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        if (!setId && !isEdit) {
-            setError('Missing Set ID');
-            return;
-        }
-
         try {
             setSubmitting(true);
             setError(null);
 
             if (isEdit) {
-                const updated = await updateFlashcard(cardId, formData);
-                navigate(`/flashcard-sets/${updated.setId}`);
-            } else {
-                await createFlashcard(setId, formData);
+                await updateFlashcardSet(setId, formData);
                 navigate(`/flashcard-sets/${setId}`);
+            } else {
+                const newSet = await createFlashcardSet(formData);
+                navigate(`/flashcard-sets/${newSet.setId}`);
             }
         } catch (err) {
             setError(err.response?.data?.message || 'Something went wrong');
@@ -84,7 +75,7 @@ const FlashcardForm = () => {
                 </button>
 
                 <div className="form-header">
-                    <h1>{isEdit ? 'Edit Flashcard' : 'Add New Flashcard'}</h1>
+                    <h1>{isEdit ? 'Edit Flashcard Set' : 'Create New Set'}</h1>
                 </div>
 
                 {loading ? (
@@ -96,40 +87,43 @@ const FlashcardForm = () => {
                                 {error && <div className="error-msg">{error}</div>}
 
                                 <div className="form-group">
-                                    <label htmlFor="term">Term</label>
+                                    <label htmlFor="title">Title</label>
                                     <Input
-                                        id="term"
-                                        name="term"
-                                        placeholder="Enter the concept or word..."
-                                        value={formData.term}
+                                        id="title"
+                                        name="title"
+                                        placeholder='e.g. "Biology 101: Cell Structure"'
+                                        value={formData.title}
                                         onChange={handleChange}
                                         required
                                     />
                                 </div>
 
                                 <div className="form-group">
-                                    <label htmlFor="definition">Definition</label>
+                                    <label htmlFor="description">Description (Optional)</label>
                                     <textarea
-                                        id="definition"
-                                        name="definition"
+                                        id="description"
+                                        name="description"
                                         rows="4"
-                                        placeholder="Enter the explanation..."
+                                        placeholder="Add a bio to your profile..."
                                         className="custom-textarea"
-                                        value={formData.definition}
+                                        value={formData.description}
                                         onChange={handleChange}
-                                        required
                                     />
                                 </div>
 
                                 <div className="form-group">
-                                    <label htmlFor="orderIndex">Order Index (Optional)</label>
-                                    <Input
-                                        id="orderIndex"
-                                        name="orderIndex"
-                                        type="number"
-                                        value={formData.orderIndex}
+                                    <label htmlFor="visibility">Visibility</label>
+                                    <select
+                                        id="visibility"
+                                        name="visibility"
+                                        className="custom-select"
+                                        value={formData.visibility}
                                         onChange={handleChange}
-                                    />
+                                    >
+                                        <option value="PUBLIC">Public (Everyone can see)</option>
+                                        <option value="PRIVATE">Private (Only you can see)</option>
+                                        <option value="UNLISTED">Unlisted (Anyone with the link can see)</option>
+                                    </select>
                                 </div>
 
                                 <div className="form-actions">
@@ -146,7 +140,7 @@ const FlashcardForm = () => {
                                         disabled={submitting}
                                         className="submit-btn"
                                     >
-                                        {submitting ? <Loader size="sm" /> : <><Save size={18} /> {isEdit ? 'Save Card' : 'Add Card'}</>}
+                                        {submitting ? <Loader size="sm" /> : <><Save size={18} /> {isEdit ? 'Save Changes' : 'Create Set'}</>}
                                     </Button>
                                 </div>
                             </form>
@@ -158,4 +152,4 @@ const FlashcardForm = () => {
     );
 };
 
-export default FlashcardForm;
+export default FlashcardSetForm;

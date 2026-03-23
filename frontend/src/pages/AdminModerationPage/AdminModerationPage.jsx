@@ -16,11 +16,11 @@ import {
     getPendingSets,
     getPendingClasses,
     getAllUsers
-} from '../api/moderation';
-import { Button, Card, Loader, Modal, Input } from '../components/ui';
-import MainLayout from '../components/layout';
+} from '../../api/moderation';
+import { Button, Card, Loader, Modal, Input } from '../../components/ui';
+import MainLayout from '../../components/layout';
 import './AdminModerationPage.css';
-import { useToast } from '../context/ToastContext';
+import { useToast } from '../../context/ToastContext';
 
 const AdminModerationPage = () => {
     const toast = useToast();

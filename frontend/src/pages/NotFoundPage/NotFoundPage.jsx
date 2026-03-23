@@ -1,7 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Home, AlertTriangle, ChevronLeft } from 'lucide-react';
-import { Button } from '../components/ui';
+import { Button } from '../../components/ui';
 import './NotFoundPage.css';
 
 const NotFoundPage = () => {

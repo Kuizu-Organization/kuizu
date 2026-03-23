@@ -1,6 +1,6 @@
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { ComingSoonModal } from '../components/ui';
-import MainLayout from '../components/layout';
+import { ComingSoonModal } from '../../components/ui';
+import MainLayout from '../../components/layout';
 
 const ComingSoonPage = () => {
     const navigate = useNavigate();

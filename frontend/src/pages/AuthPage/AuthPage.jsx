@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
 import { useNavigate, useLocation, Navigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
-import { useToast } from '../context/ToastContext';
+import { useAuth } from '../../context/AuthContext';
+import { useToast } from '../../context/ToastContext';
 
-import LoginForm from '../components/Auth/LoginForm';
-import RegisterForm from '../components/Auth/RegisterForm';
-import { Tabs } from '../components/ui';
+import LoginForm from '../../components/Auth/LoginForm';
+import RegisterForm from '../../components/Auth/RegisterForm';
+import { Tabs } from '../../components/ui';
 import { GoogleLogin } from '@react-oauth/google';
-import { googleLogin } from '../api/auth';
+import { googleLogin } from '../../api/auth';
 import './AuthPage.css';
 
 const AuthPage = () => {

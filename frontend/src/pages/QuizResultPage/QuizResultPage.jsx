@@ -1,8 +1,8 @@
 import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { ChevronLeft, CheckCircle2, XCircle, RefreshCcw, Home } from 'lucide-react';
-import { Button, Card } from '../components/ui';
-import MainLayout from '../components/layout';
+import { Button, Card } from '../../components/ui';
+import MainLayout from '../../components/layout';
 import './QuizResultPage.css';
 
 const QuizResultPage = () => {

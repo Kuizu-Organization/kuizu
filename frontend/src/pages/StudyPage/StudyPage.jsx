@@ -1,11 +1,11 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { ChevronLeft, RotateCcw, CheckCircle2, XCircle, Trophy, Keyboard, Shuffle, Star } from 'lucide-react';
-import { getFlashcardsBySetId } from '../api/flashcards';
-import { updateStudyProgress } from '../api/study';
-import { useToast } from '../context/ToastContext';
-import { Button, Card, Loader } from '../components/ui';
-import MainLayout from '../components/layout';
+import { getFlashcardsBySetId } from '../../api/flashcards';
+import { updateStudyProgress } from '../../api/study';
+import { useToast } from '../../context/ToastContext';
+import { Button, Card, Loader } from '../../components/ui';
+import MainLayout from '../../components/layout';
 import './StudyPage.css';
 
 const StudyPage = () => {
