@@ -66,20 +66,6 @@ const FlashcardSetDetailsPage = () => {
         }
     };
 
-    const handleReRequestReview = async () => {
-        try {
-            setIsReRequesting(true);
-            await reRequestFlashcardSetReview(setId);
-            toast.success("Review request sent successfully");
-            fetchData(); // Refresh to see updated status
-        } catch (error) {
-            console.error(error);
-            toast.error("Failed to request review");
-        } finally {
-            setIsReRequesting(false);
-        }
-    };
-
     const handleSetUpdateSuccess = (updatedSet) => {
         setSet(updatedSet);
     };
