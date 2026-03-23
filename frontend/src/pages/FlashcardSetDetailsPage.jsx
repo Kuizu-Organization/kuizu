@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ChevronLeft, Play, Plus, Pencil, Trash2, User, Layers, BookOpen } from 'lucide-react';
+import { ChevronLeft, Play, Plus, Pencil, Trash2, User, Layers, BookOpen, CheckCircle, Clock, Sparkles, Book } from 'lucide-react';
 import './FlashcardSetDetailsPage.css';
 import { getFlashcardSetById, getFlashcardsBySetId, deleteFlashcard, reRequestFlashcardSetReview } from '../api/flashcards';
 import { getStudyProgress, resetStudyProgress } from '../api/study';
@@ -226,9 +226,18 @@ const FlashcardSetDetailsPage = () => {
                         <Button
                             className="study-btn w-full"
                             size="lg"
-                            variant="outline"
+                            variant="primary"
                             onClick={() => navigate(`/study/${setId}`, { state: { cards } })}
-                            leftIcon={<BookOpen size={20} />}
+                            leftIcon={
+                                <div className="book-state-container">
+                                    <Book size={20} className="book-closed" />
+                                    <div className="animated-book-wrapper">
+                                        <BookOpen size={20} className="book-open" />
+                                        <div className="book-page second"></div>
+                                        <div className="book-page third"></div>
+                                    </div>
+                                </div>
+                            }
                         >
                             Study
                         </Button>
@@ -244,7 +253,7 @@ const FlashcardSetDetailsPage = () => {
                         </Button>
                         {isOwner && (
                             <Button
-                                className="w-full"
+                                className="w-full edit-set-btn"
                                 variant="outline"
                                 size="lg"
                                 onClick={() => openSetModal(setId, handleSetUpdateSuccess)}
@@ -259,29 +268,36 @@ const FlashcardSetDetailsPage = () => {
                 {progress && (
                     <div className="progress-section">
                         <Card className="progress-card">
-                            <Card.Body>
-                                <div className="progress-summary">
-                                    <div className="progress-text">
-                                        <h3>Your Progress</h3>
-                                        <div className="progress-stats">
-                                            <span className="stat mastered">Mastered: {progress.masteredCards}</span>
-                                            <span className="stat learning">Learning: {progress.learningCards}</span>
-                                            <span className="stat new">New: {progress.newCards}</span>
-                                        </div>
-                                    </div>
-                                    <div className="progress-action">
-                                        <Button variant="ghost" size="sm" onClick={() => setIsResetModalOpen(true)}>
-                                            <Trash2 size={16} />
-                                            Reset Progress
-                                        </Button>
+                            <Card.Body className="progress-card-body">
+                                <div className="progress-info-side">
+                                    <h3>Your Progress</h3>
+                                    <div className="progress-stats">
+                                        <span className="stat mastered">
+                                            <CheckCircle size={14} /> Mastered: {progress.masteredCards}
+                                        </span>
+                                        <span className="stat learning">
+                                            <Clock size={14} /> Learning: {progress.learningCards}
+                                        </span>
+                                        <span className="stat new">
+                                            <Sparkles size={14} /> New: {progress.newCards}
+                                        </span>
                                     </div>
                                 </div>
-                                <div className="progress-bar-container">
-                                    <div
-                                        className="progress-bar-fill"
-                                        style={{ width: `${progress.progressPercentage}%` }}
-                                    ></div>
-                                    <span className="progress-percentage">{Math.round(progress.progressPercentage)}%</span>
+                                
+                                <div className="progress-bar-side">
+                                    <div className="progress-bar-container">
+                                        <div
+                                            className="progress-bar-fill"
+                                            style={{ width: `${progress.progressPercentage}%` }}
+                                        ></div>
+                                        <span className="progress-percentage">{Math.round(progress.progressPercentage)}%</span>
+                                    </div>
+                                    <div className="progress-action">
+                                        <Button variant="ghost" size="sm" className="reset-btn" onClick={() => setIsResetModalOpen(true)}>
+                                            <Trash2 size={14} />
+                                            Reset
+                                        </Button>
+                                    </div>
                                 </div>
                             </Card.Body>
                         </Card>
@@ -293,10 +309,9 @@ const FlashcardSetDetailsPage = () => {
                         <h2>Terms in this set ({cards.length})</h2>
                         {isOwner && (
                             <Button
-                                variant="ghost"
-                                className="add-card-btn"
+                                className="add-card-btn-header"
                                 onClick={handleAddCardClick}
-                                leftIcon={<Plus size={20} />}
+                                leftIcon={<Plus size={18} />}
                             >
                                 Add Card
                             </Button>
