@@ -242,15 +242,17 @@ const FlashcardSetDetailsPage = () => {
                         >
                             Take Quiz
                         </Button>
-                        <Button
-                            className="w-full"
-                            variant="outline"
-                            size="lg"
-                            onClick={() => openSetModal(setId, handleSetUpdateSuccess)}
-                            leftIcon={<Pencil size={20} />}
-                        >
-                            Edit Set
-                        </Button>
+                        {isOwner && (
+                            <Button
+                                className="w-full"
+                                variant="outline"
+                                size="lg"
+                                onClick={() => openSetModal(setId, handleSetUpdateSuccess)}
+                                leftIcon={<Pencil size={20} />}
+                            >
+                                Edit Set
+                            </Button>
+                        )}
                     </div>
                 </div>
 
@@ -289,14 +291,16 @@ const FlashcardSetDetailsPage = () => {
                 <div className="cards-section">
                     <div className="section-header">
                         <h2>Terms in this set ({cards.length})</h2>
-                        <Button
-                            variant="ghost"
-                            className="add-card-btn"
-                            onClick={handleAddCardClick}
-                            leftIcon={<Plus size={20} />}
-                        >
-                            Add Card
-                        </Button>
+                        {isOwner && (
+                            <Button
+                                variant="ghost"
+                                className="add-card-btn"
+                                onClick={handleAddCardClick}
+                                leftIcon={<Plus size={20} />}
+                            >
+                                Add Card
+                            </Button>
+                        )}
                     </div>
 
                     <div className="cards-list">
@@ -316,32 +320,36 @@ const FlashcardSetDetailsPage = () => {
                                                 <div className="side-text">{card.definition}</div>
                                             </div>
                                         </div>
-                                        <div className="card-actions">
-                                            <Button
-                                                variant="ghost"
-                                                size="sm"
-                                                onClick={() => handleEditCardClick(card.cardId)}
-                                            >
-                                                <Pencil size={18} />
-                                            </Button>
-                                            <Button
-                                                variant="ghost"
-                                                size="sm"
-                                                className="delete-btn"
-                                                onClick={() => setCardToDelete(card.cardId)}
-                                            >
-                                                <Trash2 size={18} />
-                                            </Button>
-                                        </div>
+                                        {isOwner && (
+                                            <div className="card-actions">
+                                                <Button
+                                                    variant="ghost"
+                                                    size="sm"
+                                                    onClick={() => handleEditCardClick(card.cardId)}
+                                                >
+                                                    <Pencil size={18} />
+                                                </Button>
+                                                <Button
+                                                    variant="ghost"
+                                                    size="sm"
+                                                    className="delete-btn"
+                                                    onClick={() => setCardToDelete(card.cardId)}
+                                                >
+                                                    <Trash2 size={18} />
+                                                </Button>
+                                            </div>
+                                        )}
                                     </Card.Body>
                                 </Card>
                             ))
                         ) : (
                             <div className="empty-cards">
                                 <p>No flashcards in this set yet.</p>
-                                <Button onClick={handleAddCardClick}>
-                                    Create first flashcard
-                                </Button>
+                                {isOwner && (
+                                    <Button onClick={handleAddCardClick}>
+                                        Create first flashcard
+                                    </Button>
+                                )}
                             </div>
                         )}
                     </div>
