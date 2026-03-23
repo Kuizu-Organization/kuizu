@@ -13,6 +13,8 @@ import { useToast } from '../context/ToastContext';
 const FlashcardSetDetailsPage = () => {
     const { setId } = useParams();
     const navigate = useNavigate();
+    const { user } = useAuth();
+    const { success, error: showErrorToast } = useToast();
     const { openSetModal, openCardModal } = useModal();
     const [set, setSet] = useState(null);
     const [cards, setCards] = useState([]);
@@ -134,8 +136,22 @@ const FlashcardSetDetailsPage = () => {
         }
     };
 
+    const handleReRequestReview = async () => {
+        try {
+            setIsReRequesting(true);
+            const updatedSet = await reRequestFlashcardSetReview(setId);
+            setSet(updatedSet);
+            success('Review request submitted successfully!');
+        } catch (err) {
+            console.error('Error re-requesting review:', err);
+            showErrorToast('Failed to submit review request.');
+        } finally {
+            setIsReRequesting(false);
+        }
+    };
+
     if (loading) return <MainLayout><div className="loading-container"><Loader /></div></MainLayout>;
-    if (error) return <MainLayout><div className="error-container">{error}</div></MainLayout>;
+    if (error || !set) return <MainLayout><div className="error-container">{error || 'Flashcard set not found.'}</div></MainLayout>;
 
     const isOwner = user?.userId === set?.ownerId;
 
