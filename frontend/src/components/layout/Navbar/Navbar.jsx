@@ -9,6 +9,7 @@ import { useNavigate } from 'react-router-dom';
 import { searchClasses } from '../../../api/class';
 import { searchFolders } from '../../../api/folder';
 import { searchFlashcardSets } from '../../../api/flashcardSet';
+import { searchPublicUsers } from '../../../api/user';
 
 
 const Navbar = ({ isSidebarCollapsed, onToggleSidebar }) => {
@@ -18,41 +19,76 @@ const Navbar = ({ isSidebarCollapsed, onToggleSidebar }) => {
     const toast = useToast();
 
     const handleSearchInput = async (query) => {
+        const lowerQuery = query.toLowerCase();
         try {
-            const [classes, folders, sets] = await Promise.all([
+            const [classes, folders, sets, usersRes] = await Promise.all([
                 searchClasses(query),
                 searchFolders(query),
-                searchFlashcardSets(query)
+                searchFlashcardSets(query),
+                searchPublicUsers(query, 0, 10)
             ]);
 
-            const classResults = (classes || []).map(cls => ({
-                id: cls.classId,
-                type: 'class',
-                title: cls.className,
-                subtitle: `Class • by ${cls.ownerDisplayName}`,
-                original: cls
-            }));
+            const filterFn = (text) => {
+                if (!text) return false;
+                // Split by whitespace or punctuation like hyphens to capture sub-words
+                const words = text.toLowerCase().split(/[\s\-_]+/);
+                return words.some(word => word.startsWith(lowerQuery));
+            };
 
-            const folderResults = (folders || []).map(folder => ({
-                id: folder.folderId,
-                type: 'folder',
-                title: folder.name,
-                subtitle: `Folder • ${folder.setCount} sets • by ${folder.ownerDisplayName}`,
-                original: folder
-            }));
+            const classResults = (classes || [])
+                .filter(cls => filterFn(cls.className))
+                .map(cls => ({
+                    id: cls.classId,
+                    type: 'class',
+                    title: cls.className,
+                    subtitle: `Class • by ${cls.ownerDisplayName}`,
+                    original: cls
+                }));
 
-            const setResults = (sets || []).map(set => ({
-                id: set.setId,
-                type: 'set',
-                title: set.title,
-                subtitle: `Set • ${set.flashcardCount} terms • by ${set.ownerDisplayName}`,
-                original: set
-            }));
+            const folderResults = (folders || [])
+                .filter(f => filterFn(f.name))
+                .map(folder => ({
+                    id: folder.folderId,
+                    type: 'folder',
+                    title: folder.name,
+                    subtitle: `Folder • ${folder.setCount} sets • by ${folder.ownerDisplayName}`,
+                    original: folder
+                }));
 
-            return [...classResults, ...folderResults, ...setResults].slice(0, 10);
+            const userResults = (usersRes.content || [])
+                .filter(u => filterFn(u.username) || filterFn(u.displayName))
+                .map(u => ({
+                    id: u.username,
+                    type: 'user',
+                    title: u.displayName || u.username,
+                    subtitle: u.role ? `User • ${u.role.replace('ROLE_', '').toLowerCase()}` : 'User',
+                    original: u
+                }));
+
+            const setResults = (sets || [])
+                .filter(s => filterFn(s.title))
+                .map(set => ({
+                    id: set.setId,
+                    type: 'set',
+                    title: set.title,
+                    subtitle: `Set • ${set.cardCount || set.flashcardCount || set.cards?.length || 0} terms • by ${set.ownerDisplayName}`,
+                    original: set
+                }));
+
+            return {
+                "Flashcard Sets": setResults.slice(0, 5),
+                "Folders": folderResults.slice(0, 5),
+                "Classes": classResults.slice(0, 5),
+                "Users": userResults.slice(0, 5)
+            };
         } catch (error) {
             console.error('Search input failed:', error);
-            return [];
+            return {
+                "Flashcard Sets": [],
+                "Folders": [],
+                "Classes": [],
+                "Users": []
+            };
         }
     };
 
@@ -68,7 +104,9 @@ const Navbar = ({ isSidebarCollapsed, onToggleSidebar }) => {
         } else if (result.type === 'folder') {
             navigate(`/folders/${result.id}`);
         } else if (result.type === 'set') {
-            navigate(`/coming-soon?feature=Flashcard Set View`);
+            navigate(`/flashcard-sets/${result.id}`);
+        } else if (result.type === 'user') {
+            navigate(`/users/${result.id}`);
         }
     };
 

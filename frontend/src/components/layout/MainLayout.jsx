@@ -7,7 +7,7 @@ import { useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 
 const MainLayout = ({ children, isLoading = false }) => {
-    const { user } = useAuth();
+    const { user, isAuthenticated, loading: authLoading } = useAuth();
     const location = useLocation();
     const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(() => {
         const saved = localStorage.getItem('sidebar-collapsed');

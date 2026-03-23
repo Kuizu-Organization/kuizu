@@ -11,7 +11,6 @@ import RemoveMemberModal from '../../components/Class/RemoveMemberModal';
 import AddClassMaterialModal from '../../components/Class/AddClassMaterialModal';
 import RemoveMaterialModal from '../../components/Class/RemoveMaterialModal';
 import { useToast } from '../../context/ToastContext';
-import { useToast } from '../../context/ToastContext';
 import './ClassDetailPage.css';
 
 const ClassDetailPage = () => {

@@ -24,12 +24,13 @@ public class FlashcardSetService {
     private final UserRepository userRepository;
     private final NotificationService notificationService;
 
+    @Autowired
+    private StatisticService statisticService;
+
     public FlashcardSetService(FlashcardSetRepository flashcardSetRepository,
             FlashcardRepository flashcardRepository,
             UserRepository userRepository,
             NotificationService notificationService) {
-    public FlashcardSetService(FlashcardSetRepository flashcardSetRepository, FlashcardRepository flashcardRepository,
-            UserRepository userRepository) {
         this.flashcardSetRepository = flashcardSetRepository;
         this.flashcardRepository = flashcardRepository;
         this.userRepository = userRepository;
@@ -60,7 +61,6 @@ public class FlashcardSetService {
     }
 
     public List<FlashcardSetResponse> getSuggestedSets(int limit) {
-        // Simple suggestion logic: return the first few public sets
         return flashcardSetRepository.findByVisibilityAndIsDeletedFalse(Visibility.PUBLIC)
                 .stream()
                 .limit(limit)
@@ -96,7 +96,6 @@ public class FlashcardSetService {
                 .description(request.getDescription())
                 .visibility(request.getVisibility() != null ? Visibility.valueOf(request.getVisibility().toUpperCase())
                         : Visibility.PUBLIC)
-                .visibility(request.getVisibility() != null ? Visibility.valueOf(request.getVisibility().toUpperCase()) : Visibility.PUBLIC)
                 .status(com.kuizu.backend.entity.enumeration.ModerationStatus.PENDING)
                 .isDeleted(false)
                 .version(1)
@@ -112,19 +111,6 @@ public class FlashcardSetService {
                 "A new flashcard set '" + set.getTitle() + "' was created by " + owner.getDisplayName() + " (@"
                         + owner.getUsername() + ") and needs moderation.",
                 set.getSetId().toString());
-
-        // Notify user
-        notificationService.sendNotification(
-                owner,
-                "Flashcard Set Under Review",
-                "Your newly created flashcard set '" + set.getTitle()
-                        + "' is currently pending moderation and awaiting review by the admins.",
-                "SYSTEM",
-                set.getSetId().toString());
-            "New Flashcard Set Pending Review",
-            "A new flashcard set '" + set.getTitle() + "' was created by " + owner.getDisplayName() + " (@" + owner.getUsername() + ") and needs moderation.",
-            set.getSetId().toString()
-        );
 
         // Notify user
         notificationService.sendNotification(
@@ -189,6 +175,8 @@ public class FlashcardSetService {
 
         if (set.getStatus() == com.kuizu.backend.entity.enumeration.ModerationStatus.PENDING) {
             throw new ApiException("Flashcard set is already pending review");
+        }
+        
         if (set.getStatus() != com.kuizu.backend.entity.enumeration.ModerationStatus.REJECTED) {
             throw new ApiException("Only rejected flashcard sets can be re-requested for review");
         }
@@ -214,8 +202,6 @@ public class FlashcardSetService {
                 "Flashcard Set Re-submitted",
                 "Your flashcard set '" + set.getTitle() + "' has been successfully re-submitted for review.",
                 "SYSTEM",
-                "Flashcard Set Re-requested for Review",
-                "Flashcard set '" + set.getTitle() + "' was re-requested for review by " + set.getOwner().getDisplayName() + " (@" + set.getOwner().getUsername() + ").",
                 set.getSetId().toString());
 
         return mapToResponse(set);

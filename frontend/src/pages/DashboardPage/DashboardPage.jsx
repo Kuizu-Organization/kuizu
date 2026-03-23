@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getMyClasses } from '../../api/class';
-import { getMyFolders, getPublicFolders } from '../../api/folder';
+import { getMyClasses, getSuggestedClasses } from '../../api/class';
+import { getMyFolders, getPublicFolders, getSuggestedFolders } from '../../api/folder';
 import { getMyFlashcardSets, getFlashcardSetById, getPublicFlashcardSets } from '../../api/flashcards';
 import CreateClassModal from '../../components/Class/CreateClassModal';
 import CreateFolderModal from '../../components/Folder/CreateFolderModal';
@@ -12,10 +12,12 @@ import { Button, Card, Loader, EmptyState, ItemCard } from '../../components/ui'
 import './DashboardPage.css';
 
 const DashboardPage = () => {
-    const { user } = useAuth();
+    const { user, isAuthenticated } = useAuth();
     const { openSetModal } = useModal();
     const [classes, setClasses] = useState([]);
+    const [suggestedClasses, setSuggestedClasses] = useState([]);
     const [folders, setFolders] = useState([]);
+    const [suggestedFolders, setSuggestedFolders] = useState([]);
     const [publicFolders, setPublicFolders] = useState([]);
     const [flashcardSets, setFlashcardSets] = useState([]);
     const [publicFlashcardSets, setPublicFlashcardSets] = useState([]);
@@ -29,10 +31,20 @@ const DashboardPage = () => {
     const fetchDashboardData = async () => {
         try {
             setIsLoading(true);
-            const [classData, folderData, pubFolderData, mySetsData, publicSetsData] = await Promise.all([
+            const [
+                classData,
+                sugClassData,
+                folderData,
+                pubFolderData,
+                sugFolderData,
+                mySetsData,
+                publicSetsData
+            ] = await Promise.all([
                 getMyClasses(),
+                getSuggestedClasses(4),
                 getMyFolders(),
                 getPublicFolders(),
+                getSuggestedFolders(4),
                 getMyFlashcardSets(),
                 getPublicFlashcardSets()
             ]);
@@ -43,7 +55,6 @@ const DashboardPage = () => {
             
             if (recentIds.length > 0) {
                 // Fetch the content of these sets
-                // To avoid too many calls, we check if they are already in mySetsData
                 const results = await Promise.allSettled(
                     recentIds.map(id => {
                         const existing = mySetsData.find(s => String(s.setId) === String(id));
@@ -60,8 +71,10 @@ const DashboardPage = () => {
             const displaySets = recentSets.length > 0 ? recentSets : mySetsData;
 
             setClasses(classData);
+            setSuggestedClasses(sugClassData || []);
             setFolders(folderData);
             setPublicFolders(pubFolderData);
+            setSuggestedFolders(sugFolderData || []);
             setFlashcardSets(displaySets);
             setPublicFlashcardSets(publicSetsData);
         } catch (error) {
@@ -72,8 +85,11 @@ const DashboardPage = () => {
     };
 
     useEffect(() => {
-        fetchDashboardData();
+        if (isAuthenticated) {
+            fetchDashboardData();
+        }
     }, [isAuthenticated]);
+
     const handleClassClick = (classId) => {
         navigate(`/classes/${classId}`);
     };
@@ -101,11 +117,6 @@ const DashboardPage = () => {
 
     if (isLoading) {
         return <Loader fullPage={true} />;
-    }
-
-    if (!isAuthenticated) {
-        navigate('/');
-        return null;
     }
 
     if (!isAuthenticated) {

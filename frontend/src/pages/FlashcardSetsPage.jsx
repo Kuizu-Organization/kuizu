@@ -78,10 +78,12 @@ const FlashcardSetsPage = () => {
         }
     };
 
-    const filteredSets = sets.filter(set =>
-        set.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        (set.description && set.description.toLowerCase().includes(searchQuery.toLowerCase()))
-    );
+    const filteredSets = sets.filter(set => {
+        if (!searchQuery.trim()) return true;
+        const lowerQuery = searchQuery.toLowerCase();
+        const titleWords = set.title.toLowerCase().split(/[\s\-_]+/);
+        return titleWords.some(word => word.startsWith(lowerQuery));
+    });
 
     return (
         <MainLayout>
@@ -144,7 +146,7 @@ const FlashcardSetsPage = () => {
                                     className="set-card"
                                     onClick={() => navigate(`/flashcard-sets/${set.setId}`)}
                                 >
-                                    <div className="set-card-header">
+                                    <Card.Header className="set-card-header">
                                         <h3 className="set-title">
                                             {set.title}
                                             {set.status === 'PENDING' && (

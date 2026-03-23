@@ -54,11 +54,19 @@ const SearchPage = () => {
                         searchFlashcardSets(query),
                         searchPublicUsers(query, 0, limits.users)
                     ]);
+
+                    const lowerQuery = query.toLowerCase();
+                    const filterFn = (text) => {
+                        if (!text) return false;
+                        const words = text.toLowerCase().split(/[\s\-_]+/);
+                        return words.some(word => word.startsWith(lowerQuery));
+                    };
+
                     setResults({
-                        classes: classes || [],
-                        folders: folders || [],
-                        sets: sets || [],
-                        users: usersRes.content || []
+                        classes: (classes || []).filter(c => filterFn(c.className)),
+                        folders: (folders || []).filter(f => filterFn(f.name)),
+                        sets: (sets || []).filter(s => filterFn(s.title)),
+                        users: (usersRes.content || []).filter(u => filterFn(u.username) || filterFn(u.displayName))
                     });
                     setHasMore({ classes: false, folders: false, sets: false, users: false });
                 }
@@ -106,7 +114,7 @@ const SearchPage = () => {
                 icon: <Layers size={14} />,
                 owner: set.ownerDisplayName,
                 description: set.description,
-                onClick: () => navigate(`/coming-soon?feature=Flashcard Set View`),
+                onClick: () => navigate(`/flashcard-sets/${set.setId}`),
                 badge: `${set.flashcardCount} terms`,
                 footerText: (
                     <div className="result-meta">

@@ -87,15 +87,19 @@ const FlashcardSetDetailsPage = () => {
     const handleCardSuccess = async () => {
         // Refresh cards and progress
         try {
-            setIsReRequesting(true);
-            await reRequestFlashcardSetReview(setId);
-            addToast('Review requested successfully!', 'success');
             fetchData();
+            toast.success('Card updated successfully!');
         } catch (err) {
-            addToast(err.response?.data?.message || 'Failed to request review', 'error');
-        } finally {
-            setIsReRequesting(false);
+            toast.error(err.response?.data?.message || 'Failed to refresh data');
         }
+    };
+
+    const handleAddCardClick = () => {
+        openCardModal(setId, null, handleCardSuccess);
+    };
+
+    const handleEditCardClick = (cardId) => {
+        openCardModal(setId, cardId, handleCardSuccess);
     };
 
     const handleDeleteCard = async () => {
@@ -161,6 +165,7 @@ const FlashcardSetDetailsPage = () => {
 
     if (loading) return <MainLayout><div className="loading-container"><Loader /></div></MainLayout>;
     if (error) return <MainLayout><div className="error-container">{error}</div></MainLayout>;
+    if (!set) return <MainLayout><div className="error-container">Set not found.</div></MainLayout>;
 
     const isOwner = user?.userId === set?.ownerId;
 

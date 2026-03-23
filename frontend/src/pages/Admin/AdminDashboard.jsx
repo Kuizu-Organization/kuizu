@@ -103,32 +103,6 @@ const AdminDashboard = () => {
     }, [userSearch]);
 
     useEffect(() => {
-        // Fetch pending counts for the header stats on mount
-        fetchPendingSets();
-        fetchPendingClasses();
-    }, []);
-
-    // Debounce search terms
-    const [debouncedUserSearch, setDebouncedUserSearch] = useState(userSearch);
-    useEffect(() => {
-        const timer = setTimeout(() => setDebouncedUserSearch(userSearch), 500);
-        return () => clearTimeout(timer);
-    }, [userSearch]);
-
-    useEffect(() => {
-        // Fetch pending counts for the header stats on mount
-        fetchPendingSets();
-        fetchPendingClasses();
-    }, []);
-
-    // Debounce search terms
-    const [debouncedUserSearch, setDebouncedUserSearch] = useState(userSearch);
-    useEffect(() => {
-        const timer = setTimeout(() => setDebouncedUserSearch(userSearch), 500);
-        return () => clearTimeout(timer);
-    }, [userSearch]);
-
-    useEffect(() => {
         if (activeTab === 0) fetchUsers();
         else if (activeTab === 1) fetchPendingSets();
         else if (activeTab === 2) fetchPendingClasses();
@@ -571,9 +545,6 @@ const AdminDashboard = () => {
                             columns={['Action', 'Entity', 'Time', 'Notes', 'Details']}
                             isLoading={isHistoryLoading && modHistory.length === 0}
                             data={filteredHistory}
-                            columns={['Moderator', 'Action', 'Entity', 'Time', 'Notes', 'Details']}
-                            isLoading={isHistoryLoading}
-                            data={modHistory}
                             emptyIcon={HistoryIcon}
                             emptyTitle="No moderation history"
                             emptyDescription="There are no moderation history records found."
@@ -601,16 +572,15 @@ const AdminDashboard = () => {
                                     <td>{formatDate(entry.createdAt)}</td>
                                     <td className="max-w-xs truncate" title={entry.notes}>{entry.notes || '-'}</td>
                                     <td>
-                                        <Button
-                                            variant="ghost"
-                                            size="icon"
-                                        <Button 
-                                            variant="ghost" 
-                                            size="icon" 
-                                            onClick={() => { setSelectedHistory(entry); setIsHistoryModalOpen(true); }}
-                                        >
-                                            <Info size={18} />
-                                        </Button>
+                                        <div className="table-actions">
+                                            <Button 
+                                                variant="ghost" 
+                                                size="icon" 
+                                                onClick={() => { setSelectedHistory(entry); setIsHistoryModalOpen(true); }}
+                                            >
+                                                <Info size={18} />
+                                            </Button>
+                                        </div>
                                     </td>
                                 </tr>
                             )}

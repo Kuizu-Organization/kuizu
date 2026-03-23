@@ -204,7 +204,7 @@ const HomePage = () => {
                                             {suggestedSets.map(set => (
                                                 <ItemCard
                                                     key={set.setId}
-                                                    onClick={() => navigate(`/coming-soon?feature=Flashcard Set View`)}
+                                                    onClick={() => navigate(`/flashcard-sets/${set.setId}`)}
                                                     title={set.title}
                                                     badge="Set"
                                                     description={set.description || 'No description provided.'}
