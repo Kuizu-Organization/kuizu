@@ -25,6 +25,11 @@ export const joinClass = async (classId, joinData) => {
     return response.data;
 };
 
+export const joinByCode = async (joinCode) => {
+    const response = await api.post(`/classes/join`, { joinCode });
+    return response.data;
+};
+
 export const leaveClass = async (classId) => {
     const response = await api.delete(`/classes/${classId}/leave`);
     return response.data;

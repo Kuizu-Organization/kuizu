@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Modal, Button, Input, Textarea } from '../ui';
-import { joinClass } from '@/api/class';
+import { joinClass, joinByCode } from '@/api/class';
+
 import { useToast } from '@/context/ToastContext';
 import './JoinClassModal.css';
 
@@ -10,6 +11,15 @@ const JoinClassModal = ({ isOpen, onClose, classId, onJoinSuccess }) => {
     const [joinCode, setJoinCode] = useState('');
     const [requestMessage, setRequestMessage] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
+    
+    React.useEffect(() => {
+        if (isOpen) {
+            setJoinOption('code');
+            setJoinCode('');
+            setRequestMessage('');
+            setIsSubmitting(false);
+        }
+    }, [isOpen]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -21,14 +31,20 @@ const JoinClassModal = ({ isOpen, onClose, classId, onJoinSuccess }) => {
                 message: joinOption === 'request' ? requestMessage : null
             };
 
-            await joinClass(classId, requestData);
+            if (classId) {
+                await joinClass(classId, requestData);
+            } else if (joinOption === 'code') {
+                await joinByCode(joinCode);
+            } else {
+                throw new Error("Cannot send join request without selecting a class first.");
+            }
 
             if (joinOption === 'code') {
                 toast.success('Successfully joined the class!');
-                onJoinSuccess(true); // true indicates they are now a member
+                onJoinSuccess(true);
             } else {
                 toast.success('Join request sent successfully!');
-                onJoinSuccess(false); // false indicates request is pending
+                onJoinSuccess(false);
             }
 
             onClose();
@@ -80,18 +96,20 @@ const JoinClassModal = ({ isOpen, onClose, classId, onJoinSuccess }) => {
                         </div>
                     </div>
 
-                    <div
-                        className={`join-option-card ${joinOption === 'request' ? 'active' : ''}`}
-                        onClick={() => setJoinOption('request')}
-                    >
-                        <div className="option-radio">
-                            <div className="radio-inner"></div>
+                    {classId && (
+                        <div
+                            className={`join-option-card ${joinOption === 'request' ? 'active' : ''}`}
+                            onClick={() => setJoinOption('request')}
+                        >
+                            <div className="option-radio">
+                                <div className="radio-inner"></div>
+                            </div>
+                            <div className="option-info">
+                                <h4>Send Join Request</h4>
+                                <p>Ask the owner for permission to join this class.</p>
+                            </div>
                         </div>
-                        <div className="option-info">
-                            <h4>Send Join Request</h4>
-                            <p>Ask the owner for permission to join this class.</p>
-                        </div>
-                    </div>
+                    )}
                 </div>
 
                 <div className="join-form-area">

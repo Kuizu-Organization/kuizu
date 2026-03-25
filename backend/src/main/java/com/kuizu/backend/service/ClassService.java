@@ -267,6 +267,31 @@ public class ClassService {
         classMemberRepository.save(member);
     }
 
+    public void joinByCode(String joinCode, String username) {
+        if (joinCode == null || joinCode.isBlank()) {
+            throw new ApiException("Join code is required");
+        }
+
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new ApiException("User not found: " + username));
+
+        Class clazz = classRepository.findByJoinCode(joinCode.toUpperCase())
+                .orElseThrow(() -> new ApiException("Invalid join code provided"));
+
+        // Check if user is owner
+        if (clazz.getOwner().getUserId().equals(user.getUserId())) {
+            throw new ApiException("User is already the owner of this class");
+        }
+
+        // Check if user is already a member
+        ClassMember.ClassMemberId memberId = new ClassMember.ClassMemberId(clazz.getClassId(), user.getUserId());
+        if (classMemberRepository.existsById(memberId)) {
+            throw new ApiException("User is already a member of this class");
+        }
+
+        joinClassByCode(clazz, user, joinCode.toUpperCase());
+    }
+
     private void requestToJoinClass(Class clazz, User user, String message) {
         ClassJoinRequest request = ClassJoinRequest.builder()
                 .clazz(clazz)

@@ -21,6 +21,8 @@ import QuizPage from './pages/QuizPage/QuizPage';
 import QuizResultPage from './pages/QuizResultPage/QuizResultPage';
 import StudyPage from './pages/StudyPage/StudyPage';
 import AdminModerationPage from './pages/AdminModerationPage/AdminModerationPage';
+import ClassesPage from './pages/ClassesPage/ClassesPage';
+
 
 import MainLayout from './components/layout';
 
@@ -134,7 +136,16 @@ function App() {
         {/* Legacy redirect */}
         <Route path="/admin/dashboard" element={<Navigate to="/admin/users" replace />} />
 
+        <Route path="/classes" element={
+          <MainLayout>
+            <ProtectedRoute>
+              <ClassesPage />
+            </ProtectedRoute>
+          </MainLayout>
+        } />
+
         <Route path="/classes/:classId" element={
+
           <MainLayout>
             <ProtectedRoute>
               <ClassDetailPage />

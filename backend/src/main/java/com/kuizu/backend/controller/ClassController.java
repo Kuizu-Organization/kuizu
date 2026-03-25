@@ -77,6 +77,19 @@ class ClassController {
         return ResponseEntity.ok(response);
     }
 
+    @PostMapping("/join")
+    public ResponseEntity<?> joinByCode(@RequestBody Map<String, String> requestBody, Principal principal) {
+        if (principal == null) {
+            return ResponseEntity.status(401).build();
+        }
+        String joinCode = requestBody.get("joinCode");
+        classService.joinByCode(joinCode, principal.getName());
+        
+        Map<String, String> response = new HashMap<>();
+        response.put("message", "Successfully joined the class");
+        return ResponseEntity.ok(response);
+    }
+
     @DeleteMapping("/{classId}/leave")
     public ResponseEntity<?> leaveClass(@PathVariable Long classId, Principal principal) {
         if (principal == null) {
