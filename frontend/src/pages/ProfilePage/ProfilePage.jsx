@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
-import { Camera, ChevronDown, Plus, Pencil, User as UserIcon, Mail, ShieldCheck, Palette, Lock } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Plus } from 'lucide-react';
 import './ProfilePage.css';
 import { updateProfile, changePassword, setPassword } from '../../api/user';
 import { Button, Card, Input, Modal, Dropdown, Textarea } from '../../components/ui';
