@@ -14,6 +14,7 @@ const FlashcardSetDetailsPage = () => {
     const { setId } = useParams();
     const navigate = useNavigate();
     const { openSetModal, openCardModal } = useModal();
+    const { user } = useAuth();
     const [set, setSet] = useState(null);
     const [cards, setCards] = useState([]);
     const [progress, setProgress] = useState(null);
