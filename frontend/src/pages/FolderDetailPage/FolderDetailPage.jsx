@@ -8,7 +8,7 @@ import AddSetToFolderModal from '../../components/Folder/AddSetToFolderModal';
 import EditFolderModal from '../../components/Folder/EditFolderModal';
 import CreateSetInFolderModal from '../../components/Folder/CreateSetInFolderModal';
 import CreateBranchModal from '../../components/Folder/CreateBranchModal';
-import { ArrowLeft, BookOpen, FolderOpen, User, Eye, Calendar, Layers, Hash, ChevronDown, ChevronUp, Plus, Trash2, Pencil, AlertTriangle, MoreVertical, Search, Filter, FolderPlus } from 'lucide-react';
+import { ArrowLeft, BookOpen, FolderOpen, User, Eye, Calendar, Layers, Hash, ChevronDown, ChevronUp, Plus, Trash2, Pencil, AlertTriangle, MoreVertical, Search, Filter, FolderPlus, Play } from 'lucide-react';
 import { Dropdown } from '../../components/ui';
 import './FolderDetailPage.css';
 
@@ -144,7 +144,7 @@ const FolderDetailPage = () => {
         }
     };
 
-    const handleStudyAll = () => {
+    const handleStudyAll = (mode = 'study') => {
         // Collect all cards from all sets in the current view (filtered by branch)
         const allCards = filteredSets.reduce((acc, set) => {
             const setCards = set.flashcards || [];
@@ -156,11 +156,11 @@ const FolderDetailPage = () => {
             return;
         }
 
-        navigate(`/study/folder-${folderId}`, { 
+        navigate(`/${mode}/folder-${folderId}`, { 
             state: { 
                 cards: allCards, 
                 from: `/folders/${folderId}`, 
-                fromLabel: 'Back to Set',
+                fromLabel: 'Back to Folder',
                 folderName: folder.name
             } 
         });
@@ -386,13 +386,27 @@ const FolderDetailPage = () => {
             <div className="fd-bottom-toolbar-container">
                 <div className="fd-bottom-toolbar">
                     <div className="fd-toolbar-content">
-                        <button 
-                            className="fd-study-btn" 
-                            onClick={handleStudyAll}
+                        <Dropdown
+                            items={[
+                                { label: 'Flashcards', icon: <BookOpen size={18} />, mode: 'study' },
+                                { label: 'Take Quiz', icon: <Play size={18} strokeWidth={3} fill="currentColor" />, mode: 'quiz' }
+                            ]}
+                            onItemClick={(item) => handleStudyAll(item.mode)}
+                            variant="ghost"
+                            showChevron={true}
+                            triggerClassName="fd-study-dropdown-trigger"
+                            className="fd-study-dropdown-field"
                         >
-                            <BookOpen size={22} />
-                            Study
-                        </button>
+                            <button 
+                                className="fd-study-btn" 
+                                onClick={(e) => {
+                                    // Let dropdown toggle handle it unless it's a direct click on something else
+                                }}
+                            >
+                                <BookOpen size={22} />
+                                Study
+                            </button>
+                        </Dropdown>
                         {isOwner && (
                             <button className="fd-add-set-toolbar-btn" onClick={() => setIsAddSetOpen(true)}>
                                 <Plus size={20} />

@@ -12,6 +12,9 @@ const QuizPage = () => {
     const navigate = useNavigate();
     const location = useLocation();
 
+    const backPath = location.state?.from || `/flashcard-sets/${setId}`;
+    const backLabel = location.state?.fromLabel || 'Back to Set';
+
     const [cards, setCards] = useState(location.state?.cards || []);
     const [loading, setLoading] = useState(!location.state?.cards);
     const [error, setError] = useState(null);
@@ -99,18 +102,22 @@ const QuizPage = () => {
     };
 
     const handleSubmitQuiz = async () => {
+        const isFolder = setId.startsWith('folder-');
         try {
             setIsSubmitting(true);
-            await submitQuiz({
-                setId: parseInt(setId),
-                answers: answers.map(a => ({ cardId: a.cardId, isCorrect: a.isCorrect }))
-            });
+            
+            if (!isFolder) {
+                await submitQuiz({
+                    setId: parseInt(setId),
+                    answers: answers.map(a => ({ cardId: a.cardId, isCorrect: a.isCorrect }))
+                });
+            }
 
             const correctCount = answers.filter(a => a.isCorrect).length;
             navigate(`/quiz/results/summary`, {
                 state: {
                     result: {
-                        setId: parseInt(setId),
+                        setId: isFolder ? setId : parseInt(setId),
                         score: correctCount,
                         totalQuestions: questions.length,
                         items: answers
@@ -118,12 +125,12 @@ const QuizPage = () => {
                 }
             });
         } catch (err) {
-            alert('Failed to update progress');
+            console.error('Failed to submit quiz:', err);
             const correctCount = answers.filter(a => a.isCorrect).length;
             navigate(`/quiz/results/summary`, {
                 state: {
                     result: {
-                        setId: parseInt(setId),
+                        setId: isFolder ? setId : parseInt(setId),
                         score: correctCount,
                         totalQuestions: questions.length,
                         items: answers
@@ -181,11 +188,11 @@ const QuizPage = () => {
                     <Button
                         variant="outline"
                         size="sm"
-                        onClick={() => navigate(`/flashcard-sets/${setId}`)}
+                        onClick={() => navigate(backPath)}
                         leftIcon={<ChevronLeft size={20} />}
                         className="back-set-btn"
                     >
-                        Back to Set
+                        {backLabel}
                     </Button>
                     <div className="quiz-header-right">
                         <div className="quiz-progress-text">
