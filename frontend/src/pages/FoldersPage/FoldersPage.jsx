@@ -7,7 +7,8 @@ import CreateFolderModal from '../../components/Folder/CreateFolderModal';
 import './FoldersPage.css';
 
 const FoldersPage = () => {
-    const [folders, setFolders] = useState([]);
+    const [myFolders, setMyFolders] = useState([]);
+    const [publicFolders, setPublicFolders] = useState([]);
     const [loading, setLoading] = useState(true);
     const [activeTab, setActiveTab] = useState('my'); // 'my' or 'public'
     const [searchQuery, setSearchQuery] = useState('');
@@ -17,10 +18,19 @@ const FoldersPage = () => {
     const fetchFolders = async () => {
         try {
             setLoading(true);
-            const data = activeTab === 'my' 
-                ? await getMyFolders() 
-                : await getPublicFolders();
-            setFolders(data);
+            const [my, pub] = await Promise.all([
+                getMyFolders(),
+                getPublicFolders()
+            ]);
+            
+            const myWithFlag = (Array.isArray(my) ? my : []).map(f => ({ ...f, isMine: true }));
+            const pubWithFlag = (Array.isArray(pub) ? pub : []).map(f => ({ 
+                ...f, 
+                isMine: myWithFlag.some(mf => mf.folderId === f.folderId) 
+            }));
+            
+            setMyFolders(myWithFlag);
+            setPublicFolders(pubWithFlag);
         } catch (error) {
             console.error("Failed to fetch folders:", error);
         } finally {
@@ -30,23 +40,29 @@ const FoldersPage = () => {
 
     useEffect(() => {
         fetchFolders();
-    }, [activeTab]);
+    }, []);
 
     const handleFolderClick = (folderId) => {
         navigate(`/folders/${folderId}`);
     };
 
     const handleFolderCreated = (newFolder) => {
-        if (activeTab === 'my') {
-            setFolders(prev => [newFolder, ...prev]);
+        const folderWithFlag = { ...newFolder, isMine: true };
+        setMyFolders(prev => [folderWithFlag, ...prev]);
+        if (newFolder.visibility === 'PUBLIC') {
+            setPublicFolders(prev => [folderWithFlag, ...prev]);
         }
         setIsCreateOpen(false);
     };
 
-    const filteredFolders = Array.isArray(folders) ? folders.filter(folder =>
+    const activeFolders = searchQuery 
+        ? [...myFolders, ...publicFolders.filter(pf => !myFolders.some(mf => mf.folderId === pf.folderId))]
+        : (activeTab === 'my' ? myFolders : publicFolders);
+
+    const filteredFolders = activeFolders.filter(folder =>
         folder.name && folder.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         (folder.description && folder.description.toLowerCase().includes(searchQuery.toLowerCase()))
-    ) : [];
+    );
 
     return (
         <div className="folders-container">
@@ -121,7 +137,7 @@ const FoldersPage = () => {
                                                 <User size={14} />
                                             </div>
                                             <span className="username">
-                                                {activeTab === 'my' ? 'You' : folder.ownerDisplayName}
+                                                {folder.isMine ? 'You' : folder.ownerDisplayName}
                                             </span>
                                         </div>
                                         <div className={`visibility-indicator ${folder.visibility?.toLowerCase()}`}>
@@ -138,7 +154,7 @@ const FoldersPage = () => {
                             <div className="empty-state">
                                 <p>No folders found.</p>
                                 {searchQuery && <p>Try a different search term.</p>}
-                                {!searchQuery && activeTab === 'my' && Array.isArray(folders) && (
+                                {!searchQuery && activeTab === 'my' && (
                                     <Button variant="outline" onClick={() => setIsCreateOpen(true)} style={{ marginTop: '1rem' }}>
                                         Create your first folder
                                     </Button>

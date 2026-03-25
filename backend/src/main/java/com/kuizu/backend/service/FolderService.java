@@ -295,10 +295,7 @@ public class FolderService {
 
     @Transactional(readOnly = true)
     public List<FolderResponse> getPublicFolders(String username) {
-        User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new RuntimeException("User not found"));
-
-        List<Folder> folders = folderRepository.findByVisibilityAndIsDeletedFalseAndOwnerNot("PUBLIC", user);
+        List<Folder> folders = folderRepository.findByVisibilityAndIsDeletedFalse("PUBLIC");
         return mapFoldersToResponse(folders);
     }
 
