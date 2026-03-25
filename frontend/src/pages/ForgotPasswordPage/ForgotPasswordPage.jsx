@@ -82,7 +82,7 @@ const ForgotPasswordPage = () => {
             return;
         }
         
-        const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@#$%^&+=!]).{8,}$/;
+        const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@#$%^&+=!]).{8,}$/;
         if (!passwordRegex.test(newPassword)) {
             toast.error('Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character (@#$%^&+=!) and be at least 8 chars long.');
             return;
