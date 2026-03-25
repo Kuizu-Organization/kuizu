@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Camera, ChevronDown, Plus, Pencil, User as UserIcon, Mail, ShieldCheck, Palette, Lock } from 'lucide-react';
+import { Camera, ChevronDown, Plus, Pencil, User as UserIcon, Mail, ShieldCheck, Palette, Lock, Eye, EyeOff } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import './ProfilePage.css';
 import { updateProfile, changePassword, setPassword } from '@/api/user';
@@ -46,6 +46,9 @@ const ProfilePage = () => {
         newPassword: '',
         confirmPassword: ''
     });
+    const [showOldPassword, setShowOldPassword] = useState(false);
+    const [showNewPassword, setShowNewPassword] = useState(false);
+    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
     const fieldLabels = {
         displayName: 'Display Name',
@@ -119,9 +122,9 @@ const ProfilePage = () => {
             return;
         }
 
-        const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+=!]).*$/;
+        const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@#$%^&+=!]).*$/;
         if (!passwordRegex.test(passwordData.newPassword)) {
-            toast.error('Password must contain at least one uppercase letter, one lowercase letter, and one special character (@#$%^&+=!)');
+            toast.error('Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character (@#$%^&+=!)');
             return;
         }
 
@@ -414,33 +417,63 @@ const ProfilePage = () => {
                         }
                     >
                         <div className="edit-modal-content">
-                            {user?.hasPassword && (
+                             {user?.hasPassword && (
                                 <div className="password-input-group">
                                     <label className="input-label">Current Password</label>
                                     <Input
-                                        type="password"
+                                        type={showOldPassword ? "text" : "password"}
                                         value={passwordData.oldPassword}
                                         onChange={(e) => setPasswordData({ ...passwordData, oldPassword: e.target.value })}
                                         placeholder="Enter current password"
+                                        rightIcon={
+                                            <button
+                                                type="button"
+                                                onClick={() => setShowOldPassword(!showOldPassword)}
+                                                style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex' }}
+                                                aria-label={showOldPassword ? "Hide password" : "Show password"}
+                                            >
+                                                {showOldPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                                            </button>
+                                        }
                                     />
                                 </div>
                             )}
                             <div className="password-input-group" style={{ marginTop: '16px' }}>
                                 <label className="input-label">New Password</label>
                                 <Input
-                                    type="password"
+                                    type={showNewPassword ? "text" : "password"}
                                     value={passwordData.newPassword}
                                     onChange={(e) => setPasswordData({ ...passwordData, newPassword: e.target.value })}
-                                    placeholder="Enter new password (min 8 chars, 1 upper, 1 lower, 1 special)"
+                                    placeholder="Min 8 chars, 1 upper, 1 lower, 1 digit, 1 special"
+                                    rightIcon={
+                                        <button
+                                            type="button"
+                                            onClick={() => setShowNewPassword(!showNewPassword)}
+                                            style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex' }}
+                                            aria-label={showNewPassword ? "Hide password" : "Show password"}
+                                        >
+                                            {showNewPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                                        </button>
+                                    }
                                 />
                             </div>
                             <div className="password-input-group" style={{ marginTop: '16px' }}>
                                 <label className="input-label">Confirm New Password</label>
                                 <Input
-                                    type="password"
+                                    type={showConfirmPassword ? "text" : "password"}
                                     value={passwordData.confirmPassword}
                                     onChange={(e) => setPasswordData({ ...passwordData, confirmPassword: e.target.value })}
                                     placeholder="Confirm new password"
+                                    rightIcon={
+                                        <button
+                                            type="button"
+                                            onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                                            style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex' }}
+                                            aria-label={showConfirmPassword ? "Hide password" : "Show password"}
+                                        >
+                                            {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                                        </button>
+                                    }
                                 />
                             </div>
                         </div>

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Mail, Lock, Key, ArrowLeft } from 'lucide-react';
+import { Mail, Lock, Key, ArrowLeft, Eye, EyeOff } from 'lucide-react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { forgotPassword, resetPassword, verifyRegistration, resendRegistrationOtp } from '@/api/auth';
 import { useAuth } from '@/context/AuthContext';
@@ -25,6 +25,8 @@ const ForgotPasswordPage = () => {
     const [otpCode, setOtpCode] = useState('');
     const [newPassword, setNewPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
+    const [showNewPassword, setShowNewPassword] = useState(false);
+    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     
     const [loading, setLoading] = useState(false);
     const [resendCooldown, setResendCooldown] = useState(0);
@@ -80,9 +82,9 @@ const ForgotPasswordPage = () => {
             return;
         }
         
-        const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+=!]).{8,}$/;
+        const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@#$%^&+=!]).{8,}$/;
         if (!passwordRegex.test(newPassword)) {
-            toast.error('Password must contain upper, lower, special character and min 8 chars.');
+            toast.error('Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character (@#$%^&+=!) and be at least 8 chars long.');
             return;
         }
         
@@ -202,22 +204,42 @@ const ForgotPasswordPage = () => {
                                 <>
                                     <Input
                                         label="New Password"
-                                        type="password"
-                                        placeholder="Min 8 chars, 1 upper, 1 lower, 1 special"
+                                        type={showNewPassword ? "text" : "password"}
+                                        placeholder="Min 8 chars, 1 upper, 1 lower, 1 digit, 1 special"
                                         value={newPassword}
                                         onChange={(e) => setNewPassword(e.target.value)}
                                         leftIcon={<Lock size={18} />}
                                         required
+                                        rightIcon={
+                                            <button
+                                                type="button"
+                                                onClick={() => setShowNewPassword(!showNewPassword)}
+                                                style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex' }}
+                                                aria-label={showNewPassword ? "Hide password" : "Show password"}
+                                            >
+                                                {showNewPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                                            </button>
+                                        }
                                     />
                                     
                                     <Input
                                         label="Confirm New Password"
-                                        type="password"
+                                        type={showConfirmPassword ? "text" : "password"}
                                         placeholder="Retype new password"
                                         value={confirmPassword}
                                         onChange={(e) => setConfirmPassword(e.target.value)}
                                         leftIcon={<Lock size={18} />}
                                         required
+                                        rightIcon={
+                                            <button
+                                                type="button"
+                                                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                                                style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex' }}
+                                                aria-label={showConfirmPassword ? "Hide password" : "Show password"}
+                                            >
+                                                {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                                            </button>
+                                        }
                                     />
                                 </>
                             )}

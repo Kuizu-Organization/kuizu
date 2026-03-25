@@ -13,12 +13,14 @@ const RegisterForm = ({ onToggle }) => {
         username: '',
         email: '',
         password: '',
+        confirmPassword: '',
         displayName: '',
         bio: '',
         role: 'ROLE_STUDENT'
     });
 
     const [showPassword, setShowPassword] = useState(false);
+    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     const [loading, setLoading] = useState(false);
 
     const { login } = useAuth();
@@ -73,6 +75,12 @@ const RegisterForm = ({ onToggle }) => {
             }
         }
 
+        // Confirm password validation
+        if (formData.password !== formData.confirmPassword) {
+            toast.error('Passwords do not match');
+            return false;
+        }
+
         if (formData.displayName && formData.displayName.length > 150) {
             toast.error('Display name must be at most 150 characters');
             return false;
@@ -90,6 +98,9 @@ const RegisterForm = ({ onToggle }) => {
         e.preventDefault();
 
         if (!validate()) return;
+        
+        // Clear any old, potentially invalid tokens
+        localStorage.removeItem('token');
 
         setLoading(true);
         try {
@@ -195,6 +206,28 @@ const RegisterForm = ({ onToggle }) => {
                         aria-label={showPassword ? "Hide password" : "Show password"}
                     >
                         {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                    </button>
+                }
+            />
+
+            <Input
+                label="Confirm Password"
+                name="confirmPassword"
+                type={showConfirmPassword ? "text" : "password"}
+                placeholder="Repeat your password"
+                value={formData.confirmPassword}
+                onChange={handleChange}
+                leftIcon={<Lock size={18} />}
+                autoComplete="new-password"
+                rightIcon={
+                    <button
+                        type="button"
+                        className="toggle-password-btn"
+                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                        style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex' }}
+                        aria-label={showConfirmPassword ? "Hide password" : "Show password"}
+                    >
+                        {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                     </button>
                 }
             />

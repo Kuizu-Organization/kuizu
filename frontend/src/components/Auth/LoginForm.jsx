@@ -40,6 +40,9 @@ const LoginForm = ({ onToggle }) => {
         
         if (!validate()) return;
         
+        // Clear any old, potentially invalid tokens
+        localStorage.removeItem('token');
+        
         setLoading(true);
         try {
             const data = await loginApi(formData.identifier, formData.password);

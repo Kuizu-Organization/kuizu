@@ -73,18 +73,13 @@ public class SessionAuthenticationFilter extends OncePerRequestFilter {
                 } else {
                     logger.warn("User {} is disabled or locked. Revoking session.", username);
                     sessionService.revokeSession(sessionToken);
-                    response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                    response.setContentType("application/json");
-                    response.getWriter().write("{\"error\": \"Unauthorized\", \"message\": \"Account is suspended or locked\"}");
-                    return;
+                    // Don't set authentication but let the filter chain continue for permitAll requests.
                 }
             }
         } else {
-            logger.warn("No active session found for token: {}", sessionToken);
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            response.setContentType("application/json");
-            response.getWriter().write("{\"error\": \"Unauthorized\", \"message\": \"Session expired or invalid\"}");
-            return;
+            logger.warn("No active session or invalidated session found for token: {}", sessionToken);
+            // Don't set authentication and let the filter chain continue.
+            // Spring Security will catch unauthorized requests to protected endpoints.
         }
         filterChain.doFilter(request, response);
     }

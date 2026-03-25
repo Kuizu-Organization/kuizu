@@ -15,6 +15,7 @@ const AuthPage = () => {
     const { user, login } = useAuth();
     const toast = useToast();
     const location = useLocation();
+    const navigate = useNavigate();
     const [isLogin, setIsLogin] = useState(true);
     const [isSocialLoading, setIsSocialLoading] = useState(false);
     const [hasCheckedReason, setHasCheckedReason] = useState(false);
@@ -52,6 +53,8 @@ const AuthPage = () => {
     const handleGoogleSuccess = async (credentialResponse) => {
         setIsSocialLoading(true);
         try {
+            // Clear any old, potentially invalid tokens before starting a fresh social login
+            localStorage.removeItem('token');
             const { credential } = credentialResponse;
             const data = await googleLogin(credential);
 
