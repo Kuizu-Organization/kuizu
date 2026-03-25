@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { ChevronLeft, Play, Plus, Pencil, Trash2, User, Layers, BookOpen, Clock, Sparkles, Book, CheckCircle } from 'lucide-react';
 import './FlashcardSetDetailsPage.css';
 import { getFlashcardSetById, getFlashcardsBySetId, deleteFlashcard, reRequestFlashcardSetReview } from '@/api/flashcards';
@@ -14,6 +14,7 @@ import QuizSettingsModal from '@/components/quiz/QuizSettingsModal';
 const FlashcardSetDetailsPage = () => {
     const { setId } = useParams();
     const navigate = useNavigate();
+    const location = useLocation();
     const { user } = useAuth();
     const toast = useToast();
     const { openSetModal, openCardModal } = useModal();
@@ -51,14 +52,21 @@ const FlashcardSetDetailsPage = () => {
     const fetchData = async () => {
         try {
             setLoading(true);
-            const [setData, cardsData, progressData] = await Promise.all([
+            const [setData, cardsData] = await Promise.all([
                 getFlashcardSetById(setId),
-                getFlashcardsBySetId(setId),
-                getStudyProgress(setId)
+                getFlashcardsBySetId(setId)
             ]);
             setSet(setData);
             setCards(cardsData);
-            setProgress(progressData);
+
+            if (user) {
+                try {
+                    const progressData = await getStudyProgress(setId);
+                    setProgress(progressData);
+                } catch (pErr) {
+                    console.error('Error fetching progress:', pErr);
+                }
+            }
         } catch (err) {
             console.error('Error fetching data:', err);
             setError('Could not load set details.');
@@ -216,33 +224,49 @@ const FlashcardSetDetailsPage = () => {
 
                     <div className="set-actions-sidebar">
                         <div className="actions-card">
-                            <Button
-                                className="action-btn study-btn-main"
-                                size="lg"
-                                onClick={() => navigate(`/study/${setId}`, { state: { cards, setTitle: set.title } })}
-                                leftIcon={
-                                    <div className="book-state-container">
-                                        <Book size={20} className="book-closed" />
-                                        <div className="animated-book-wrapper">
-                                            <BookOpen size={20} className="book-open" />
-                                            <div className="book-page second"></div>
-                                            <div className="book-page third"></div>
-                                        </div>
-                                    </div>
-                                }
-                            >
-                                Study Now
-                            </Button>
-                            <Button
-                                className="action-btn play-btn-main"
-                                size="lg"
-                                variant="outline"
-                                onClick={() => setIsQuizSettingsOpen(true)}
-                                disabled={cards.length < 2}
-                                leftIcon={<Play size={20} fill="currentColor" />}
-                            >
-                                Take Quiz
-                            </Button>
+                            {user ? (
+                                <>
+                                    <Button
+                                        className="action-btn study-btn-main"
+                                        size="lg"
+                                        onClick={() => navigate(`/study/${setId}`, { state: { cards, setTitle: set.title } })}
+                                        leftIcon={
+                                            <div className="book-state-container">
+                                                <Book size={20} className="book-closed" />
+                                                <div className="animated-book-wrapper">
+                                                    <BookOpen size={20} className="book-open" />
+                                                    <div className="book-page second"></div>
+                                                    <div className="book-page third"></div>
+                                                </div>
+                                            </div>
+                                        }
+                                    >
+                                        Study Now
+                                    </Button>
+                                    <Button
+                                        className="action-btn play-btn-main"
+                                        size="lg"
+                                        variant="outline"
+                                        onClick={() => setIsQuizSettingsOpen(true)}
+                                        disabled={cards.length < 2}
+                                        leftIcon={<Play size={20} fill="currentColor" />}
+                                    >
+                                        Take Quiz
+                                    </Button>
+                                </>
+                            ) : (
+                                <div className="guest-notice-card">
+                                    <p>Log in to study this set and track your progress!</p>
+                                    <Button 
+                                        variant="primary" 
+                                        onClick={() => navigate('/auth', { state: { from: location.pathname } })}
+                                        fullWidth
+                                    >
+                                        Log In / Sign Up
+                                    </Button>
+                                </div>
+                            )}
+                            
                             {isOwner && (
                                 <Button
                                     className="action-btn edit-btn-main"

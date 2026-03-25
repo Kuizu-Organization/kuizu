@@ -46,6 +46,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/flashcard-sets/**").permitAll()
+                        .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/flashcards/**").permitAll()
                         .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/folders/**").permitAll()
                         .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/classes/**").permitAll()
                         .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/users/search/**").permitAll()

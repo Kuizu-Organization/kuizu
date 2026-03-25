@@ -91,11 +91,11 @@ const PublicProfilePage = () => {
                             </div>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--text-secondary)' }}>
                                 <Calendar size={16} />
-                                <span>Joined on {new Date(user.createdAt).toLocaleDateString(undefined, {
+                                <span>Joined on {user.createdAt ? new Date(user.createdAt).toLocaleDateString(undefined, {
                                     year: 'numeric',
                                     month: 'long',
                                     day: 'numeric'
-                                })}</span>
+                                }) : 'Unknown'}</span>
                             </div>
                         </div>
                     </Card>

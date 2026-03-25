@@ -28,7 +28,7 @@ const MainLayout = ({ children, isLoading = false }) => {
         <div className={`layout-container ${isSidebarCollapsed ? 'sidebar-collapsed' : ''}`}>
             {!isAdmin && <Navbar isSidebarCollapsed={isSidebarCollapsed} onToggleSidebar={toggleSidebar} />}
             <div className="layout-body" style={{ display: 'flex', marginTop: isAdmin ? '0' : '' }}>
-                <Sidebar isCollapsed={isSidebarCollapsed} onToggle={toggleSidebar} activePath={location.pathname} />
+                {isAuthenticated && <Sidebar isCollapsed={isSidebarCollapsed} onToggle={toggleSidebar} activePath={location.pathname} />}
                 <div className="content-wrapper" style={{
                     flex: 1,
                     marginLeft: !isAuthenticated ? '0' : (isSidebarCollapsed ? '72px' : '240px'),
