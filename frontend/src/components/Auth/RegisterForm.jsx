@@ -101,7 +101,7 @@ const RegisterForm = ({ onToggle }) => {
         e.preventDefault();
 
         if (!validate()) return;
- 
+
         // Clear any old, potentially invalid logout reasons
         sessionStorage.removeItem('logout_reason');
 

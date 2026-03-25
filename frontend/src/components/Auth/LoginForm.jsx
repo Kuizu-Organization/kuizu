@@ -12,7 +12,7 @@ const LoginForm = ({ onToggle }) => {
     const [showPassword, setShowPassword] = useState(false);
     const [formData, setFormData] = useState({ identifier: '', password: '' });
     const [loading, setLoading] = useState(false);
-    
+
     const toast = useToast();
     const { login } = useAuth();
     const navigate = useNavigate();
@@ -37,12 +37,12 @@ const LoginForm = ({ onToggle }) => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        
+
         if (!validate()) return;
-        
+
         // Clear any old, potentially invalid logout reasons
         sessionStorage.removeItem('logout_reason');
-        
+
         setLoading(true);
         try {
             const data = await loginApi(formData.identifier, formData.password);
