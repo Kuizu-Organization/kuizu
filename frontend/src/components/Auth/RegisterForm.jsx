@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { User, Mail, Lock, Info, Eye, EyeOff } from 'lucide-react';
+import { User as UserIcon, Mail, Lock, Info, Eye, EyeOff } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { register as registerApi } from '@/api/auth';
 import { useAuth } from '@/context/AuthContext';
@@ -100,10 +100,10 @@ const RegisterForm = ({ onToggle }) => {
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        if (!validate()) return;
- 
         // Clear any old, potentially invalid logout reasons
         sessionStorage.removeItem('logout_reason');
+
+        if (!validate()) return;
 
         setLoading(true);
         try {
@@ -119,7 +119,6 @@ const RegisterForm = ({ onToggle }) => {
         } catch (err) {
             if (err.response?.status === 400 && typeof err.response.data === 'object') {
                 const backendErrors = err.response.data;
-                // If the backend returns a map of field errors, show the first one in a toast
                 const errorFields = Object.keys(backendErrors);
                 if (errorFields.length > 0 && !backendErrors.message) {
                     toast.error(backendErrors[errorFields[0]]);
@@ -143,7 +142,7 @@ const RegisterForm = ({ onToggle }) => {
                 placeholder="Choose a username (3-50 chars)"
                 value={formData.username}
                 onChange={handleChange}
-                leftIcon={<User size={18} />}
+                leftIcon={<UserIcon size={18} />}
                 autoComplete="username"
             />
 
@@ -251,6 +250,3 @@ const RegisterForm = ({ onToggle }) => {
 };
 
 export default RegisterForm;
-
-
-
