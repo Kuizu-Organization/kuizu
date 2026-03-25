@@ -43,10 +43,10 @@ const FoldersPage = () => {
         setIsCreateOpen(false);
     };
 
-    const filteredFolders = folders.filter(folder =>
-        folder.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    const filteredFolders = Array.isArray(folders) ? folders.filter(folder =>
+        folder.name && folder.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         (folder.description && folder.description.toLowerCase().includes(searchQuery.toLowerCase()))
-    );
+    ) : [];
 
     return (
         <div className="folders-container">
@@ -138,7 +138,7 @@ const FoldersPage = () => {
                             <div className="empty-state">
                                 <p>No folders found.</p>
                                 {searchQuery && <p>Try a different search term.</p>}
-                                {!searchQuery && activeTab === 'my' && (
+                                {!searchQuery && activeTab === 'my' && Array.isArray(folders) && (
                                     <Button variant="outline" onClick={() => setIsCreateOpen(true)} style={{ marginTop: '1rem' }}>
                                         Create your first folder
                                     </Button>

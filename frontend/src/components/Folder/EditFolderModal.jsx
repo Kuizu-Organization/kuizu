@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Modal, Button, Input } from '../ui';
-import { updateFolder } from '@/api/folder';
-import { useToast } from '@/context/ToastContext';
+import { updateFolder } from '../../api/folder';
+import { useToast } from '../../context/ToastContext';
 import './CreateFolderModal.css';
 
 const EditFolderModal = ({ isOpen, onClose, folder, onUpdateSuccess }) => {

@@ -116,13 +116,13 @@
 
 /* Suggested Sets List in Create Folder Modal */
 .suggested-sets-list {
-    margin-top: 8px;
-    max-height: 200px;
+    margin-top: 12px;
+    max-height: 400px; /* Increased height to show more cards */
     overflow-y: auto;
     display: flex;
     flex-direction: column;
-    gap: 8px;
-    padding-right: 4px;
+    gap: 12px;
+    padding: 4px;
 }
 
 /* Custom scrollbar for suggested list */
@@ -135,83 +135,110 @@
 }
 
 .suggested-sets-list::-webkit-scrollbar-thumb {
-    background: var(--border-color);
+    background: #edeff4;
     border-radius: 4px;
 }
 
 .loading-sets,
 .empty-sets-msg {
-    font-size: 13px;
+    font-size: 14px;
     color: var(--text-light);
-    padding: 12px 0;
+    padding: 24px 0;
     text-align: center;
-    font-style: italic;
+    background: #f8f9ff;
+    border: 1px dashed #d1d5db;
+    border-radius: 12px;
 }
 
 .suggested-set-item {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 12px;
-    border: 1px solid var(--border-color);
+    padding: 10px 14px;
+    border: 1px solid #edeff4;
     border-radius: 10px;
-    cursor: pointer;
-    background: var(--bg-card);
-    transition: all 0.2s ease;
+    background: white;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .suggested-set-item:hover {
-    border-color: rgba(66, 85, 255, 0.4);
-    background: rgba(66, 85, 255, 0.02);
+    border-color: var(--primary);
+    background-color: #fbfcff;
 }
 
 .suggested-set-item.selected {
     border-color: var(--primary);
-    background: rgba(66, 85, 255, 0.05);
+    background: #f0f2ff;
 }
 
-.set-item-main {
+.set-item-left {
     display: flex;
     align-items: center;
     gap: 12px;
+    flex: 1;
 }
 
 .set-icon {
     color: var(--primary);
+    flex-shrink: 0;
 }
 
-.set-info-minimal {
+.set-info {
     display: flex;
     flex-direction: column;
-    gap: 2px;
+    gap: 1px;
+    flex: 1;
+    cursor: pointer;
 }
 
-.set-title {
-    font-size: 14px;
-    font-weight: 600;
-    color: var(--text-dark);
+.suggested-set-title {
+    font-size: 13.5px !important;
+    font-weight: 600 !important;
+    color: #2e3856 !important;
+    line-height: 1.2 !important;
 }
 
-.set-terms {
-    font-size: 12px;
-    color: var(--text-light);
+.suggested-set-subtitle {
+    font-size: 11.5px !important;
+    color: #646b82 !important;
+    line-height: 1.2 !important;
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    line-clamp: 1;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
 }
 
-.set-checkbox {
-    width: 20px;
-    height: 20px;
-    border: 2px solid var(--border-color);
+.set-add-btn {
+    margin-left: 10px;
+    background-color: var(--primary);
+    color: white;
+    border: none;
+    padding: 6px 12px;
     border-radius: 6px;
+    font-size: 12.5px;
+    font-weight: 600;
     display: flex;
     align-items: center;
-    justify-content: center;
-    color: white;
-    transition: all 0.2s ease;
+    gap: 4px;
+    cursor: pointer;
+    transition: all 0.2s;
+    flex-shrink: 0;
 }
 
-.suggested-set-item.selected .set-checkbox {
-    background: var(--primary);
-    border-color: var(--primary);
+.set-add-btn:hover {
+    background-color: #3544cc;
+    transform: scale(1.05);
+}
+
+.set-add-btn.added {
+    background-color: #f0f2ff;
+    color: var(--primary);
+    border: 1px solid var(--primary);
+}
+
+.set-add-btn.added:hover {
+    background-color: #e5e8ff;
 }
 
 .modal-error-message {

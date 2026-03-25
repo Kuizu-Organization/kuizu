@@ -4,7 +4,7 @@ import Footer from './Footer/Footer';
 import Sidebar from './Sidebar/Sidebar';
 import { Loader } from '../ui';
 import { useLocation } from 'react-router-dom';
-import { useAuth } from '@/context/AuthContext';
+import { useAuth } from '../../context/AuthContext';
 
 const MainLayout = ({ children, isLoading = false }) => {
     const { user } = useAuth();

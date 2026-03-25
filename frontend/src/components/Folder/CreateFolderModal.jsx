@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Modal, Button, Input } from '../ui';
-import { createFolder, getMySets } from '@/api/folder';
-import { useToast } from '@/context/ToastContext';
-import { BookOpen, Check } from 'lucide-react';
+import { createFolder, getMySets } from '../../api/folder';
+import { useToast } from '../../context/ToastContext';
+import { BookOpen, Check, Plus } from 'lucide-react';
 import './CreateFolderModal.css';
 
 const CreateFolderModal = ({ isOpen, onClose, onCreateSuccess }) => {
@@ -153,18 +153,30 @@ const CreateFolderModal = ({ isOpen, onClose, onCreateSuccess }) => {
                                     <div
                                         key={set.setId}
                                         className={`suggested-set-item ${selectedSetIds.includes(set.setId) ? 'selected' : ''}`}
-                                        onClick={() => toggleSetSelection(set.setId)}
                                     >
-                                        <div className="set-item-main">
+                                        <div className="set-item-left">
                                             <BookOpen size={16} className="set-icon" />
-                                            <div className="set-info-minimal">
-                                                <div className="set-title">{set.title}</div>
-                                                <div className="set-terms">{set.termCount} terms</div>
+                                            <div className="set-info">
+                                                <div className="suggested-set-title">{set.title}</div>
+                                                <div className="suggested-set-subtitle">
+                                                    {set.termCount} terms {set.description && ` · ${set.description}`}
+                                                </div>
                                             </div>
                                         </div>
-                                        <div className="set-checkbox">
-                                            {selectedSetIds.includes(set.setId) && <Check size={14} />}
-                                        </div>
+                                        <button 
+                                            type="button"
+                                            className={`set-add-btn ${selectedSetIds.includes(set.setId) ? 'added' : ''}`}
+                                            onClick={(e) => {
+                                                e.preventDefault();
+                                                toggleSetSelection(set.setId);
+                                            }}
+                                        >
+                                            {selectedSetIds.includes(set.setId) ? (
+                                                <><Check size={14} /> Added</>
+                                            ) : (
+                                                <><Plus size={14} /> Add</>
+                                            )}
+                                        </button>
                                     </div>
                                 ))
                             )}
