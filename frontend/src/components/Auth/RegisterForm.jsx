@@ -41,6 +41,9 @@ const RegisterForm = ({ onToggle }) => {
         } else if (!/^[a-zA-Z0-9._-]+$/.test(formData.username)) {
             toast.error('Username can only contain letters, numbers, dots, underscores, and hyphens');
             return false;
+        } else if (/^\d+$/.test(formData.username)) {
+            toast.error('Username cannot be only numbers');
+            return false;
         }
 
         // Email validation
