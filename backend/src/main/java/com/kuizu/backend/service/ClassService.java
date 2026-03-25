@@ -12,6 +12,8 @@ import com.kuizu.backend.exception.ApiException;
 import com.kuizu.backend.entity.ClassJoinRequest;
 import com.kuizu.backend.entity.ClassMember;
 import com.kuizu.backend.entity.User;
+import com.kuizu.backend.entity.Folder;
+import com.kuizu.backend.entity.FlashcardSet;
 import com.kuizu.backend.dto.request.CreateClassRequest;
 import com.kuizu.backend.dto.request.UpdateClassRequest;
 import com.kuizu.backend.dto.request.JoinRequestAction;
@@ -89,12 +91,13 @@ public class ClassService {
         List<ClassMemberResponse> members = null;
         List<ClassJoinRequestResponse> joinRequests = null;
 
-        if (isOwner) {
+        if (isOwner || isMember) {
             members = clazz.getClassMembers().stream()
                     .map(m -> new ClassMemberResponse(
                             m.getUser().getUserId(),
                             m.getUser().getDisplayName(),
                             m.getRole(),
+                            m.getUser().getProfilePictureUrl(),
                             m.getJoinedAt()))
                     .toList();
 
@@ -104,9 +107,12 @@ public class ClassService {
                     clazz.getOwner().getUserId(),
                     clazz.getOwner().getDisplayName(),
                     "OWNER",
+                    clazz.getOwner().getProfilePictureUrl(),
                     null // Owner doesn't have joinedAt in ClassMember
             ));
+        }
 
+        if (isOwner) {
             joinRequests = classJoinRequestRepository.findByClazzAndStatus(clazz, "PENDING").stream()
                     .map(r -> new ClassJoinRequestResponse(
                             r.getRequestId(),
@@ -494,15 +500,16 @@ public class ClassService {
         String type = request.getMaterialType();
         Long refId = request.getMaterialRefId();
 
-        if ("FOLDER".equals(type)) {
+        String cleanType = type != null ? type.trim().toUpperCase() : "";
+        if ("FOLDER".equals(cleanType)) {
             folderRepository.findByFolderIdAndIsDeletedFalse(refId)
                     .orElseThrow(() -> new ApiException("Folder not found"));
-        } else if ("FLASHCARD_SET".equals(type)) {
+        } else if ("FLASHCARD_SET".equals(cleanType) || "SET".equals(cleanType) || "FLASHCARD".equals(cleanType)) {
             flashcardSetRepository.findById(refId)
                     .filter(s -> s.getIsDeleted() == null || !s.getIsDeleted())
                     .orElseThrow(() -> new ApiException("Flashcard set not found"));
         } else {
-            throw new ApiException("Invalid material type");
+            throw new ApiException("Invalid material type: " + type);
         }
 
         boolean exists = classMaterialRepository.findByClazz_ClassId(classId).stream()
@@ -525,14 +532,19 @@ public class ClassService {
     }
 
     private String getMaterialName(String type, Long refId) {
-        if ("FOLDER".equals(type)) {
-            return folderRepository.findById(refId).map(com.kuizu.backend.entity.Folder::getName)
-                    .orElse("Unknown Folder");
-        } else if ("FLASHCARD_SET".equals(type)) {
-            return flashcardSetRepository.findById(refId).map(com.kuizu.backend.entity.FlashcardSet::getTitle)
-                    .orElse("Unknown Flashcard Set");
+        if (type == null) return "Unknown Type";
+
+        String cleanType = type.trim().toUpperCase();
+        if ("FOLDER".equals(cleanType)) {
+            return folderRepository.findById(refId).map(Folder::getName)
+                    .map(name -> name + " (Folder)")
+                    .orElse("Unknown Folder (ID: " + refId + ")");
+        } else if ("FLASHCARD_SET".equals(cleanType) || "SET".equals(cleanType) || "FLASHCARD".equals(cleanType)) {
+            return flashcardSetRepository.findById(refId).map(FlashcardSet::getTitle)
+                    .map(title -> title + " (Set)")
+                    .orElse("Unknown Flashcard Set (ID: " + refId + ")");
         }
-        return "Unknown Material";
+        return "Unknown Material (" + type + ")";
     }
 
     @Transactional

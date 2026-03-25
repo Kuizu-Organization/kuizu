@@ -362,7 +362,7 @@ const ClassDetailPage = () => {
                 </div>
 
                 <div className="class-content-area">
-                    {classData?.isOwner && (
+                    {(classData?.isOwner || classData?.isMember || localIsMember) && (
                         <div className="class-tabs">
                             <button
                                 className={`tab-btn ${activeTab === 'materials' ? 'active' : ''}`}
@@ -379,16 +379,18 @@ const ClassDetailPage = () => {
                                 <span>Members</span>
                                 <span className="tab-count">{classData.members?.length || 0}</span>
                             </button>
-                            <button
-                                className={`tab-btn ${activeTab === 'requests' ? 'active' : ''}`}
-                                onClick={() => setActiveTab('requests')}
-                            >
-                                <Calendar size={18} />
-                                <span>Join Requests</span>
-                                {classData.joinRequests?.length > 0 && (
-                                    <span className="tab-badge">{classData.joinRequests.length}</span>
-                                )}
-                            </button>
+                            {classData?.isOwner && (
+                                <button
+                                    className={`tab-btn ${activeTab === 'requests' ? 'active' : ''}`}
+                                    onClick={() => setActiveTab('requests')}
+                                >
+                                    <Calendar size={18} />
+                                    <span>Join Requests</span>
+                                    {classData.joinRequests?.length > 0 && (
+                                        <span className="tab-badge">{classData.joinRequests.length}</span>
+                                    )}
+                                </button>
+                            )}
                         </div>
                     )}
 
@@ -443,13 +445,16 @@ const ClassDetailPage = () => {
                                 {classData.members?.map(member => (
                                     <div key={member.userId} className="member-card">
                                         <div className="member-avatar">
-                                            {member.displayName.charAt(0).toUpperCase()}
+                                            <img 
+                                                src={member.profilePictureUrl || `https://api.dicebear.com/7.x/avataaars/svg?seed=${member.displayName}`} 
+                                                alt={member.displayName} 
+                                            />
                                         </div>
                                         <div className="member-info">
                                             <h4 className="member-name">{member.displayName}</h4>
                                             <span className={`member-role ${member.role.toLowerCase()}`}>{member.role}</span>
                                         </div>
-                                        {member.userId !== classData.ownerUserId && (
+                                        {classData?.isOwner && member.userId !== classData.ownerUserId && (
                                             <Button
                                                 variant="ghost"
                                                 size="sm"
