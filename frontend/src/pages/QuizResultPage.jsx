@@ -72,8 +72,16 @@ const QuizResultPage = () => {
                                 <div className="item-content">
                                     <div className="item-term">{item.term}</div>
                                     <div className="item-definition">
-                                        <span className="label">{item.isCorrect ? 'Correct Answer:' : 'The definition was:'}</span>
-                                        {item.definition}
+                                        {!item.isCorrect && (
+                                            <div className="user-wrong-answer">
+                                                <span className="label">You said:</span>
+                                                <span className="wrong-text">{item.userAnswer === 'TRUE' ? 'Đúng' : item.userAnswer === 'FALSE' ? 'Sai' : item.userAnswer}</span>
+                                            </div>
+                                        )}
+                                        <div className="correct-answer">
+                                            <span className="label">{item.isCorrect ? 'Correct Answer:' : 'Correct Answer:'}</span>
+                                            <span className="correct-text">{item.definition}</span>
+                                        </div>
                                     </div>
                                 </div>
                             </Card>

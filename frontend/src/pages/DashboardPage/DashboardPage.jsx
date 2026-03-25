@@ -9,6 +9,7 @@ import { useAuth } from '../../context/AuthContext';
 import { useModal } from '../../context/ModalContext';
 import { FolderOpen, Globe, BookOpen } from 'lucide-react';
 import { Button, Card, Loader, EmptyState, ItemCard } from '../../components/ui';
+import StudyBulletin from '../../components/dashboard/StudyBulletin';
 import './DashboardPage.css';
 
 const DashboardPage = () => {
@@ -129,6 +130,9 @@ const DashboardPage = () => {
             <h1 className="dashboard-title">
                 Welcome back, {user?.displayName || 'Student'}!
             </h1>
+
+            {/* Study Progress Bulletin */}
+            <StudyBulletin />
 
             {/* Recent Flashcard Sets */}
             <section className="dashboard-section">
