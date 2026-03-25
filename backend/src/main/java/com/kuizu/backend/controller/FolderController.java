@@ -62,6 +62,16 @@ public class FolderController {
         return ResponseEntity.ok(folderService.getPublicFolders(principal.getName()));
     }
 
+    @GetMapping("/search")
+    public ResponseEntity<?> searchFolders(@RequestParam String query) {
+        return ResponseEntity.ok(folderService.searchFolders(query));
+    }
+
+    @GetMapping("/suggested")
+    public ResponseEntity<?> getSuggestedFolders(@RequestParam(defaultValue = "10") int limit) {
+        return ResponseEntity.ok(folderService.getSuggestedFolders(limit));
+    }
+
     @GetMapping("/{folderId}")
     public ResponseEntity<?> getFolderDetail(@PathVariable Long folderId, Principal principal) {
         if (principal == null) {

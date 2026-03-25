@@ -3,6 +3,7 @@ package com.kuizu.backend.service;
 import com.kuizu.backend.dto.request.ChangePasswordRequest;
 import com.kuizu.backend.dto.request.SetPasswordRequest;
 import com.kuizu.backend.dto.request.UpdateProfileRequest;
+import com.kuizu.backend.dto.response.PublicUserResponse;
 import com.kuizu.backend.dto.response.UserResponse;
 import com.kuizu.backend.entity.User;
 import com.kuizu.backend.exception.ApiException;
@@ -48,6 +49,17 @@ public class UserService {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new ApiException("User not found"));
         return mapToUserResponse(user);
+    }
+
+    public PublicUserResponse getPublicUserByUsername(String username) {
+        User user = userRepository.findByUsernameAndStatusNot(username, User.UserStatus.SUSPENDED)
+                .orElseThrow(() -> new ApiException("User not found or unavailable"));
+        return mapToPublicUserResponse(user);
+    }
+
+    public Page<PublicUserResponse> searchPublicUsers(String query, Pageable pageable) {
+        return userRepository.searchUsers(query, null, User.UserStatus.ACTIVE, pageable)
+                .map(this::mapToPublicUserResponse);
     }
 
     public UserResponse updateProfile(String username, UpdateProfileRequest request) {
@@ -145,6 +157,20 @@ public class UserService {
                 .timezone(user.getTimezone())
                 .preferences(user.getPreferences())
                 .lastLoginAt(user.getLastLoginAt())
+                .createdAt(user.getCreatedAt())
+                .updatedAt(user.getUpdatedAt())
+                .build();
+    }
+
+    private PublicUserResponse mapToPublicUserResponse(User user) {
+        return PublicUserResponse.builder()
+                .username(user.getUsername())
+                .displayName(user.getDisplayName())
+                .bio(user.getBio())
+                .profilePictureUrl(user.getProfilePictureUrl())
+                .role(user.getRole() != null ? user.getRole().name() : null)
+                .locale(user.getLocale())
+                .timezone(user.getTimezone())
                 .createdAt(user.getCreatedAt())
                 .updatedAt(user.getUpdatedAt())
                 .build();

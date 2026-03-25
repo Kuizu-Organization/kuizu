@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
-import { ChevronLeft, RotateCcw, CheckCircle2, XCircle, Trophy, Keyboard, Shuffle, Star } from 'lucide-react';
-import { getFlashcardsBySetId } from '@/api/flashcards';
+import { ChevronLeft, RotateCcw, CheckCircle2, XCircle, Trophy, Keyboard, Shuffle, Star, ArrowLeftRight } from 'lucide-react';
+import { getFlashcardsBySetId, getFlashcardSetById } from '@/api/flashcards';
 import { updateStudyProgress } from '@/api/study';
 import { useToast } from '@/context/ToastContext';
 import { Button, Card, Loader } from '@/components/ui';
@@ -16,12 +16,17 @@ const StudyPage = () => {
 
     const [allCards, setAllCards] = useState(location.state?.cards || []);
     const [cards, setCards] = useState(location.state?.cards || []);
+    const [setTitle, setSetTitle] = useState(location.state?.setTitle || '');
     const [loading, setLoading] = useState(!location.state?.cards);
     const [currentIndex, setCurrentIndex] = useState(0);
     const [isFlipped, setIsFlipped] = useState(false);
     const [isFinished, setIsFinished] = useState(false);
     const [hasTriggeredFinish, setHasTriggeredFinish] = useState(false);
-    const [starredCardIds, setStarredCardIds] = useState(new Set());
+    const [progressRestored, setProgressRestored] = useState(false);
+    const [starredCardIds, setStarredCardIds] = useState(() => {
+        const saved = localStorage.getItem(`starred_cards_${setId}`);
+        return saved ? new Set(JSON.parse(saved)) : new Set();
+    });
 
     const backPath = location.state?.from || `/flashcard-sets/${setId}`;
     const backLabel = location.state?.fromLabel || 'Back to Set';
@@ -37,10 +42,102 @@ const StudyPage = () => {
     }, [progress, hasTriggeredFinish, toast, loading, cards.length]);
 
     useEffect(() => {
-        if (cards.length === 0) {
-            fetchCards();
+        if (cards.length === 0 || !setTitle) {
+            fetchData();
         }
     }, [setId]);
+
+    // Handle Start Index from State (Bulletin Continue)
+    useEffect(() => {
+        if (!loading && cards.length > 0 && location.state?.startIndex !== undefined && !progressRestored) {
+            setCurrentIndex(location.state.startIndex);
+            setProgressRestored(true);
+            toast.success(`Đã quay lại thẻ thứ ${location.state.startIndex + 1}`);
+        }
+    }, [loading, cards.length, location.state, progressRestored]);
+
+    const seededShuffle = (array, seed) => {
+        const shuffled = [...array];
+        let m = shuffled.length, t, i;
+        // Use setId as seed
+        let s = parseInt(String(seed).replace(/\D/g, '')) || 0;
+        
+        const random = () => {
+            s = (s * 9301 + 49297) % 233280;
+            return s / 233280;
+        };
+
+        while (m) {
+            i = Math.floor(random() * m--);
+            t = shuffled[m];
+            shuffled[m] = shuffled[i];
+            shuffled[i] = t;
+        }
+        return shuffled;
+    };
+
+    const fetchData = async () => {
+        try {
+            setLoading(true);
+            
+            let fetchedCards = [];
+            let fetchedTitle = setTitle;
+
+            if (allCards.length === 0) {
+                fetchedCards = await getFlashcardsBySetId(setId);
+            } else {
+                fetchedCards = allCards;
+            }
+            
+            if (!setTitle) {
+                const setData = await getFlashcardSetById(setId);
+                fetchedTitle = setData.title;
+            }
+
+            setAllCards(fetchedCards);
+            setSetTitle(fetchedTitle);
+            
+            // Use seeded shuffle so the order is consistent across "Continue" sessions
+            setCards(seededShuffle(fetchedCards, setId));
+        } catch (err) {
+            console.error('Failed to load study data:', err);
+            toast.error('Không thể tải dữ liệu bài học');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    // Save progress to study history
+    useEffect(() => {
+        if (loading || isFinished || cards.length === 0 || !setTitle) return;
+
+        const saveProgress = () => {
+            const history = JSON.parse(localStorage.getItem('study_history') || '[]');
+            const currentSession = {
+                setId: setId,
+                title: setTitle,
+                currentIndex: currentIndex,
+                totalCards: cards.length,
+                lastUpdated: new Date().getTime()
+            };
+
+            const filtered = history.filter(h => String(h.setId) !== String(setId));
+            const updated = [currentSession, ...filtered].slice(0, 5); // Keep last 5
+            localStorage.setItem('study_history', JSON.stringify(updated));
+        };
+
+        const timer = setTimeout(saveProgress, 500); // Debounce
+        return () => clearTimeout(timer);
+    }, [currentIndex, setId, setTitle, cards.length, loading, isFinished]);
+
+    // Clear progress if finished
+    useEffect(() => {
+        if (isFinished) {
+            const history = JSON.parse(localStorage.getItem('study_history') || '[]');
+            const updated = history.filter(h => String(h.setId) !== String(setId));
+            localStorage.setItem('study_history', JSON.stringify(updated));
+        }
+    }, [isFinished, setId]);
 
     const shuffleArray = (array) => {
         const shuffled = [...array];
@@ -51,23 +148,16 @@ const StudyPage = () => {
         return shuffled;
     };
 
-    const fetchCards = async () => {
-        try {
-            setLoading(true);
-            const data = await getFlashcardsBySetId(setId);
-            setAllCards(data);
-            setCards(shuffleArray(data));
-        } catch (err) {
-            console.error('Failed to load cards:', err);
-        } finally {
-            setLoading(false);
-        }
-    };
 
     const handleShuffle = () => {
         const shuffled = shuffleArray(cards);
         setCards(shuffled);
         setCurrentIndex(0);
+        setIsFlipped(false);
+    };
+
+    const handleSwap = () => {
+        setIsSwapped(!isSwapped);
         setIsFlipped(false);
     };
 
@@ -156,7 +246,7 @@ const StudyPage = () => {
                                         setIsFinished(false);
                                         setHasTriggeredFinish(false);
                                     }}
-                                    style={{ backgroundColor: '#f59e0b', color: 'white', borderColor: '#f59e0b' }}
+                                    style={{ backgroundColor: '#ffce3a', color: '#1a1a1a', borderColor: '#ffce3a', fontWeight: 'bold' }}
                                 >
                                     <Star size={18} fill="currentColor" />
                                     Study Starred ({starredCards.length})
@@ -217,6 +307,13 @@ const StudyPage = () => {
                             >
                                 <Shuffle size={18} />
                             </button>
+                            <button
+                                className={`shuffle-btn ${isSwapped ? 'active' : ''}`}
+                                onClick={handleSwap}
+                                title="Swap Term/Definition"
+                            >
+                                <ArrowLeftRight size={18} />
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -241,8 +338,8 @@ const StudyPage = () => {
                             >
                                 <Star size={24} fill={starredCardIds.has(currentCard.cardId) ? "currentColor" : "none"} />
                             </button>
-                            <span className="face-label">Term</span>
-                            <div className="card-text">{currentCard.term}</div>
+                            <span className="face-label">{isSwapped ? 'Definition' : 'Term'}</span>
+                            <div className="card-text">{isSwapped ? currentCard.definition : currentCard.term}</div>
                             <span className="card-hint">Click or press Space to flip</span>
                         </div>
 
@@ -255,8 +352,8 @@ const StudyPage = () => {
                             >
                                 <Star size={24} fill={starredCardIds.has(currentCard.cardId) ? "currentColor" : "none"} />
                             </button>
-                            <span className="face-label">Definition</span>
-                            <div className="card-text">{currentCard.definition}</div>
+                            <span className="face-label">{isSwapped ? 'Term' : 'Definition'}</span>
+                            <div className="card-text">{isSwapped ? currentCard.term : currentCard.definition}</div>
                             <span className="card-hint">Click or press Space to flip back</span>
                         </div>
                     </div>

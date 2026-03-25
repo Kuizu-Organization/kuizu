@@ -7,7 +7,7 @@ import { useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 
 const MainLayout = ({ children, isLoading = false }) => {
-    const { user } = useAuth();
+    const { user, isAuthenticated, loading: authLoading } = useAuth();
     const location = useLocation();
     const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(() => {
         const saved = localStorage.getItem('sidebar-collapsed');
@@ -31,7 +31,7 @@ const MainLayout = ({ children, isLoading = false }) => {
                 <Sidebar isCollapsed={isSidebarCollapsed} onToggle={toggleSidebar} activePath={location.pathname} />
                 <div className="content-wrapper" style={{
                     flex: 1,
-                    marginLeft: isSidebarCollapsed ? '72px' : '240px',
+                    marginLeft: !isAuthenticated ? '0' : (isSidebarCollapsed ? '72px' : '240px'),
                     transition: 'margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                     width: '100%',
                     minHeight: isAdmin ? '100vh' : 'calc(100vh - 5rem)',

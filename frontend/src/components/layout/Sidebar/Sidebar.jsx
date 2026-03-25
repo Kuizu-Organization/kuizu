@@ -15,10 +15,10 @@ import {
     Activity
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../../context/AuthContext';
+import { useToast } from '../../../context/ToastContext';
 import { Button, ComingSoonModal } from '../../ui';
-import { useAuth } from '@/context/AuthContext';
-import { useToast } from '@/context/ToastContext';
-import { getPendingCount } from '@/api/moderation';
+import { getPendingCount } from '../../../api/moderation';
 import './Sidebar.css';
 
 const Sidebar = ({ isCollapsed, onToggle, activePath = '/dashboard' }) => {

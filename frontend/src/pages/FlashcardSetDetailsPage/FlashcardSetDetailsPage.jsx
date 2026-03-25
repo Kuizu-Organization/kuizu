@@ -1,20 +1,21 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ChevronLeft, Play, Plus, Pencil, Trash2, User, Layers, BookOpen } from 'lucide-react';
+import { ChevronLeft, Play, Plus, Pencil, Trash2, User, Layers, BookOpen, Clock, Sparkles, Book, CheckCircle } from 'lucide-react';
 import './FlashcardSetDetailsPage.css';
 import { getFlashcardSetById, getFlashcardsBySetId, deleteFlashcard, reRequestFlashcardSetReview } from '@/api/flashcards';
 import { getStudyProgress, resetStudyProgress } from '@/api/study';
-import { Button, Card, Loader, ConfirmationModal, CelebrationModal } from '@/components/ui';
+import { Button, Card, Badge, Loader, ConfirmationModal, CelebrationModal } from '@/components/ui';
 import { useModal } from '@/context/ModalContext';
 import MainLayout from '@/components/layout';
 import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/context/ToastContext';
+import QuizSettingsModal from '@/components/quiz/QuizSettingsModal';
 
 const FlashcardSetDetailsPage = () => {
     const { setId } = useParams();
     const navigate = useNavigate();
     const { user } = useAuth();
-    const { success: toastSuccess, error: toastError } = useToast();
+    const toast = useToast();
     const { openSetModal, openCardModal } = useModal();
     const [set, setSet] = useState(null);
     const [cards, setCards] = useState([]);
@@ -28,6 +29,7 @@ const FlashcardSetDetailsPage = () => {
     const [isResetting, setIsResetting] = useState(false);
     const [isCelebrationOpen, setIsCelebrationOpen] = useState(false);
     const [isReRequesting, setIsReRequesting] = useState(false);
+    const [isQuizSettingsOpen, setIsQuizSettingsOpen] = useState(false);
 
     useEffect(() => {
         fetchData();
@@ -37,7 +39,6 @@ const FlashcardSetDetailsPage = () => {
     const trackVisit = (id) => {
         try {
             const recent = JSON.parse(localStorage.getItem('recent_sets') || '[]');
-            // Convert to string to ensure comparison works if setId is string/number
             const stringId = String(id);
             const filtered = recent.filter(existingId => String(existingId) !== stringId);
             const updated = [stringId, ...filtered].slice(0, 8);
@@ -71,7 +72,6 @@ const FlashcardSetDetailsPage = () => {
     };
 
     const handleCardSuccess = async () => {
-        // Refresh cards and progress
         try {
             const [cardsData, progressData] = await Promise.all([
                 getFlashcardsBySetId(setId),
@@ -79,8 +79,9 @@ const FlashcardSetDetailsPage = () => {
             ]);
             setCards(cardsData);
             setProgress(progressData);
+            toast.success('Card updated successfully!');
         } catch (err) {
-            console.error('Error refreshing cards:', err);
+            toast.error('Failed to refresh data');
         }
     };
 
@@ -99,12 +100,11 @@ const FlashcardSetDetailsPage = () => {
             await deleteFlashcard(cardToDelete);
             setCards(cards.filter(c => c.cardId !== cardToDelete));
             setCardToDelete(null);
-            // Update progress if needed
             const progressData = await getStudyProgress(setId);
             setProgress(progressData);
-            toastSuccess('Flashcard deleted successfully.');
+            toast.success('Flashcard deleted successfully.');
         } catch (err) {
-            toastError('Failed to delete card.');
+            toast.error('Failed to delete card.');
         } finally {
             setIsDeleting(false);
         }
@@ -112,7 +112,6 @@ const FlashcardSetDetailsPage = () => {
 
     useEffect(() => {
         if (progress?.progressPercentage === 100 && !loading) {
-            // Only show if reached 100% and not triggered yet in this session
             const hasSeenCelebration = sessionStorage.getItem(`celebration_${setId}`);
             if (!hasSeenCelebration) {
                 setIsCelebrationOpen(true);
@@ -127,12 +126,11 @@ const FlashcardSetDetailsPage = () => {
             await resetStudyProgress(setId);
             const progressData = await getStudyProgress(setId);
             setProgress(progressData);
-            // Clear the celebration flag so it can show again when 100% is reached
             sessionStorage.removeItem(`celebration_${setId}`);
             setIsResetModalOpen(false);
-            toastSuccess('Study progress has been reset.');
+            toast.success('Study progress has been reset.');
         } catch (err) {
-            toastError('Failed to reset progress.');
+            toast.error('Failed to reset progress.');
         } finally {
             setIsResetting(false);
         }
@@ -145,16 +143,27 @@ const FlashcardSetDetailsPage = () => {
             await reRequestFlashcardSetReview(setId);
             const setData = await getFlashcardSetById(setId);
             setSet(setData);
-            toastSuccess('Review requested successfully.');
+            toast.success('Review requested successfully.');
         } catch (err) {
-            toastError('Failed to re-request review.');
+            toast.error('Failed to re-request review.');
         } finally {
             setIsReRequesting(false);
         }
     };
 
+    const handleStartQuiz = (settings) => {
+        setIsQuizSettingsOpen(false);
+        navigate(`/quiz/${setId}`, {
+            state: {
+                cards,
+                settings
+            }
+        });
+    };
+
     if (loading) return <MainLayout><div className="loading-container"><Loader /></div></MainLayout>;
     if (error) return <MainLayout><div className="error-container">{error}</div></MainLayout>;
+    if (!set) return <MainLayout><div className="error-container">Set not found.</div></MainLayout>;
 
     const isOwner = user?.userId === set?.ownerId;
 
@@ -162,199 +171,251 @@ const FlashcardSetDetailsPage = () => {
         <MainLayout>
             <div className="set-details-container">
                 <button className="back-link" onClick={() => navigate('/flashcard-sets')}>
-                    <ChevronLeft size={20} />
-                    Back to sets
+                    <ChevronLeft size={18} />
+                    Back to all sets
                 </button>
 
                 <div className="set-hero">
                     <div className="set-info-main">
-                        <h1 className="set-title">
-                            {set.title}
-                            {set.status === 'PENDING' && (
-                                <span style={{ fontSize: '1rem', backgroundColor: '#eab308', color: 'black', padding: '4px 8px', borderRadius: '4px', marginLeft: '12px', verticalAlign: 'middle', fontWeight: 600 }}>Pending Review</span>
+                        <div className="set-title-row">
+                            <h1 className="set-title">{set.title}</h1>
+                            {set.status && (
+                                <Badge variant={
+                                    set.status === 'APPROVED' ? 'success' :
+                                        set.status === 'REJECTED' ? 'error' : 'warning'
+                                }>
+                                    {set.status.charAt(0) + set.status.slice(1).toLowerCase()}
+                                </Badge>
                             )}
-                            {set.status === 'REJECTED' && (
-                                <span style={{ fontSize: '1rem', backgroundColor: '#ef4444', color: 'white', padding: '4px 8px', borderRadius: '4px', marginLeft: '12px', verticalAlign: 'middle', fontWeight: 600 }}>Rejected</span>
-                            )}
-                            {set.status === 'APPROVED' && (
-                                <span style={{ fontSize: '1rem', backgroundColor: '#22c55e', color: 'white', padding: '4px 8px', borderRadius: '4px', marginLeft: '12px', verticalAlign: 'middle', fontWeight: 600 }}>Approved</span>
-                            )}
-                        </h1>
+                        </div>
+
                         {set.status === 'REJECTED' && set.moderationNotes && (
-                            <div style={{ backgroundColor: '#fee2e2', border: '1px solid #fecaca', borderRadius: '8px', padding: '12px', marginBottom: '16px' }}>
-                                <h4 style={{ color: '#991b1b', margin: '0 0 4px 0', fontSize: '0.9rem', fontWeight: 700 }}>Moderator Feedback:</h4>
-                                <p style={{ color: '#b91c1c', margin: 0, fontSize: '0.9rem' }}>{set.moderationNotes}</p>
+                            <div className="moderator-feedback">
+                                <strong>Moderator Feedback:</strong>
+                                <p>{set.moderationNotes}</p>
                             </div>
                         )}
+
                         <p className="set-description">{set.description || 'No description provided.'}</p>
 
                         <div className="set-meta">
                             <div className="meta-item">
-                                <User size={16} />
+                                <div className="meta-icon-bg">
+                                    <User size={16} />
+                                </div>
                                 <span>Created by <strong>{set.ownerDisplayName}</strong></span>
                             </div>
                             <div className="meta-item">
-                                <Layers size={16} />
+                                <div className="meta-icon-bg">
+                                    <Layers size={16} />
+                                </div>
                                 <span>{cards.length} terms</span>
                             </div>
                         </div>
                     </div>
 
-                    <div className="set-actions">
-                        {isOwner && set.status === 'REJECTED' && (
+                    <div className="set-actions-sidebar">
+                        <div className="actions-card">
                             <Button
-                                variant="outline"
+                                className="action-btn study-btn-main"
                                 size="lg"
-                                className="mr-2"
-                                onClick={handleReRequestReview}
-                                isLoading={isReRequesting}
+                                onClick={() => navigate(`/study/${setId}`, { state: { cards, setTitle: set.title } })}
+                                leftIcon={
+                                    <div className="book-state-container">
+                                        <Book size={20} className="book-closed" />
+                                        <div className="animated-book-wrapper">
+                                            <BookOpen size={20} className="book-open" />
+                                            <div className="book-page second"></div>
+                                            <div className="book-page third"></div>
+                                        </div>
+                                    </div>
+                                }
                             >
-                                Request Review Again
+                                Study Now
                             </Button>
-                        )}
-                        <Button
-                            className="study-btn w-full"
-                            size="lg"
-                            variant="outline"
-                            onClick={() => navigate(`/study/${setId}`, { state: { cards } })}
-                            leftIcon={<BookOpen size={20} />}
-                        >
-                            Study
-                        </Button>
-                        <Button
-                            className="play-btn w-full"
-                            size="lg"
-                            variant="outline"
-                            onClick={() => navigate(`/quiz/${setId}`, { state: { cards } })}
-                            disabled={cards.length < 2}
-                            leftIcon={<Play size={20} fill="currentColor" />}
-                        >
-                            Take Quiz
-                        </Button>
-                        <Button
-                            className="w-full"
-                            variant="outline"
-                            size="lg"
-                            onClick={() => openSetModal(setId, handleSetUpdateSuccess)}
-                            leftIcon={<Pencil size={20} />}
-                        >
-                            Edit Set
-                        </Button>
+                            <Button
+                                className="action-btn play-btn-main"
+                                size="lg"
+                                variant="outline"
+                                onClick={() => setIsQuizSettingsOpen(true)}
+                                disabled={cards.length < 2}
+                                leftIcon={<Play size={20} fill="currentColor" />}
+                            >
+                                Take Quiz
+                            </Button>
+                            {isOwner && (
+                                <Button
+                                    className="action-btn edit-btn-main"
+                                    variant="outline"
+                                    size="lg"
+                                    onClick={() => openSetModal(setId, handleSetUpdateSuccess)}
+                                    leftIcon={<Pencil size={20} />}
+                                >
+                                    Edit Set
+                                </Button>
+                            )}
+
+                            {isOwner && set.status === 'REJECTED' && (
+                                <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    className="re-request-btn"
+                                    onClick={handleReRequestReview}
+                                    isLoading={isReRequesting}
+                                >
+                                    Resubmit for Review
+                                </Button>
+                            )}
+                        </div>
                     </div>
                 </div>
 
                 {progress && (
                     <div className="progress-section">
                         <Card className="progress-card">
-                            <Card.Body>
-                                <div className="progress-summary">
-                                    <div className="progress-text">
+                            <div className="progress-card-content">
+                                <div className="prog-header">
+                                    <div className="prog-title-group">
                                         <h3>Your Progress</h3>
-                                        <div className="progress-stats">
-                                            <span className="stat mastered">Mastered: {progress.masteredCards}</span>
-                                            <span className="stat learning">Learning: {progress.learningCards}</span>
-                                            <span className="stat new">New: {progress.newCards}</span>
+                                        <div className="prog-percentage-badge">
+                                            {Math.round(progress.progressPercentage)}% Complete
                                         </div>
                                     </div>
-                                    <div className="progress-action">
-                                        <Button variant="ghost" size="sm" onClick={() => setIsResetModalOpen(true)}>
-                                            <Trash2 size={16} />
-                                            Reset Progress
-                                        </Button>
+                                    <Button
+                                        variant="ghost"
+                                        size="sm"
+                                        className="btn reset-btn"
+                                        onClick={() => setIsResetModalOpen(true)}
+                                    >
+                                        <Trash2 size={16} />
+                                        Reset Progress
+                                    </Button>
+                                </div>
+
+                                <div className="prog-body">
+                                    <div className="prog-bar-wrapper">
+                                        <div
+                                            className="prog-bar-fill"
+                                            style={{ width: `${progress.progressPercentage}%` }}
+                                        />
+                                    </div>
+                                    <div className="prog-stats-grid">
+                                        <div className="prog-stat mastered">
+                                            <div className="stat-dot"></div>
+                                            <span>Mastered: <strong>{progress.masteredCards}</strong></span>
+                                        </div>
+                                        <div className="prog-stat learning">
+                                            <div className="stat-dot"></div>
+                                            <span>Learning: <strong>{progress.learningCards}</strong></span>
+                                        </div>
+                                        <div className="prog-stat new">
+                                            <div className="stat-dot"></div>
+                                            <span>New: <strong>{progress.newCards}</strong></span>
+                                        </div>
                                     </div>
                                 </div>
-                                <div className="progress-bar-container">
-                                    <div
-                                        className="progress-bar-fill"
-                                        style={{ width: `${progress.progressPercentage}%` }}
-                                    ></div>
-                                    <span className="progress-percentage">{Math.round(progress.progressPercentage)}%</span>
-                                </div>
-                            </Card.Body>
+                            </div>
                         </Card>
                     </div>
                 )}
 
                 <div className="cards-section">
                     <div className="section-header">
-                        <h2>Terms in this set ({cards.length})</h2>
-                        <Button
-                            variant="ghost"
-                            className="add-card-btn"
-                            onClick={handleAddCardClick}
-                            leftIcon={<Plus size={20} />}
-                        >
-                            Add Card
-                        </Button>
+                        <div className="section-placeholder"></div>
+                        <div className="section-title-group">
+                            <h2>Terms in this set</h2>
+                            <span className="terms-count">{cards.length} cards</span>
+                        </div>
+                        {isOwner && (
+                            <Button
+                                size="md"
+                                className="add-card-header-btn"
+                                onClick={handleAddCardClick}
+                                leftIcon={<Plus size={20} />}
+                            >
+                                Add Card
+                            </Button>
+                        )}
+                        {!isOwner && <div className="section-placeholder"></div>}
                     </div>
 
                     <div className="cards-list">
                         {cards.length > 0 ? (
                             cards.map((card, index) => (
-                                <Card key={card.cardId} className="flashcard-item">
-                                    <Card.Body className="flashcard-item-body">
-                                        <div className="card-index">{index + 1}</div>
-                                        <div className="card-content">
-                                            <div className="term-side">
-                                                <div className="side-label">TERM</div>
-                                                <div className="side-text">{card.term}</div>
+                                <Card key={card.cardId} className="flashcard-item-v2">
+                                    <div className="v2-card-body">
+                                        <div className="v2-index-col">
+                                            <span>{index + 1}</span>
+                                        </div>
+                                        <div className="v2-content-col">
+                                            <div className="v2-term">
+                                                <label>TERM</label>
+                                                <p>{card.term}</p>
                                             </div>
-                                            <div className="divider"></div>
-                                            <div className="definition-side">
-                                                <div className="side-label">DEFINITION</div>
-                                                <div className="side-text">{card.definition}</div>
+                                            <div className="v2-divider"></div>
+                                            <div className="v2-definition">
+                                                <label>DEFINITION</label>
+                                                <p>{card.definition}</p>
                                             </div>
                                         </div>
-                                        <div className="card-actions">
-                                            <Button
-                                                variant="ghost"
-                                                size="sm"
-                                                onClick={() => handleEditCardClick(card.cardId)}
-                                            >
-                                                <Pencil size={18} />
-                                            </Button>
-                                            <Button
-                                                variant="ghost"
-                                                size="sm"
-                                                className="delete-btn"
-                                                onClick={() => setCardToDelete(card.cardId)}
-                                            >
-                                                <Trash2 size={18} />
-                                            </Button>
-                                        </div>
-                                    </Card.Body>
+                                        {isOwner && (
+                                            <div className="v2-actions-col">
+                                                <Button
+                                                    variant="ghost"
+                                                    size="sm"
+                                                    className="action-minor-btn edit"
+                                                    onClick={() => handleEditCardClick(card.cardId)}
+                                                >
+                                                    < Pencil size={18} />
+                                                </Button>
+                                                <Button
+                                                    variant="ghost"
+                                                    size="sm"
+                                                    className="action-minor-btn delete"
+                                                    onClick={() => setCardToDelete(card.cardId)}
+                                                >
+                                                    <Trash2 size={18} />
+                                                </Button>
+                                            </div>
+                                        )}
+                                    </div>
                                 </Card>
                             ))
                         ) : (
-                            <div className="empty-cards">
-                                <p>No flashcards in this set yet.</p>
-                                <Button onClick={handleAddCardClick}>
-                                    Create first flashcard
-                                </Button>
+                            <div className="premium-empty-state">
+                                <div className="empty-icon-box">
+                                    <Layers size={48} />
+                                </div>
+                                <h3>Empty Flashcard Set</h3>
+                                <p>This set doesn't have any cards yet. Start adding terms to begin studying!</p>
+                                {isOwner && (
+                                    <Button size="lg" onClick={handleAddCardClick} leftIcon={<Plus size={20} />}>
+                                        Create First Card
+                                    </Button>
+                                )}
                             </div>
                         )}
                     </div>
                 </div>
 
-                {/* Reset Progress Confirmation */}
+                {/* Modals */}
                 <ConfirmationModal
                     isOpen={isResetModalOpen}
                     onClose={() => setIsResetModalOpen(false)}
                     onConfirm={handleResetProgress}
-                    title="Reset Study Progress"
-                    message="Are you sure you want to reset your progress for this set? This will set all cards back to 'New' status."
-                    confirmText="Reset Progress"
+                    title="Reset Progress"
+                    message="Are you sure you want to reset your progress? All cards will move back to 'New' status."
+                    confirmText="Reset"
                     type="danger"
                     isLoading={isResetting}
                 />
 
-                {/* Delete Card Confirmation */}
                 <ConfirmationModal
                     isOpen={!!cardToDelete}
                     onClose={() => setCardToDelete(null)}
                     onConfirm={handleDeleteCard}
-                    title="Delete Flashcard"
-                    message="Are you sure you want to delete this card? This action cannot be undone."
+                    title="Delete Card"
+                    message="Permanent action: This card will be removed from your set forever."
                     confirmText="Delete"
                     type="danger"
                     isLoading={isDeleting}
@@ -364,6 +425,13 @@ const FlashcardSetDetailsPage = () => {
                     isOpen={isCelebrationOpen}
                     onClose={() => setIsCelebrationOpen(false)}
                     setTitle={set?.title}
+                />
+
+                <QuizSettingsModal
+                    isOpen={isQuizSettingsOpen}
+                    onClose={() => setIsQuizSettingsOpen(false)}
+                    onStart={handleStartQuiz}
+                    totalCards={cards.length}
                 />
             </div>
         </MainLayout>

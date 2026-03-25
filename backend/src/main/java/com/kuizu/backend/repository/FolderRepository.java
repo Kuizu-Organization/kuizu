@@ -1,4 +1,4 @@
-package com.kuizu.backend.repository;
+spackage com.kuizu.backend.repository;
 
 import com.kuizu.backend.entity.Folder;
 import com.kuizu.backend.entity.User;
@@ -16,4 +16,3 @@ public interface FolderRepository extends JpaRepository<Folder, Long> {
     boolean existsByNameAndOwnerAndIsDeletedFalse(String name, User owner);
     java.util.Optional<Folder> findByNameAndOwnerAndIsDeletedFalse(String name, User owner);
 }
-

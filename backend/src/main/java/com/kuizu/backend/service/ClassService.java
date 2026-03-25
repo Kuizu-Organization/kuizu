@@ -143,6 +143,14 @@ public class ClassService {
                 .toList();
     }
 
+    public List<ClassResponse> getSuggestedClasses(int limit) {
+        return classRepository.findByVisibility(Visibility.PUBLIC)
+                .stream()
+                .limit(limit)
+                .map(this::convertToClassResponse)
+                .toList();
+    }
+
     private ClassResponse convertToClassResponse(Class c) {
         return new ClassResponse(
                 c.getClassId(),
@@ -152,7 +160,8 @@ public class ClassService {
                 c.getDescription(),
                 c.getVisibility(),
                 c.getStatus(),
-                c.getModerationNotes());
+                c.getModerationNotes()
+        );
     }
 
     public List<ClassResponse> getUserClasses(String username) {
@@ -218,6 +227,24 @@ public class ClassService {
                         + "' is currently pending moderation and awaiting review by the admins.",
                 "SYSTEM",
                 newClass.getClassId().toString());
+
+        // Notify user
+        notificationService.sendNotification(
+            user,
+            "Class Under Review",
+            "Your newly created class '" + newClass.getClassName() + "' is currently pending moderation and awaiting review by the admins.",
+            "SYSTEM",
+            newClass.getClassId().toString()
+        );
+
+        // Notify user
+        notificationService.sendNotification(
+            user,
+            "Class Under Review",
+            "Your newly created class '" + newClass.getClassName() + "' is currently pending moderation and awaiting review by the admins.",
+            "SYSTEM",
+            newClass.getClassId().toString()
+        );
 
         return convertToClassInfoResponse(newClass, username);
     }
@@ -359,7 +386,6 @@ public class ClassService {
     public ClassInfoResponse reRequestReview(Long classId, String username) {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new ApiException("User not found: " + username));
-
         Class clazz = classRepository.findByClassId(classId)
                 .orElseThrow(() -> new ApiException("Class not found: " + classId));
 
@@ -377,10 +403,10 @@ public class ClassService {
 
         // Notify admins
         notificationService.notifyAdmins(
-                "Class Re-requested for Review",
-                "Class '" + clazz.getClassName() + "' was re-requested for review by " + user.getDisplayName() + " (@"
-                        + user.getUsername() + ").",
-                clazz.getClassId().toString());
+            "Class Re-requested for Review",
+            "Class '" + clazz.getClassName() + "' was re-requested for review by " + user.getDisplayName() + " (@" + user.getUsername() + ").",
+            clazz.getClassId().toString()
+        );
 
         return convertToClassInfoResponse(clazz, username);
     }
