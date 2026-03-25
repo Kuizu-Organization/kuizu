@@ -5,7 +5,7 @@ import { useToast } from '@/context/ToastContext';
 import { BookOpen, Plus, Loader2 } from 'lucide-react';
 import './AddSetToFolderModal.css';
 
-const AddSetToFolderModal = ({ isOpen, onClose, folderId, onSetAdded }) => {
+const AddSetToFolderModal = ({ isOpen, onClose, folderId, onSetAdded, branchId }) => {
     const toast = useToast();
     const [availableSets, setAvailableSets] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
@@ -33,7 +33,7 @@ const AddSetToFolderModal = ({ isOpen, onClose, folderId, onSetAdded }) => {
     const handleAddSet = async (setId) => {
         try {
             setAddingSetId(setId);
-            await addSetToFolder(folderId, setId);
+            await addSetToFolder(folderId, setId, branchId);
             toast.success("Set added to folder!");
             setAvailableSets(prev => prev.filter(s => s.setId !== setId));
             if (onSetAdded) {

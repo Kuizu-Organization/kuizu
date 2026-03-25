@@ -29,6 +29,10 @@ public class FolderSet {
     @JoinColumn(name = "set_id")
     private FlashcardSet flashcardSet;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "branch_id")
+    private FolderBranch branch;
+
     @CreationTimestamp
     @Column(name = "added_at", updatable = false)
     private LocalDateTime addedAt;

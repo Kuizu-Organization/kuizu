@@ -83,7 +83,7 @@ const Sidebar = ({ isCollapsed, onToggle, activePath = '/dashboard' }) => {
                         {mainLinks.map((link, index) => (
                             <div
                                 key={index}
-                                className={`sidebar-item ${activePath === link.path ? 'active' : ''}`}
+                                className={`sidebar-item ${activePath.startsWith(link.path) ? 'active' : ''}`}
                                 onClick={() => handleNavigation(link.path, link.label)}
                             >
                                 <span className="sidebar-icon">{link.icon}</span>
@@ -99,7 +99,7 @@ const Sidebar = ({ isCollapsed, onToggle, activePath = '/dashboard' }) => {
                         {adminLinks.map((link, index) => (
                             <div
                                 key={index}
-                                className={`sidebar-item ${activePath === link.path ? 'active' : ''}`}
+                                className={`sidebar-item ${activePath.startsWith(link.path) ? 'active' : ''}`}
                                 onClick={() => handleNavigation(link.path, link.label)}
                             >
                                 <span className="sidebar-icon">{link.icon}</span>
@@ -115,7 +115,11 @@ const Sidebar = ({ isCollapsed, onToggle, activePath = '/dashboard' }) => {
                         <div className="sidebar-section">
                             {!isCollapsed && <h6 className="sidebar-title">Get started</h6>}
                             {quickStartLinks.map((link, index) => (
-                                <div key={index} className="sidebar-item" onClick={() => handleNavigation(link.path, link.label)}>
+                                <div 
+                                    key={index} 
+                                    className={`sidebar-item ${activePath.startsWith(link.path) ? 'active' : ''}`} 
+                                    onClick={() => handleNavigation(link.path, link.label)}
+                                >
                                     <span className="sidebar-icon">{link.icon}</span>
                                     {!isCollapsed && <span className="sidebar-label">{link.label}</span>}
                                 </div>

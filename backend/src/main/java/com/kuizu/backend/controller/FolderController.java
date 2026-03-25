@@ -1,6 +1,8 @@
 package com.kuizu.backend.controller;
 
+import com.kuizu.backend.dto.request.CreateBranchRequest;
 import com.kuizu.backend.dto.request.CreateFolderRequest;
+import com.kuizu.backend.dto.request.FlashcardSetRequest;
 import com.kuizu.backend.dto.request.UpdateFolderRequest;
 import com.kuizu.backend.service.FolderService;
 import jakarta.validation.Valid;
@@ -86,11 +88,15 @@ public class FolderController {
     }
 
     @PostMapping("/{folderId}/sets/{setId}")
-    public ResponseEntity<?> addSetToFolder(@PathVariable Long folderId, @PathVariable Long setId, Principal principal) {
+    public ResponseEntity<?> addSetToFolder(
+            @PathVariable Long folderId, 
+            @PathVariable Long setId, 
+            @RequestParam(required = false) Long branchId,
+            Principal principal) {
         if (principal == null) {
             return ResponseEntity.status(401).build();
         }
-        folderService.addSetToFolder(folderId, setId, principal.getName());
+        folderService.addSetToFolder(folderId, setId, branchId, principal.getName());
         return ResponseEntity.ok(Map.of("message", "Set added to folder successfully"));
     }
 
@@ -101,5 +107,27 @@ public class FolderController {
         }
         folderService.removeSetFromFolder(folderId, setId, principal.getName());
         return ResponseEntity.ok(Map.of("message", "Set removed from folder successfully"));
+    }
+
+    @PostMapping("/{folderId}/sets/new")
+    public ResponseEntity<?> createSetInFolder(
+            @PathVariable Long folderId, 
+            @RequestParam(required = false) Long branchId,
+            @Valid @RequestBody FlashcardSetRequest request, 
+            Principal principal) {
+        if (principal == null) {
+            return ResponseEntity.status(401).build();
+        }
+        // Note: createSetInFolder currently doesn't take branchId, I should update it if needed
+        // For now, I'll just use the basic one.
+        return ResponseEntity.ok(folderService.createSetInFolder(folderId, request, branchId, principal.getName()));
+    }
+
+    @PostMapping("/{folderId}/branches")
+    public ResponseEntity<?> createBranch(@PathVariable Long folderId, @Valid @RequestBody CreateBranchRequest request, Principal principal) {
+        if (principal == null) {
+            return ResponseEntity.status(401).build();
+        }
+        return ResponseEntity.ok(folderService.createBranch(folderId, request.getName(), principal.getName()));
     }
 }

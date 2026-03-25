@@ -1,10 +1,16 @@
 package com.kuizu.backend.service;
 
 import com.kuizu.backend.dto.request.CreateFolderRequest;
+import com.kuizu.backend.dto.request.FlashcardSetRequest;
 import com.kuizu.backend.dto.request.UpdateFolderRequest;
+import com.kuizu.backend.dto.response.FlashcardSetResponse;
+import com.kuizu.backend.exception.ApiException;
 import com.kuizu.backend.dto.response.FolderDetailResponse;
 import com.kuizu.backend.dto.response.FolderResponse;
+import com.kuizu.backend.dto.response.FolderDetailResponse.*;
 import com.kuizu.backend.entity.*;
+import com.kuizu.backend.entity.enumeration.Visibility;
+import com.kuizu.backend.entity.enumeration.ModerationStatus;
 import com.kuizu.backend.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -20,15 +26,21 @@ import java.util.stream.Collectors;
 public class FolderService {
 
     private final FolderRepository folderRepository;
+    private final FolderBranchRepository folderBranchRepository;
     private final FolderSetRepository folderSetRepository;
     private final FlashcardRepository flashcardRepository;
     private final FlashcardSetRepository flashcardSetRepository;
     private final UserRepository userRepository;
+    private final NotificationService notificationService;
 
     @Transactional
     public FolderResponse createFolder(CreateFolderRequest request, String username) {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("User not found"));
+
+        if (folderRepository.existsByNameAndOwnerAndIsDeletedFalse(request.getName(), user)) {
+            throw new ApiException("A folder with the name '" + request.getName() + "' already exists in your collection.");
+        }
 
         String visibility = request.getVisibility();
         if (visibility == null || (!visibility.equals("PUBLIC") && !visibility.equals("PRIVATE"))) {
@@ -110,7 +122,13 @@ public class FolderService {
             visibility = "PUBLIC";
         }
 
-        folder.setName(request.getName());
+        if (request.getName() != null && !request.getName().equals(folder.getName())) {
+            if (folderRepository.existsByNameAndOwnerAndIsDeletedFalse(request.getName(), folder.getOwner())) {
+                throw new ApiException("A folder with the name '" + request.getName() + "' already exists in your collection.");
+            }
+            folder.setName(request.getName());
+        }
+
         folder.setDescription(request.getDescription());
         folder.setVisibility(visibility);
 
@@ -147,6 +165,11 @@ public class FolderService {
 
     @Transactional
     public void addSetToFolder(Long folderId, Long setId, String username) {
+        addSetToFolder(folderId, setId, null, username);
+    }
+
+    @Transactional
+    public void addSetToFolder(Long folderId, Long setId, Long branchId, String username) {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
@@ -160,19 +183,55 @@ public class FolderService {
         FlashcardSet flashcardSet = flashcardSetRepository.findById(setId)
                 .orElseThrow(() -> new RuntimeException("Flashcard set not found"));
 
-        FolderSet.FolderSetId id = new FolderSet.FolderSetId(folderId, setId);
-        if (folderSetRepository.existsById(id)) {
-            throw new RuntimeException("This set is already in the folder");
+        FolderBranch branch = null;
+        if (branchId != null) {
+            branch = folderBranchRepository.findById(branchId)
+                    .orElseThrow(() -> new RuntimeException("Branch not found"));
         }
 
-        FolderSet folderSet = FolderSet.builder()
-                .id(id)
+        FolderSet.FolderSetId id = new FolderSet.FolderSetId(folderId, setId);
+        FolderSet folderSet = folderSetRepository.findById(id).orElse(null);
+        
+        if (folderSet != null) {
+            folderSet.setBranch(branch);
+            folderSetRepository.save(folderSet);
+        } else {
+            folderSet = FolderSet.builder()
+                    .id(id)
+                    .folder(folder)
+                    .flashcardSet(flashcardSet)
+                    .branch(branch)
+                    .addedBy(user.getUserId().toString())
+                    .build();
+            folderSetRepository.save(folderSet);
+        }
+    }
+
+    @Transactional
+    public FolderDetailResponse.BranchSummary createBranch(Long folderId, String name, String username) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        Folder folder = folderRepository.findByFolderIdAndIsDeletedFalse(folderId)
+                .orElseThrow(() -> new RuntimeException("Folder not found"));
+
+        if (!folder.getOwner().getUserId().equals(user.getUserId())) {
+            throw new RuntimeException("You don't own this folder");
+        }
+
+        FolderBranch branch = FolderBranch.builder()
                 .folder(folder)
-                .flashcardSet(flashcardSet)
-                .addedBy(user.getUserId().toString())
+                .name(name)
+                .isDeleted(false)
                 .build();
 
-        folderSetRepository.save(folderSet);
+        FolderBranch saved = folderBranchRepository.save(branch);
+
+        return FolderDetailResponse.BranchSummary.builder()
+                .branchId(saved.getBranchId())
+                .name(saved.getName())
+                .sets(java.util.Collections.emptyList())
+                .build();
     }
 
     @Transactional
@@ -265,33 +324,24 @@ public class FolderService {
             throw new RuntimeException("Folder not found");
         }
 
+        List<FolderBranch> branches = folderBranchRepository.findByFolderAndIsDeletedFalse(folder);
         List<FolderSet> folderSets = folderSetRepository.findByFolder(folder);
 
-        List<FolderDetailResponse.FlashcardSetSummary> sets = folderSets.stream()
-                .map(fs -> {
-                    var flashcardSet = fs.getFlashcardSet();
+        List<FolderDetailResponse.FlashcardSetSummary> allSets = folderSets.stream()
+                .map(fs -> mapToSummary(fs))
+                .collect(Collectors.toList());
 
-                    List<Flashcard> cards = flashcardRepository
-                            .findByFlashcardSetAndIsDeletedFalseOrderByOrderIndexAsc(flashcardSet);
-
-                    List<FolderDetailResponse.FlashcardItem> flashcardItems = cards.stream()
-                            .map(card -> FolderDetailResponse.FlashcardItem.builder()
-                                    .cardId(card.getCardId())
-                                    .term(card.getTerm())
-                                    .definition(card.getDefinition())
-                                    .orderIndex(card.getOrderIndex())
-                                    .build())
+        List<FolderDetailResponse.BranchSummary> branchSummaries = branches.stream()
+                .map(b -> {
+                    List<FolderDetailResponse.FlashcardSetSummary> branchSets = folderSets.stream()
+                            .filter(fs -> fs.getBranch() != null && fs.getBranch().getBranchId().equals(b.getBranchId()))
+                            .map(fs -> mapToSummary(fs))
                             .collect(Collectors.toList());
-
-                    return FolderDetailResponse.FlashcardSetSummary.builder()
-                            .setId(flashcardSet.getSetId())
-                            .title(flashcardSet.getTitle())
-                            .description(flashcardSet.getDescription())
-                            .termCount(cards.size())
-                            .ownerDisplayName(flashcardSet.getOwner().getDisplayName())
-                            .ownerUsername(flashcardSet.getOwner().getUsername())
-                            .createdAt(flashcardSet.getCreatedAt())
-                            .flashcards(flashcardItems)
+                    
+                    return FolderDetailResponse.BranchSummary.builder()
+                            .branchId(b.getBranchId())
+                            .name(b.getName())
+                            .sets(branchSets)
                             .build();
                 })
                 .collect(Collectors.toList());
@@ -304,7 +354,109 @@ public class FolderService {
                 .ownerDisplayName(folder.getOwner().getDisplayName())
                 .ownerUsername(folder.getOwner().getUsername())
                 .createdAt(folder.getCreatedAt())
-                .sets(sets)
+                .branches(branchSummaries)
+                .sets(allSets) // "All" tab uses this
+                .build();
+    }
+
+    private FolderDetailResponse.FlashcardSetSummary mapToSummary(FolderSet fs) {
+        var flashcardSet = fs.getFlashcardSet();
+        List<Flashcard> cards = flashcardRepository
+                .findByFlashcardSetAndIsDeletedFalseOrderByOrderIndexAsc(flashcardSet);
+
+        List<FolderDetailResponse.FlashcardItem> flashcardItems = cards.stream()
+                .map(card -> FolderDetailResponse.FlashcardItem.builder()
+                        .cardId(card.getCardId())
+                        .term(card.getTerm())
+                        .definition(card.getDefinition())
+                        .orderIndex(card.getOrderIndex())
+                        .build())
+                .collect(Collectors.toList());
+
+        return FolderDetailResponse.FlashcardSetSummary.builder()
+                .setId(flashcardSet.getSetId())
+                .branchId(fs.getBranch() != null ? fs.getBranch().getBranchId() : null)
+                .title(flashcardSet.getTitle())
+                .description(flashcardSet.getDescription())
+                .termCount(cards.size())
+                .ownerDisplayName(flashcardSet.getOwner().getDisplayName())
+                .ownerUsername(flashcardSet.getOwner().getUsername())
+                .createdAt(flashcardSet.getCreatedAt())
+                .flashcards(flashcardItems)
+                .build();
+    }
+
+    @Transactional
+    public FlashcardSetResponse createSetInFolder(Long folderId, FlashcardSetRequest request, Long branchId, String username) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        Folder folder = folderRepository.findById(folderId)
+                .orElseThrow(() -> new RuntimeException("Folder not found"));
+
+        if (!folder.getOwner().getUserId().equals(user.getUserId())) {
+            throw new RuntimeException("You don't own this folder");
+        }
+
+        FolderBranch branch = null;
+        if (branchId != null) {
+            branch = folderBranchRepository.findById(branchId)
+                    .orElseThrow(() -> new RuntimeException("Branch not found"));
+        }
+
+        // 1. Create the set
+        FlashcardSet set = FlashcardSet.builder()
+                .owner(user)
+                .title(request.getTitle())
+                .description(request.getDescription())
+                .visibility(request.getVisibility() != null ? Visibility.valueOf(request.getVisibility().toUpperCase())
+                        : Visibility.PUBLIC)
+                .status(ModerationStatus.PENDING)
+                .isDeleted(false)
+                .version(1)
+                .submittedBy(user.getUserId())
+                .submittedAt(java.time.LocalDateTime.now())
+                .build();
+
+        FlashcardSet savedSet = flashcardSetRepository.save(set);
+
+        // 2. Add to folder
+        FolderSet.FolderSetId id = new FolderSet.FolderSetId(folderId, savedSet.getSetId());
+        FolderSet folderSet = FolderSet.builder()
+                .id(id)
+                .folder(folder)
+                .flashcardSet(savedSet)
+                .branch(branch)
+                .addedBy(user.getUserId().toString())
+                .build();
+
+        folderSetRepository.save(folderSet);
+
+        // Notify admins/user (borrowed from FlashcardSetService logic)
+        notificationService.notifyAdmins(
+                "New Flashcard Set Pending Review",
+                "A new flashcard set '" + savedSet.getTitle() + "' was created in folder '" + folder.getName() + "' by " + user.getDisplayName() + " (@"
+                        + user.getUsername() + ") and needs moderation.",
+                savedSet.getSetId().toString());
+
+        notificationService.sendNotification(
+                user,
+                "Flashcard Set Under Review",
+                "Your newly created flashcard set '" + savedSet.getTitle()
+                        + "' in folder '" + folder.getName() + "' is currently pending moderation.",
+                "SYSTEM",
+                savedSet.getSetId().toString());
+
+        return FlashcardSetResponse.builder()
+                .setId(savedSet.getSetId())
+                .ownerId(savedSet.getOwner().getUserId())
+                .ownerDisplayName(savedSet.getOwner().getDisplayName())
+                .title(savedSet.getTitle())
+                .description(savedSet.getDescription())
+                .visibility(savedSet.getVisibility().name())
+                .status(savedSet.getStatus().name())
+                .cardCount(0)
+                .createdAt(savedSet.getCreatedAt())
                 .build();
     }
 }

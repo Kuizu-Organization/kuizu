@@ -15,6 +15,7 @@ const CreateFolderModal = ({ isOpen, onClose, onCreateSuccess }) => {
     const [mySets, setMySets] = useState([]);
     const [selectedSetIds, setSelectedSetIds] = useState([]);
     const [isLoadingSets, setIsLoadingSets] = useState(false);
+    const [error, setError] = useState(null);
 
     useEffect(() => {
         if (isOpen) {
@@ -22,7 +23,7 @@ const CreateFolderModal = ({ isOpen, onClose, onCreateSuccess }) => {
             setDescription('');
             setVisibility('PUBLIC');
             setSelectedSetIds([]);
-
+            setError(null);
             const fetchSets = async () => {
                 setIsLoadingSets(true);
                 try {
@@ -75,7 +76,9 @@ const CreateFolderModal = ({ isOpen, onClose, onCreateSuccess }) => {
 
         } catch (error) {
             console.error('Failed to create folder:', error);
-            toast.error(error.response?.data?.message || 'Failed to create folder');
+            const message = error.response?.data?.message || 'Failed to create folder';
+            setError(message);
+            toast.error(message);
         } finally {
             setIsSubmitting(false);
         }
@@ -106,13 +109,22 @@ const CreateFolderModal = ({ isOpen, onClose, onCreateSuccess }) => {
             footer={footer}
         >
             <div className="create-folder-content">
+                {error && (
+                    <div className="modal-error-message">
+                        <span role="img" aria-label="error">⚠️</span>
+                        {error}
+                    </div>
+                )}
                 <form onSubmit={handleSubmit}>
-                    <div className="form-group slide-in">
+                    <div className={`form-group slide-in ${error ? 'error-input' : ''}`}>
                         <label>Folder name *</label>
                         <Input
                             placeholder="e.g., Semester 1 Materials"
                             value={folderName}
-                            onChange={(e) => setFolderName(e.target.value)}
+                            onChange={(e) => {
+                                setFolderName(e.target.value);
+                                if (error) setError(null);
+                            }}
                             autoFocus
                             required
                         />

@@ -25,10 +25,6 @@ export const getAvailableSets = async (folderId) => {
     return response.data;
 };
 
-export const addSetToFolder = async (folderId, setId) => {
-    const response = await api.post(`/folders/${folderId}/sets/${setId}`);
-    return response.data;
-};
 
 export const removeSetFromFolder = async (folderId, setId) => {
     const response = await api.delete(`/folders/${folderId}/sets/${setId}`);
@@ -47,5 +43,22 @@ export const updateFolder = async (folderId, updateData) => {
 
 export const deleteFolder = async (folderId) => {
     const response = await api.delete(`/folders/${folderId}`);
+    return response.data;
+};
+
+export const createSetInFolder = async (folderId, setData, branchId = null) => {
+    const url = branchId ? `/folders/${folderId}/sets/new?branchId=${branchId}` : `/folders/${folderId}/sets/new`;
+    const response = await api.post(url, setData);
+    return response.data;
+};
+
+export const createBranch = async (folderId, branchData) => {
+    const response = await api.post(`/folders/${folderId}/branches`, branchData);
+    return response.data;
+};
+
+export const addSetToFolder = async (folderId, setId, branchId = null) => {
+    const url = branchId ? `/folders/${folderId}/sets/${setId}?branchId=${branchId}` : `/folders/${folderId}/sets/${setId}`;
+    const response = await api.post(url);
     return response.data;
 };

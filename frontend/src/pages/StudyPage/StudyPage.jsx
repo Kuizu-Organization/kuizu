@@ -23,6 +23,10 @@ const StudyPage = () => {
     const [hasTriggeredFinish, setHasTriggeredFinish] = useState(false);
     const [starredCardIds, setStarredCardIds] = useState(new Set());
 
+    const backPath = location.state?.from || `/flashcard-sets/${setId}`;
+    const backLabel = location.state?.fromLabel || 'Back to Set';
+    const studyTitle = location.state?.folderName || '';
+
     const progress = cards.length > 0 ? ((currentIndex + 1) / cards.length) * 100 : 0;
 
     useEffect(() => {
@@ -158,8 +162,8 @@ const StudyPage = () => {
                                     Study Starred ({starredCards.length})
                                 </Button>
                             )}
-                            <Button variant="outline" onClick={() => navigate(`/flashcard-sets/${setId}`)} className="return-btn">
-                                Return to Set
+                             <Button variant="outline" onClick={() => navigate(backPath)} className="return-btn">
+                                {backLabel}
                             </Button>
                         </div>
                     </Card>
@@ -190,14 +194,14 @@ const StudyPage = () => {
             <div className="study-page-container">
                 <div className="study-header">
                     <div className="study-header-left">
-                        <Button
+                         <Button
                             variant="outline"
                             size="sm"
-                            onClick={() => navigate(`/flashcard-sets/${setId}`)}
+                            onClick={() => navigate(backPath)}
                             leftIcon={<ChevronLeft size={20} />}
                             className="back-set-btn"
                         >
-                            Back to Set
+                            {backLabel}
                         </Button>
                     </div>
 

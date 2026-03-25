@@ -98,7 +98,7 @@ const Navbar = ({ isSidebarCollapsed, onToggleSidebar }) => {
                         onSearch={handleSearchInput}
                         onResultClick={handleResultClick}
                         onEnter={handleSearchEnter}
-                        placeholder="Search for classes..."
+                        placeholder="Search for study guides"
                     />
                 </div>
 
