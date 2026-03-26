@@ -118,6 +118,7 @@ public class StudyProgressService {
         long mastered = 0;
         long learning = 0;
         long newCards = 0;
+        long totalMasteryPoints = 0;
 
         for (Flashcard card : cards) {
             StudyProgress progress = studyProgressRepository.findByUserAndFlashcard(user, card).orElse(null);
@@ -130,6 +131,7 @@ public class StudyProgressService {
                         .streak(0)
                         .build());
             } else {
+                totalMasteryPoints += progress.getMasteryLevel();
                 if (progress.getMasteryLevel() >= 4) {
                     mastered++;
                 } else if (progress.getMasteryLevel() > 0) {
@@ -146,6 +148,13 @@ public class StudyProgressService {
             }
         }
 
+        double progressPercentage = 0.0;
+        if (!cards.isEmpty()) {
+            // Mỗi thẻ có tối đa 5 điểm thông thạo
+            long maxPossiblePoints = (long) cards.size() * 5;
+            progressPercentage = (double) totalMasteryPoints / maxPossiblePoints * 100;
+        }
+
         return StudyProgressResponse.builder()
                 .setId(set.getSetId())
                 .setTitle(set.getTitle())
@@ -153,7 +162,7 @@ public class StudyProgressService {
                 .masteredCards(mastered)
                 .learningCards(learning)
                 .newCards(newCards)
-                .progressPercentage(cards.isEmpty() ? 0.0 : (double) mastered / cards.size() * 100)
+                .progressPercentage(progressPercentage)
                 .cardDetails(cardDetails)
                 .build();
     }

@@ -25,6 +25,16 @@ public class FlashcardSetController {
         return ResponseEntity.ok(flashcardSetService.getAllPublicSets());
     }
 
+    @GetMapping("/search")
+    public ResponseEntity<List<FlashcardSetResponse>> searchFlashcardSets(@RequestParam String query) {
+        return ResponseEntity.ok(flashcardSetService.searchFlashcardSets(query));
+    }
+
+    @GetMapping("/suggested")
+    public ResponseEntity<List<FlashcardSetResponse>> getSuggestedSets(@RequestParam(defaultValue = "10") int limit) {
+        return ResponseEntity.ok(flashcardSetService.getSuggestedSets(limit));
+    }
+
     @GetMapping("/my")
     public ResponseEntity<List<FlashcardSetResponse>> getMySets(Principal principal) {
         return ResponseEntity.ok(flashcardSetService.getSetsByOwner(principal.getName()));

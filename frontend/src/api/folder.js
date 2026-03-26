@@ -20,6 +20,16 @@ export const getPublicFolders = async () => {
     return response.data;
 };
 
+export const searchFolders = async (query) => {
+    const response = await api.get('/folders/search', { params: { query } });
+    return response.data;
+};
+
+export const getSuggestedFolders = async (limit) => {
+    const response = await api.get('/folders/suggested', { params: { limit } });
+    return response.data;
+};
+
 export const getAvailableSets = async (folderId) => {
     const response = await api.get(`/folders/${folderId}/available-sets`);
     return response.data;

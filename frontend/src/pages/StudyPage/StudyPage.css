@@ -75,6 +75,12 @@
     border-color: var(--primary);
 }
 
+.shuffle-btn.active {
+    background: var(--primary);
+    color: var(--white);
+    border-color: var(--primary);
+}
+
 .finish-early-btn {
     font-weight: 600;
     padding-left: 1.25rem;
@@ -179,8 +185,8 @@
     border: none;
     cursor: pointer;
     color: var(--text-light);
-    opacity: 0.5;
-    transition: all 0.2s ease;
+    opacity: 0.4;
+    transition: color 0.2s ease;
     padding: 0;
     display: flex;
     align-items: center;
@@ -189,13 +195,18 @@
 }
 
 .star-btn:hover {
-    opacity: 0.8;
-    transform: scale(1.1);
+    opacity: 1;
+    color: var(--primary);
 }
 
 .star-btn.starred {
-    color: #f59e0b;
+    color: #ffce3a;
     opacity: 1;
+    filter: drop-shadow(0 1px 1px rgba(0,0,0,0.1));
+}
+
+.star-btn.starred:hover {
+    color: #ffd84d;
 }
 
 /* Controls */

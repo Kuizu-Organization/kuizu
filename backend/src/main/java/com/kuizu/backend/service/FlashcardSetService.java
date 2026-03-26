@@ -8,7 +8,6 @@ import com.kuizu.backend.exception.ApiException;
 import com.kuizu.backend.repository.FlashcardRepository;
 import com.kuizu.backend.repository.FlashcardSetRepository;
 import com.kuizu.backend.repository.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,23 +22,38 @@ public class FlashcardSetService {
     private final FlashcardRepository flashcardRepository;
     private final UserRepository userRepository;
     private final NotificationService notificationService;
+    private final StatisticService statisticService;
 
     public FlashcardSetService(FlashcardSetRepository flashcardSetRepository,
             FlashcardRepository flashcardRepository,
             UserRepository userRepository,
-            NotificationService notificationService) {
+            NotificationService notificationService,
+            StatisticService statisticService) {
         this.flashcardSetRepository = flashcardSetRepository;
         this.flashcardRepository = flashcardRepository;
         this.userRepository = userRepository;
         this.notificationService = notificationService;
+        this.statisticService = statisticService;
     }
-
-    @Autowired
-    private StatisticService statisticService;
 
     public List<FlashcardSetResponse> getAllPublicSets() {
         return flashcardSetRepository.findByVisibilityAndIsDeletedFalse(Visibility.PUBLIC)
                 .stream()
+                .map(this::mapToResponse)
+                .collect(Collectors.toList());
+    }
+
+    public List<FlashcardSetResponse> searchFlashcardSets(String query) {
+        return flashcardSetRepository.findByTitleContainingIgnoreCaseAndVisibilityAndIsDeletedFalse(query, Visibility.PUBLIC)
+                .stream()
+                .map(this::mapToResponse)
+                .collect(Collectors.toList());
+    }
+
+    public List<FlashcardSetResponse> getSuggestedSets(int limit) {
+        return flashcardSetRepository.findByVisibilityAndIsDeletedFalse(Visibility.PUBLIC)
+                .stream()
+                .limit(limit)
                 .map(this::mapToResponse)
                 .collect(Collectors.toList());
     }
@@ -154,6 +168,10 @@ public class FlashcardSetService {
 
         if (set.getStatus() == com.kuizu.backend.entity.enumeration.ModerationStatus.PENDING) {
             throw new ApiException("Flashcard set is already pending review");
+        }
+        
+        if (set.getStatus() != com.kuizu.backend.entity.enumeration.ModerationStatus.REJECTED) {
+            throw new ApiException("Only rejected flashcard sets can be re-requested for review");
         }
 
         set.setStatus(com.kuizu.backend.entity.enumeration.ModerationStatus.PENDING);

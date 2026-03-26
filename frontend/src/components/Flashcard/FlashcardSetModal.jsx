@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Save, Loader } from 'lucide-react';
+import { Save, Loader, Globe, Lock, Link } from 'lucide-react';
 import { getFlashcardSetById, createFlashcardSet, updateFlashcardSet } from '@/api/flashcards';
-import { Button, Input, Modal, Textarea, Select } from '../ui';
+import { Button, Input, Modal, Textarea, Dropdown } from '@/components/ui';
+import { useModal } from '@/context/ModalContext';
 import './FlashcardModal.css';
 
 const FlashcardSetModal = ({ isOpen, onClose, setId, onSuccess }) => {
@@ -11,6 +12,7 @@ const FlashcardSetModal = ({ isOpen, onClose, setId, onSuccess }) => {
         description: '',
         visibility: 'PUBLIC'
     });
+    const { openShareModal } = useModal();
     const [loading, setLoading] = useState(false);
     const [submitting, setSubmitting] = useState(false);
     const [error, setError] = useState(null);
@@ -27,6 +29,14 @@ const FlashcardSetModal = ({ isOpen, onClose, setId, onSuccess }) => {
             setError(null);
         }
     }, [isOpen, setId]);
+
+    const visibilityItems = [
+        { label: 'Public (Everyone can see)', value: 'PUBLIC', icon: <Globe size={16} /> },
+        { label: 'Private (Only you can see)', value: 'PRIVATE', icon: <Lock size={16} /> },
+        { label: 'Unlisted (Anyone with the link can see)', value: 'UNLISTED', icon: <Link size={16} /> }
+    ];
+
+    const currentVisibility = visibilityItems.find(item => item.value === formData.visibility) || visibilityItems[0];
 
     const fetchSet = async () => {
         try {
@@ -49,6 +59,10 @@ const FlashcardSetModal = ({ isOpen, onClose, setId, onSuccess }) => {
         setFormData(prev => ({ ...prev, [name]: value }));
     };
 
+    const handleVisibilityChange = (item) => {
+        setFormData(prev => ({ ...prev, visibility: item.value }));
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
@@ -61,9 +75,13 @@ const FlashcardSetModal = ({ isOpen, onClose, setId, onSuccess }) => {
             } else {
                 result = await createFlashcardSet(formData);
             }
-
+            
             if (onSuccess) onSuccess(result);
             onClose();
+
+            if (formData.visibility === 'UNLISTED') {
+                setTimeout(() => openShareModal(result), 300);
+            }
         } catch (err) {
             setError(err.response?.data?.message || 'Something went wrong');
         } finally {
@@ -133,17 +151,19 @@ const FlashcardSetModal = ({ isOpen, onClose, setId, onSuccess }) => {
                     </div>
 
                     <div className="form-group mb-2">
-                        <Select
-                            id="visibility"
-                            name="visibility"
-                            label="Visibility"
-                            value={formData.visibility}
-                            onChange={handleChange}
-                        >
-                            <option value="PUBLIC">🌐 Public (Everyone can see)</option>
-                            <option value="PRIVATE">🔒 Private (Only you can see)</option>
-                            <option value="UNLISTED">🔗 Unlisted (Anyone with the link can see)</option>
-                        </Select>
+                        <Dropdown
+                            formLabel="Visibility"
+                            variant="select"
+                            label={
+                                <div className="flex items-center gap-2">
+                                    {currentVisibility.icon}
+                                    <span>{currentVisibility.label}</span>
+                                </div>
+                            }
+                            items={visibilityItems}
+                            onItemClick={handleVisibilityChange}
+                            className="w-full"
+                        />
                     </div>
                 </form>
             )}
