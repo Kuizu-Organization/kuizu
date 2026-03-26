@@ -8,9 +8,9 @@ const LeaveClassModal = ({ isOpen, onClose, onConfirm, isLeaving }) => {
             <Button variant="outline" onClick={onClose} disabled={isLeaving}>
                 Cancel
             </Button>
-            <Button 
-                variant="primary" 
-                onClick={onConfirm} 
+            <Button
+                variant="primary"
+                onClick={onConfirm}
                 disabled={isLeaving}
                 className="leave-confirm-btn"
             >
@@ -20,10 +20,10 @@ const LeaveClassModal = ({ isOpen, onClose, onConfirm, isLeaving }) => {
     );
 
     return (
-        <Modal 
-            isOpen={isOpen} 
-            onClose={onClose} 
-            title="Leave Class" 
+        <Modal
+            isOpen={isOpen}
+            onClose={onClose}
+            title="Leave Class"
             size="sm"
             footer={footer}
         >

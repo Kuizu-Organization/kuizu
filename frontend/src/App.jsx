@@ -1,32 +1,32 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import AuthPage from './pages/AuthPage';
+import AuthPage from '@/pages/AuthPage/AuthPage';
 import { BookOpen, Plus } from 'lucide-react';
-import ProfilePage from './pages/ProfilePage';
-import HomePage from './pages/HomePage/HomePage';
-import ProtectedRoute from './components/layout/ProtectedRoute';
-import DashboardPage from './pages/DashboardPage/DashboardPage';
-import AdminDashboard from './pages/Admin/AdminDashboard';
-import AdminSetPreviewPage from './pages/Admin/AdminSetPreviewPage';
-import StatisticsPage from './pages/Admin/StatisticsPage';
-import ClassDetailPage from './pages/ClassDetailPage/ClassDetailPage';
-import SearchPage from './pages/SearchPage/SearchPage';
-import ComingSoonPage from './pages/ComingSoonPage';
-import FoldersPage from './pages/FoldersPage/FoldersPage';
-import FolderDetailPage from './pages/FolderDetailPage/FolderDetailPage';
-import ForgotPasswordPage from './pages/ForgotPasswordPage/ForgotPasswordPage';
-import PublicProfilePage from './pages/PublicProfilePage/PublicProfilePage';
-import FlashcardSetsPage from './pages/FlashcardSetsPage';
-import FlashcardSetDetailsPage from './pages/FlashcardSetDetailsPage';
-import FlashcardSetForm from './pages/FlashcardSetForm';
-import FlashcardForm from './pages/FlashcardForm';
-import QuizPage from './pages/QuizPage';
-import QuizResultPage from './pages/QuizResultPage';
-import StudyPage from './pages/StudyPage';
-import AdminModerationPage from './pages/AdminModerationPage';
-import SavedSetsPage from './pages/SavedSetsPage';
-import NotFoundPage from './pages/NotFoundPage';
+import ProfilePage from '@/pages/ProfilePage/ProfilePage';
+import HomePage from '@/pages/HomePage/HomePage';
+import ProtectedRoute from '@/components/layout/ProtectedRoute';
+import DashboardPage from '@/pages/DashboardPage/DashboardPage';
+import AdminDashboard from '@/pages/Admin/AdminDashboard';
+import AdminSetPreviewPage from '@/pages/Admin/AdminSetPreviewPage';
+import StatisticsPage from '@/pages/Admin/StatisticsPage';
+import ClassDetailPage from '@/pages/ClassDetailPage/ClassDetailPage';
+import SearchPage from '@/pages/SearchPage/SearchPage';
+import ComingSoonPage from '@/pages/ComingSoonPage.jsx';
+import FoldersPage from '@/pages/FoldersPage/FoldersPage';
+import FolderDetailPage from '@/pages/FolderDetailPage/FolderDetailPage';
+import ForgotPasswordPage from '@/pages/ForgotPasswordPage/ForgotPasswordPage';
+import PublicProfilePage from '@/pages/PublicProfilePage/PublicProfilePage';
+import FlashcardSetsPage from '@/pages/FlashcardSetsPage/FlashcardSetsPage';
+import FlashcardSetDetailsPage from '@/pages/FlashcardSetDetailsPage/FlashcardSetDetailsPage';
+import FlashcardSetForm from '@/pages/FlashcardSetForm/FlashcardSetForm';
+import FlashcardForm from '@/pages/FlashcardForm/FlashcardForm';
+import QuizPage from '@/pages/QuizPage/QuizPage';
+import QuizResultPage from '@/pages/QuizResultPage/QuizResultPage';
+import StudyPage from '@/pages/StudyPage/StudyPage';
+import AdminModerationPage from '@/pages/AdminModerationPage/AdminModerationPage';
+import SavedSetsPage from '@/pages/SavedSetsPage/SavedSetsPage';
+import NotFoundPage from '@/pages/NotFoundPage/NotFoundPage';
 
-import MainLayout from './components/layout';
+import MainLayout from '@/components/layout';
 
 function App() {
   return (
@@ -177,4 +177,5 @@ function App() {
 }
 
 export default App;
+
 

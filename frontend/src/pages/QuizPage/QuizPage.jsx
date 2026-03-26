@@ -1,18 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { ChevronLeft, CheckCircle2, XCircle, AlertCircle, ArrowLeftRight, Check, X } from 'lucide-react';
-import { getFlashcardsBySetId } from '../api/flashcards';
-import { submitQuiz } from '../api/study';
-import { Button, Card, Loader, Modal, Input } from '../components/ui';
-import MainLayout from '../components/layout';
+import { getFlashcardsBySetId } from '@/api/flashcards';
+import { submitQuiz } from '@/api/study';
+import { Button, Card, Loader, Modal, Input } from '@/components/ui';
+import MainLayout from '@/components/layout';
 import './QuizPage.css';
-import { useToast } from '../context/ToastContext';
 
 const QuizPage = () => {
     const { setId } = useParams();
     const navigate = useNavigate();
     const location = useLocation();
-    const toast = useToast();
+
+    const backPath = location.state?.from || `/flashcard-sets/${setId}`;
+    const backLabel = location.state?.fromLabel || 'Back to Set';
 
     const [cards, setCards] = useState(location.state?.cards || []);
     const settings = location.state?.settings || {
@@ -185,37 +186,27 @@ const QuizPage = () => {
     };
 
     const handleSubmitQuiz = async () => {
+        const isFolder = setId.startsWith('folder-');
         try {
             setIsSubmitting(true);
             
-            // Ensure all questions are included in results, even if unanswered
-            const answeredMap = new Map(answers.map(a => [a.cardId, a]));
-            const completeAnswers = questions.map(q => {
-                if (answeredMap.has(q.cardId)) {
-                    return answeredMap.get(q.cardId);
-                }
-                return {
-                    cardId: q.cardId,
-                    term: q.term,
-                    definition: q.type === 'TRUE_FALSE' ? q.originalDefinition : q.correctAnswer,
-                    isCorrect: false,
-                    userAnswer: '(Skipped)',
-                    questionType: q.type
-                };
-            });
+            if (!isFolder) {
+                await submitQuiz({
+                    setId: parseInt(setId),
+                    answers: answers.map(a => ({ cardId: a.cardId, isCorrect: a.isCorrect }))
+                });
+            }
 
             await submitQuiz({
                 setId: parseInt(setId),
                 answers: completeAnswers.map(a => ({ cardId: a.cardId, isCorrect: a.isCorrect }))
             });
 
-            toast.success('Study progress updated!');
-
             const correctCount = completeAnswers.filter(a => a.isCorrect).length;
             navigate(`/quiz/results/summary`, {
                 state: {
                     result: {
-                        setId: parseInt(setId),
+                        setId: isFolder ? setId : parseInt(setId),
                         score: correctCount,
                         totalQuestions: questions.length,
                         items: completeAnswers
@@ -223,27 +214,12 @@ const QuizPage = () => {
                 }
             });
         } catch (err) {
-            console.error('Failed to update progress:', err);
-            // Even on error, show the results with all questions
-            const answeredMap = new Map(answers.map(a => [a.cardId, a]));
-            const completeAnswers = questions.map(q => {
-                if (answeredMap.has(q.cardId)) {
-                    return answeredMap.get(q.cardId);
-                }
-                return {
-                    cardId: q.cardId,
-                    term: q.term,
-                    definition: q.type === 'TRUE_FALSE' ? q.originalDefinition : q.correctAnswer,
-                    isCorrect: false,
-                    userAnswer: '(Skipped)',
-                    questionType: q.type
-                };
-            });
-            const correctCount = completeAnswers.filter(a => a.isCorrect).length;
+            console.error('Failed to submit quiz:', err);
+            const correctCount = answers.filter(a => a.isCorrect).length;
             navigate(`/quiz/results/summary`, {
                 state: {
                     result: {
-                        setId: parseInt(setId),
+                        setId: isFolder ? setId : parseInt(setId),
                         score: correctCount,
                         totalQuestions: questions.length,
                         items: completeAnswers
@@ -301,11 +277,11 @@ const QuizPage = () => {
                     <Button
                         variant="outline"
                         size="sm"
-                        onClick={() => navigate(`/flashcard-sets/${setId}`)}
+                        onClick={() => navigate(backPath)}
                         leftIcon={<ChevronLeft size={20} />}
                         className="back-set-btn"
                     >
-                        Back to Set
+                        {backLabel}
                     </Button>
                     <div className="quiz-header-right">
                         <div className="quiz-progress-text">
@@ -344,9 +320,9 @@ const QuizPage = () => {
 
                 <div className="question-content">
                     <div className="question-type-badge">
-                        {currentQuestion.type === 'TRUE_FALSE' && 'True or False'}
-                        {currentQuestion.type === 'WRITTEN' && 'Written'}
-                        {currentQuestion.type === 'MULTIPLE_CHOICE' && 'Multiple Choice'}
+                        {currentQuestion.type === 'TRUE_FALSE' && 'Đúng hoặc Sai'}
+                        {currentQuestion.type === 'WRITTEN' && 'Tự luận'}
+                        {currentQuestion.type === 'MULTIPLE_CHOICE' && 'Trắc nghiệm'}
                     </div>
                     
                     <h1 className="question-term">{currentQuestion.term}</h1>
@@ -393,7 +369,7 @@ const QuizPage = () => {
                                     disabled={selectedOption !== null}
                                 >
                                     <Check size={24} />
-                                    <span>True</span>
+                                    <span>Đúng</span>
                                 </button>
                                 <button 
                                     className={`tf-btn false-btn ${selectedOption === 'FALSE' ? (currentQuestion.correctAnswer === 'FALSE' ? 'correct' : 'incorrect') : (selectedOption !== null && currentQuestion.correctAnswer === 'FALSE' ? 'correct' : '')}`}
@@ -401,7 +377,7 @@ const QuizPage = () => {
                                     disabled={selectedOption !== null}
                                 >
                                     <X size={24} />
-                                    <span>False</span>
+                                    <span>Sai</span>
                                 </button>
                             </div>
                         </div>
@@ -411,7 +387,7 @@ const QuizPage = () => {
                         <div className="written-content">
                             <form onSubmit={handleWrittenSubmit}>
                                 <Input
-                                    placeholder="Type your answer here..."
+                                    placeholder="Nhập câu trả lời của bạn..."
                                     value={writtenAnswer}
                                     onChange={(e) => setWrittenAnswer(e.target.value)}
                                     autoFocus
@@ -421,18 +397,18 @@ const QuizPage = () => {
                                 {selectedOption !== null && (
                                     <div className={`written-feedback ${selectedOption}`}>
                                         {selectedOption === 'correct' ? (
-                                            <p className="success-text"><Check size={16} /> Correct!</p>
+                                            <p className="success-text"><Check size={16} /> Chính xác!</p>
                                         ) : (
                                             <div className="error-text">
-                                                <p><X size={16} /> Incorrect!</p>
-                                                <p className="correct-display">Correct answer: <strong>{currentQuestion.correctAnswer}</strong></p>
+                                                <p><X size={16} /> Sai rồi!</p>
+                                                <p className="correct-display">Đáp án đúng: <strong>{currentQuestion.correctAnswer}</strong></p>
                                             </div>
                                         )}
                                     </div>
                                 )}
                                 {selectedOption === null && (
                                     <Button type="submit" variant="primary" className="written-submit-btn">
-                                        Submit answer
+                                        Gửi câu trả lời
                                     </Button>
                                 )}
                             </form>

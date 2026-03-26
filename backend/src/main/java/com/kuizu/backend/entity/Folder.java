@@ -6,6 +6,8 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "folders")
@@ -44,4 +46,10 @@ public class Folder {
     @UpdateTimestamp
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
+
+    @ElementCollection
+    @CollectionTable(name = "folder_categories", joinColumns = @JoinColumn(name = "folder_id"))
+    @Column(name = "category_name")
+    @Builder.Default
+    private List<String> categories = new ArrayList<>();
 }

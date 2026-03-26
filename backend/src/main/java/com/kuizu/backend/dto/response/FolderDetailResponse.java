@@ -17,7 +17,18 @@ public class FolderDetailResponse {
     private String ownerDisplayName;
     private String ownerUsername;
     private LocalDateTime createdAt;
+    private List<CategorySummary> categories;
     private List<FlashcardSetSummary> sets;
+
+    @Getter
+    @Setter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Builder
+    public static class CategorySummary {
+        private String name;
+        private List<FlashcardSetSummary> sets;
+    }
 
     @Getter
     @Setter
@@ -26,6 +37,7 @@ public class FolderDetailResponse {
     @Builder
     public static class FlashcardSetSummary {
         private Long setId;
+        private String category;
         private String title;
         private String description;
         private long termCount;

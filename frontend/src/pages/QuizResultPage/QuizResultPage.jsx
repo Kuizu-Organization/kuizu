@@ -1,8 +1,8 @@
 import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { ChevronLeft, CheckCircle2, XCircle, RefreshCcw, Home, Trophy, Star } from 'lucide-react';
-import { Button, Card } from '../components/ui';
-import MainLayout from '../components/layout';
+import { Button, Card } from '@/components/ui';
+import MainLayout from '@/components/layout';
 import './QuizResultPage.css';
 
 const QuizResultPage = () => {
@@ -24,14 +24,20 @@ const QuizResultPage = () => {
     }
 
     const percentage = Math.round((result.score / result.totalQuestions) * 100);
+    const isFolder = typeof result.setId === 'string' && result.setId.startsWith('folder-');
+    const returnPath = isFolder 
+        ? `/folders/${result.setId.replace('folder-', '')}` 
+        : `/flashcard-sets/${result.setId}`;
+    const returnLabel = isFolder ? 'Return to Folder' : 'Return to Set';
+    const backLabel = isFolder ? 'Back to folder' : 'Back to set';
 
     return (
         <MainLayout>
             <div className="result-page-container">
                 <div className="result-header">
-                    <button className="back-link" onClick={() => navigate(`/flashcard-sets/${result.setId}`)}>
+                    <button className="back-link" onClick={() => navigate(returnPath)}>
                         <ChevronLeft size={20} />
-                        Back to set
+                        {backLabel}
                     </button>
                     <h1>Quiz Results</h1>
                 </div>
@@ -72,9 +78,9 @@ const QuizResultPage = () => {
                                     <RefreshCcw size={18} />
                                     Try Again
                                 </Button>
-                                <Button variant="outline" onClick={() => navigate(`/flashcard-sets/${result.setId}`)}>
+                                <Button variant="outline" onClick={() => navigate(returnPath)}>
                                     <Home size={18} />
-                                    Return to Set
+                                    {returnLabel}
                                 </Button>
                             </div>
                         </div>

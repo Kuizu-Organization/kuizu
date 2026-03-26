@@ -16,6 +16,7 @@ public class CreateFlashcardSetRequest {
     private String title;
     private String description;
     private Visibility visibility;
+    private String category;
     private List<FlashcardItemRequest> flashcards;
 
     @Data

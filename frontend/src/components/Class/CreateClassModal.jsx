@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Modal, Button, Input, Dropdown, Textarea } from '../ui';
-import { createClass } from '../../api/class';
-import { getMyFolders } from '../../api/folder';
-import { getMyFlashcardSets } from '../../api/flashcards';
-import { useToast } from '../../context/ToastContext';
+import { createClass } from '@/api/class';
+import { getMyFolders } from '@/api/folder';
+import { getMyFlashcardSets } from '@/api/flashcards';
+import { useToast } from '@/context/ToastContext';
 import { Folder, Layers, Check, ChevronDown, ChevronUp } from 'lucide-react';
 import './CreateClassModal.css';
 const CreateClassModal = ({ isOpen, onClose, onCreateSuccess }) => {
@@ -12,7 +12,7 @@ const CreateClassModal = ({ isOpen, onClose, onCreateSuccess }) => {
     const [description, setDescription] = useState('');
     const [visibility, setVisibility] = useState('PUBLIC');
     const [isSubmitting, setIsSubmitting] = useState(false);
-    
+
     const [folders, setFolders] = useState([]);
     const [flashcardSets, setFlashcardSets] = useState([]);
     const [selectedMaterials, setSelectedMaterials] = useState([]);
@@ -176,8 +176,8 @@ const CreateClassModal = ({ isOpen, onClose, onCreateSuccess }) => {
                                     {folders.map(folder => {
                                         const isSelected = selectedMaterials.some(m => m.materialType === 'FOLDER' && m.materialRefId === folder.folderId);
                                         return (
-                                            <div 
-                                                key={`folder-${folder.folderId}`} 
+                                            <div
+                                                key={`folder-${folder.folderId}`}
                                                 className={`suggested-material-item ${isSelected ? 'selected' : ''}`}
                                                 onClick={() => toggleMaterial('FOLDER', folder.folderId)}
                                             >
@@ -197,8 +197,8 @@ const CreateClassModal = ({ isOpen, onClose, onCreateSuccess }) => {
                                     {flashcardSets.map(set => {
                                         const isSelected = selectedMaterials.some(m => m.materialType === 'FLASHCARD_SET' && m.materialRefId === set.setId);
                                         return (
-                                            <div 
-                                                key={`set-${set.setId}`} 
+                                            <div
+                                                key={`set-${set.setId}`}
                                                 className={`suggested-material-item ${isSelected ? 'selected' : ''}`}
                                                 onClick={() => toggleMaterial('FLASHCARD_SET', set.setId)}
                                             >

@@ -1,11 +1,11 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { ChevronLeft, RotateCcw, CheckCircle2, XCircle, Trophy, Keyboard, Shuffle, Star, ArrowLeftRight } from 'lucide-react';
-import { getFlashcardsBySetId, getFlashcardSetById } from '../api/flashcards';
-import { updateStudyProgress } from '../api/study';
-import { useToast } from '../context/ToastContext';
-import { Button, Card, Loader } from '../components/ui';
-import MainLayout from '../components/layout';
+import { getFlashcardsBySetId, getFlashcardSetById } from '@/api/flashcards';
+import { updateStudyProgress } from '@/api/study';
+import { useToast } from '@/context/ToastContext';
+import { Button, Card, Loader } from '@/components/ui';
+import MainLayout from '@/components/layout';
 import './StudyPage.css';
 
 const StudyPage = () => {
@@ -27,6 +27,9 @@ const StudyPage = () => {
         const saved = localStorage.getItem(`starred_cards_${setId}`);
         return saved ? new Set(JSON.parse(saved)) : new Set();
     });
+    const backPath = location.state?.from || `/flashcard-sets/${setId}`;
+    const backLabel = location.state?.fromLabel || 'Back to Set';
+    const studyTitle = location.state?.folderName || '';
 
     useEffect(() => {
         localStorage.setItem(`starred_cards_${setId}`, JSON.stringify(Array.from(starredCardIds)));
@@ -253,8 +256,8 @@ const StudyPage = () => {
                                     Study Starred ({starredCards.length})
                                 </Button>
                             )}
-                            <Button variant="outline" onClick={() => navigate(`/flashcard-sets/${setId}`)} className="return-btn">
-                                Return to Set
+                             <Button variant="outline" onClick={() => navigate(backPath)} className="return-btn">
+                                {backLabel}
                             </Button>
                         </div>
                     </Card>
@@ -285,14 +288,14 @@ const StudyPage = () => {
             <div className="study-page-container">
                 <div className="study-header">
                     <div className="study-header-left">
-                        <Button
+                         <Button
                             variant="outline"
                             size="sm"
-                            onClick={() => navigate(`/flashcard-sets/${setId}`)}
+                            onClick={() => navigate(backPath)}
                             leftIcon={<ChevronLeft size={20} />}
                             className="back-set-btn"
                         >
-                            Back to Set
+                            {backLabel}
                         </Button>
                     </div>
 

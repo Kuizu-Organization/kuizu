@@ -10,12 +10,14 @@ const EditFolderModal = ({ isOpen, onClose, folder, onUpdateSuccess }) => {
     const [description, setDescription] = useState('');
     const [visibility, setVisibility] = useState('PUBLIC');
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [error, setError] = useState(null);
 
     useEffect(() => {
         if (isOpen && folder) {
             setFolderName(folder.name || '');
             setDescription(folder.description || '');
             setVisibility(folder.visibility || 'PUBLIC');
+            setError(null);
         }
     }, [isOpen, folder]);
 
@@ -47,7 +49,9 @@ const EditFolderModal = ({ isOpen, onClose, folder, onUpdateSuccess }) => {
 
         } catch (error) {
             console.error('Failed to update folder:', error);
-            toast.error(error.response?.data?.message || 'Failed to update folder');
+            const message = error.response?.data?.message || 'Failed to update folder';
+            setError(message);
+            toast.error(message);
         } finally {
             setIsSubmitting(false);
         }
@@ -78,13 +82,21 @@ const EditFolderModal = ({ isOpen, onClose, folder, onUpdateSuccess }) => {
             footer={footer}
         >
             <div className="create-folder-content">
+                {error && (
+                    <div className="modal-error-message">
+                        {error}
+                    </div>
+                )}
                 <form onSubmit={handleSubmit}>
-                    <div className="form-group slide-in">
+                    <div className={`form-group slide-in ${error ? 'error-input' : ''}`}>
                         <label>Folder name *</label>
                         <Input
                             placeholder="e.g., Semester 1 Materials"
                             value={folderName}
-                            onChange={(e) => setFolderName(e.target.value)}
+                            onChange={(e) => {
+                                setFolderName(e.target.value);
+                                if (error) setError(null);
+                            }}
                             autoFocus
                             required
                         />

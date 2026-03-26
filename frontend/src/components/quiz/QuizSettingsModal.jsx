@@ -1,13 +1,23 @@
+<<<<<<< HEAD
 import React, { useState, useEffect, useRef } from 'react';
+=======
+import React, { useState, useEffect } from 'react';
+>>>>>>> feature/flashcard
 import { useParams } from 'react-router-dom';
 import { X, Check } from 'lucide-react';
 import { Button, Modal } from '../ui';
 import './QuizSettingsModal.css';
 
+<<<<<<< HEAD
 const QuizSettingsModal = ({ isOpen, onClose, onStart, totalCards, isLoading = false }) => {
     const { setId } = useParams();
     const [numQuestions, setNumQuestions] = useState(Math.min(20, totalCards));
     const numInputRef = useRef(null);
+=======
+const QuizSettingsModal = ({ isOpen, onClose, onStart, totalCards }) => {
+    const { setId } = useParams();
+    const [numQuestions, setNumQuestions] = useState(Math.min(20, totalCards));
+>>>>>>> feature/flashcard
     const [starredOnly, setStarredOnly] = useState(false);
     const [starredCount, setStarredCount] = useState(0);
 
@@ -46,6 +56,7 @@ const QuizSettingsModal = ({ isOpen, onClose, onStart, totalCards, isLoading = f
     };
 
     const handleStart = () => {
+<<<<<<< HEAD
         // Read directly from DOM to capture F12 tampering
         const inputDom = document.querySelector('.setting-input input') || numInputRef.current;
 
@@ -79,11 +90,22 @@ const QuizSettingsModal = ({ isOpen, onClose, onStart, totalCards, isLoading = f
 
         if (activeModes.length === 0) {
             alert('Please select at least one quiz mode!');
+=======
+        // Find which modes are active
+        const activeModes = Object.keys(modes).filter(m => modes[m]);
+        
+        if (activeModes.length === 0) {
+            alert('Vui lòng chọn ít nhất một hình thức làm bài!');
+>>>>>>> feature/flashcard
             return;
         }
 
         onStart({
+<<<<<<< HEAD
             numQuestions: finalValue,
+=======
+            numQuestions: parseInt(numQuestions),
+>>>>>>> feature/flashcard
             starredOnly,
             activeModes,
             answerDirection
@@ -94,12 +116,17 @@ const QuizSettingsModal = ({ isOpen, onClose, onStart, totalCards, isLoading = f
         <Modal
             isOpen={isOpen}
             onClose={onClose}
+<<<<<<< HEAD
             title="Options"
+=======
+            title="Tùy chọn"
+>>>>>>> feature/flashcard
             className="quiz-settings-modal"
         >
             <div className="quiz-settings-content">
                 <div className="setting-row">
                     <div className="setting-label">
+<<<<<<< HEAD
                         <span>Questions</span>
                         <span className="sub-label">(Max {maxQuestions})</span>
                     </div>
@@ -122,6 +149,18 @@ const QuizSettingsModal = ({ isOpen, onClose, onStart, totalCards, isLoading = f
                                     setNumQuestions(Math.min(maxQuestions, num));
                                 }
                             }}
+=======
+                        <span>Câu hỏi</span>
+                        <span className="sub-label">(Tối đa {maxQuestions})</span>
+                    </div>
+                    <div className="setting-input">
+                        <input
+                            type="number"
+                            min="1"
+                            max={maxQuestions}
+                            value={numQuestions}
+                            onChange={(e) => setNumQuestions(Math.min(maxQuestions, Math.max(1, parseInt(e.target.value) || 1)))}
+>>>>>>> feature/flashcard
                             className="num-input"
                         />
                     </div>
@@ -129,8 +168,13 @@ const QuizSettingsModal = ({ isOpen, onClose, onStart, totalCards, isLoading = f
 
                 <div className="setting-row toggle-row">
                     <div className="setting-label">
+<<<<<<< HEAD
                         <span>Study starred terms only</span>
                         <span className="sub-label">({starredCount} starred cards)</span>
+=======
+                        <span>Chỉ học thuật ngữ có gắn sao</span>
+                        <span className="sub-label">({starredCount} thẻ đã gắn sao)</span>
+>>>>>>> feature/flashcard
                     </div>
                     <div className="setting-toggle">
                         <label className="switch">
@@ -150,7 +194,11 @@ const QuizSettingsModal = ({ isOpen, onClose, onStart, totalCards, isLoading = f
                 <div className="mode-options">
                     <div className="setting-row toggle-row">
                         <div className="setting-label">
+<<<<<<< HEAD
                             <span>True/False</span>
+=======
+                            <span>Đúng/Sai</span>
+>>>>>>> feature/flashcard
                         </div>
                         <div className="setting-toggle">
                             <label className="switch">
@@ -166,7 +214,11 @@ const QuizSettingsModal = ({ isOpen, onClose, onStart, totalCards, isLoading = f
 
                     <div className="setting-row toggle-row">
                         <div className="setting-label">
+<<<<<<< HEAD
                             <span>Multiple Choice</span>
+=======
+                            <span>Trắc nghiệm</span>
+>>>>>>> feature/flashcard
                         </div>
                         <div className="setting-toggle">
                             <label className="switch">
@@ -182,7 +234,11 @@ const QuizSettingsModal = ({ isOpen, onClose, onStart, totalCards, isLoading = f
 
                     <div className="setting-row toggle-row">
                         <div className="setting-label">
+<<<<<<< HEAD
                             <span>Written</span>
+=======
+                            <span>Tự luận</span>
+>>>>>>> feature/flashcard
                         </div>
                         <div className="setting-toggle">
                             <label className="switch">
@@ -201,12 +257,21 @@ const QuizSettingsModal = ({ isOpen, onClose, onStart, totalCards, isLoading = f
 
                 <div className="direction-options">
                     <div className="setting-label direction-title">
+<<<<<<< HEAD
                         <span>Question Options</span>
                     </div>
 
                     <div className="setting-row toggle-row sub-row">
                         <div className="setting-label">
                             <span>Answer with Definitions</span>
+=======
+                        <span>Định dạng câu hỏi</span>
+                    </div>
+                    
+                    <div className="setting-row toggle-row sub-row">
+                        <div className="setting-label">
+                            <span>Trả lời bằng Định nghĩa</span>
+>>>>>>> feature/flashcard
                         </div>
                         <div className="setting-toggle">
                             <input
@@ -221,7 +286,11 @@ const QuizSettingsModal = ({ isOpen, onClose, onStart, totalCards, isLoading = f
 
                     <div className="setting-row toggle-row sub-row">
                         <div className="setting-label">
+<<<<<<< HEAD
                             <span>Answer with Terms</span>
+=======
+                            <span>Trả lời bằng Thuật ngữ</span>
+>>>>>>> feature/flashcard
                         </div>
                         <div className="setting-toggle">
                             <input
@@ -240,10 +309,15 @@ const QuizSettingsModal = ({ isOpen, onClose, onStart, totalCards, isLoading = f
                         variant="primary"
                         className="start-quiz-submit-btn"
                         onClick={handleStart}
+<<<<<<< HEAD
                         loading={isLoading}
                         disabled={isLoading}
                     >
                         Start Learning
+=======
+                    >
+                        Bắt đầu bài kiểm tra
+>>>>>>> feature/flashcard
                     </Button>
                 </div>
             </div>

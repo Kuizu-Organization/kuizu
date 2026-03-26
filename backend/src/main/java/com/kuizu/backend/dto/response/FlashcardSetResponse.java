@@ -18,6 +18,7 @@ public class FlashcardSetResponse {
     private String title;
     private String description;
     private String visibility;
+    private String category;
     private String status;
     private String moderationNotes;
     private Integer cardCount;

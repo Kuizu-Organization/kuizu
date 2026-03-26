@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { Search, Heart, User, Trash2, Book } from 'lucide-react';
 import './SavedSetsPage.css';
-import { getSavedFlashcardSets, unsaveFlashcardSet } from '../api/savedSets';
-import { Button, Card, Loader, ConfirmationModal } from '../components/ui';
-import MainLayout from '../components/layout';
+import { getSavedFlashcardSets, unsaveFlashcardSet } from '@/api/savedSets';
+import { Button, Card, Loader, ConfirmationModal } from '@/components/ui';
+import MainLayout from '@/components/layout';
 import { useNavigate } from 'react-router-dom';
-import { useToast } from '../context/ToastContext';
+import { useToast } from '@/context/ToastContext';
 
 const SavedSetsPage = () => {
     const [sets, setSets] = useState([]);

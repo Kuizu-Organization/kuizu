@@ -1,6 +1,6 @@
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { ComingSoonModal } from '../components/ui';
-import MainLayout from '../components/layout';
+import { ComingSoonModal } from '@/components/ui';
+import MainLayout from '@/components/layout';
 
 const ComingSoonPage = () => {
     const navigate = useNavigate();
@@ -13,10 +13,10 @@ const ComingSoonPage = () => {
 
     return (
         <MainLayout>
-            <ComingSoonModal 
-                isOpen={true} 
-                onClose={handleClose} 
-                featureName={featureName} 
+            <ComingSoonModal
+                isOpen={true}
+                onClose={handleClose}
+                featureName={featureName}
             />
             <div style={{ padding: '100px', textAlign: 'center' }}>
                 <h1 style={{ color: 'var(--text-light)', opacity: 0.5 }}>Loading feature...</h1>

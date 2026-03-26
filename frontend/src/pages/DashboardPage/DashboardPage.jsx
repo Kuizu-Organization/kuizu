@@ -1,17 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getMyClasses, getSuggestedClasses } from '../../api/class';
-import { getMyFolders, getPublicFolders, getSuggestedFolders } from '../../api/folder';
-import { getMyFlashcardSets, getFlashcardSetById, getPublicFlashcardSets } from '../../api/flashcards';
-import { saveFlashcardSet, unsaveFlashcardSet } from '../../api/savedSets';
-import CreateClassModal from '../../components/Class/CreateClassModal';
-import CreateFolderModal from '../../components/Folder/CreateFolderModal';
-import { useAuth } from '../../context/AuthContext';
-import { useModal } from '../../context/ModalContext';
+import { getMyClasses, getSuggestedClasses } from '@/api/class';
+import { getMyFolders, getPublicFolders, getSuggestedFolders } from '@/api/folder';
+import { getMyFlashcardSets, getFlashcardSetById, getPublicFlashcardSets } from '@/api/flashcards';
+import { saveFlashcardSet, unsaveFlashcardSet } from '@/api/savedSets';
+import CreateClassModal from '@/components/Class/CreateClassModal';
+import CreateFolderModal from '@/components/Folder/CreateFolderModal';
+import { useAuth } from '@/context/AuthContext';
+import { useModal } from '@/context/ModalContext';
 import { FolderOpen, Globe, BookOpen, Heart, Book } from 'lucide-react';
-import { Button, Card, Loader, EmptyState, ItemCard } from '../../components/ui';
-import { useToast } from '../../context/ToastContext';
-import StudyBulletin from '../../components/dashboard/StudyBulletin';
+import { Button, Card, Loader, EmptyState, ItemCard } from '@/components/ui';
+import { useToast } from '@/context/ToastContext';
+import StudyBulletin from '@/components/dashboard/StudyBulletin';
 import './DashboardPage.css';
 
 const DashboardPage = () => {
@@ -176,7 +176,7 @@ const DashboardPage = () => {
                         {flashcardSets.slice(0, 4).map(set => (
                             <Card
                                 key={set.setId}
-                                className="dashboard-item-card"
+                                className="resource-card"
                                 onClick={() => navigate(`/flashcard-sets/${set.setId}`)}
                             >
                                 <div className="card-header-custom">
@@ -199,12 +199,12 @@ const DashboardPage = () => {
                                         </div>
                                     </div>
                                 </div>
-                                <div className="card-body-custom">
-                                    <p className="card-description-custom">{set.description || 'No description provided.'}</p>
+                                <div className="resource-card-body">
+                                    <p className="resource-card-description">{set.description || 'No description provided.'}</p>
                                 </div>
-                                <div className="card-footer-custom">
-                                    <span className="owner-text">by {set.ownerDisplayName}</span>
-                                    <span className={`visibility-tag ${set.visibility?.toLowerCase()}`}>
+                                <div className="resource-card-footer">
+                                    <span className="resource-card-owner">by {set.ownerDisplayName}</span>
+                                    <span className={`resource-card-visibility ${set.visibility?.toLowerCase()}`}>
                                         {set.visibility === 'PUBLIC' ? '🌐 Public' : '🔒 Private'}
                                     </span>
                                 </div>
@@ -236,7 +236,7 @@ const DashboardPage = () => {
                         {publicFlashcardSets.slice(0, 4).map(set => (
                             <Card
                                 key={set.setId}
-                                className="dashboard-item-card"
+                                className="resource-card"
                                 onClick={() => navigate(`/flashcard-sets/${set.setId}`)}
                             >
                                 <div className="card-header-custom">
@@ -259,12 +259,12 @@ const DashboardPage = () => {
                                         </div>
                                     </div>
                                 </div>
-                                <div className="card-body-custom">
-                                    <p className="card-description-custom">{set.description || 'No description provided.'}</p>
+                                <div className="resource-card-body">
+                                    <p className="resource-card-description">{set.description || 'No description provided.'}</p>
                                 </div>
-                                <div className="card-footer-custom">
-                                    <span className="owner-text">by {set.ownerDisplayName}</span>
-                                    <span className="visibility-tag public">🌐 Public</span>
+                                <div className="resource-card-footer">
+                                    <span className="resource-card-owner">by {set.ownerDisplayName}</span>
+                                    <span className="resource-card-visibility public">🌐 Public</span>
                                 </div>
                             </Card>
                         ))}
@@ -286,7 +286,7 @@ const DashboardPage = () => {
                         {folders.map(folder => (
                             <Card
                                 key={folder.folderId}
-                                className="dashboard-item-card"
+                                className="resource-card"
                                 onClick={() => navigate(`/folders/${folder.folderId}`)}
                             >
                                 <div className="card-header-custom">
@@ -299,12 +299,12 @@ const DashboardPage = () => {
                                         <span className="count-label">SETS</span>
                                     </div>
                                 </div>
-                                <div className="card-body-custom">
-                                    <p className="card-description-custom">{folder.description || 'No description provided.'}</p>
+                                <div className="resource-card-body">
+                                    <p className="resource-card-description">{folder.description || 'No description provided.'}</p>
                                 </div>
-                                <div className="card-footer-custom">
-                                    <span className="owner-text">by {folder.ownerDisplayName}</span>
-                                    <span className={`visibility-tag ${folder.visibility?.toLowerCase()}`}>
+                                <div className="resource-card-footer">
+                                    <span className="resource-card-owner">by {folder.ownerDisplayName}</span>
+                                    <span className={`resource-card-visibility ${folder.visibility?.toLowerCase()}`}>
                                         {folder.visibility === 'PUBLIC' ? '🌐 Public' : '🔒 Private'}
                                     </span>
                                 </div>

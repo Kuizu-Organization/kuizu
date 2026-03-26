@@ -1,15 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { Search, Plus, ChevronDown, Menu, Book, Zap, Users, GraduationCap, Palette, Languages, Calculator, FlaskConical, Layout, BookOpen, Folder } from 'lucide-react';
-import { Button, Dropdown, SearchBar } from '../../ui';
+import { Button, Dropdown, SearchBar } from '@/components/ui';
 import './Navbar.css';
-import { useAuth } from '../../../context/AuthContext';
-import { useToast } from '../../../context/ToastContext';
-import { useModal } from '../../../context/ModalContext';
+import { useAuth } from '@/context/AuthContext';
+import { useToast } from '@/context/ToastContext';
+import { useModal } from '@/context/ModalContext';
 import { useNavigate } from 'react-router-dom';
-import { searchClasses } from '../../../api/class';
-import { searchFolders } from '../../../api/folder';
-import { searchFlashcardSets } from '../../../api/flashcardSet';
-import { searchPublicUsers } from '../../../api/user';
+import { searchClasses } from '@/api/class';
+import { searchFolders } from '@/api/folder';
+import { searchFlashcardSets } from '@/api/flashcardSet';
+import { searchPublicUsers } from '@/api/user';
 
 
 const Navbar = ({ isSidebarCollapsed, onToggleSidebar }) => {

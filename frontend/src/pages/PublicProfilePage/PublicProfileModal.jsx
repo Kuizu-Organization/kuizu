@@ -1,8 +1,15 @@
 import React, { useState, useEffect } from 'react';
+<<<<<<< HEAD
 import { getPublicUserByUsername } from '../../api/user';
 import { Loader, Card, Button, Modal } from '../../components/ui';
 import { Calendar, MapPin, Clock } from 'lucide-react';
 import '../ProfilePage.css';
+=======
+import { getPublicUserByUsername } from '@/api/user';
+import { Loader, Card, Button, Modal } from '@/components/ui';
+import { Calendar, MapPin, Clock } from 'lucide-react';
+import '@/pages/ProfilePage/ProfilePage.css';
+>>>>>>> feature/flashcard
 
 const PublicProfileModal = ({ username, isOpen, onClose }) => {
     const [user, setUser] = useState(null);
@@ -128,7 +135,11 @@ const PublicProfileModal = ({ username, isOpen, onClose }) => {
                                         <div>
                                             <p style={{ margin: 0, fontSize: '0.75rem', color: 'var(--text-light)', fontWeight: '600', textTransform: 'uppercase' }}>Joined</p>
                                             <p style={{ margin: 0, fontSize: '0.9rem', color: 'var(--text-dark)', fontWeight: '500' }}>
+<<<<<<< HEAD
                                                 {new Date(user.createdAt).toLocaleDateString(undefined, { month: 'short', year: 'numeric' })}
+=======
+                                                {user.createdAt ? new Date(user.createdAt).toLocaleDateString(undefined, { month: 'short', year: 'numeric' }) : 'Unknown'}
+>>>>>>> feature/flashcard
                                             </p>
                                         </div>
                                     </div>

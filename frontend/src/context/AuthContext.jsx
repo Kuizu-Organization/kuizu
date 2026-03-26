@@ -1,5 +1,5 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
-import { getCurrentUser } from '../api/user';
+import { getCurrentUser } from '@/api/user';
 
 const AuthContext = createContext(null);
 
@@ -52,7 +52,7 @@ export const AuthProvider = ({ children }) => {
         try {
             const userData = await getCurrentUser();
             const storedUserStr = localStorage.getItem('user');
-            
+
             // Only update state if data has changed to prevent unnecessary re-renders
             if (storedUserStr !== JSON.stringify(userData)) {
                 setUser(userData);

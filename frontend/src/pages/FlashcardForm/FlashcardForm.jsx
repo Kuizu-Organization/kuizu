@@ -2,9 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { ChevronLeft, Save, Loader } from 'lucide-react';
 import './FlashcardForm.css';
-import { getFlashcardById, createFlashcard, updateFlashcard } from '../api/flashcards';
-import { Button, Card, Input } from '../components/ui';
-import MainLayout from '../components/layout';
+import { getFlashcardById, createFlashcard, updateFlashcard } from '@/api/flashcards';
+import { Button, Card, Input } from '@/components/ui';
+import MainLayout from '@/components/layout';
 
 const FlashcardForm = () => {
     const { cardId } = useParams();

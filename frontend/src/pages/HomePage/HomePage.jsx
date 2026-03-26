@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Navbar, Footer } from '../../components/layout';
-import { Button, Card, Loader, EmptyState, ItemCard } from '../../components/ui';
+import { Navbar, Footer } from '@/components/layout';
+import { Button, Card, Loader, EmptyState, ItemCard } from '@/components/ui';
 import { BookOpen, Brain, Users, Sparkles, ArrowRight, CheckCircle2, Globe, FolderOpen } from 'lucide-react';
-import { getSuggestedClasses } from '../../api/class';
-import { getPublicFolders } from '../../api/folder';
-import { getSuggestedSets } from '../../api/flashcardSet';
+import { getSuggestedClasses } from '@/api/class';
+import { getPublicFolders } from '@/api/folder';
+import { getSuggestedSets } from '@/api/flashcardSet';
 import './HomePage.css';
 
 const HomePage = () => {

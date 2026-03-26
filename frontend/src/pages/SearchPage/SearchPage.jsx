@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
-import { searchClasses, getSuggestedClasses } from '../../api/class';
-import { searchFolders, getSuggestedFolders } from '../../api/folder';
-import { searchFlashcardSets, getSuggestedSets } from '../../api/flashcardSet';
-import { searchPublicUsers } from '../../api/user';
+import { searchClasses, getSuggestedClasses } from '@/api/class';
+import { searchFolders, getSuggestedFolders } from '@/api/folder';
+import { searchFlashcardSets, getSuggestedSets } from '@/api/flashcardSet';
+import { searchPublicUsers } from '@/api/user';
 import { Search, BookOpen, Users, FolderOpen, Layers, User } from 'lucide-react';
-import { Loader, EmptyState, ItemCard } from '../../components/ui';
-import PublicProfileModal from '../PublicProfilePage/PublicProfileModal';
+import { Loader, EmptyState, ItemCard } from '@/components/ui';
+import PublicProfileModal from '@/pages/PublicProfilePage/PublicProfileModal';
 import './SearchPage.css';
 
 const SearchPage = () => {

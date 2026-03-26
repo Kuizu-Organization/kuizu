@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Save, Loader, AlertCircle } from 'lucide-react';
-import { getFlashcardById, createFlashcard, updateFlashcard } from '../../api/flashcards';
-import { Button, Input, Modal, Textarea } from '../ui';
+import { getFlashcardById, createFlashcard, updateFlashcard } from '@/api/flashcards';
+import { Button, Input, Modal, Textarea } from '@/components/ui';
 import './FlashcardModal.css';
 
 const FlashcardModal = ({ isOpen, onClose, setId, cardId, onSuccess, existingCards = [] }) => {

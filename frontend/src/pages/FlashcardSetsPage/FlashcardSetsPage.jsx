@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { Search, Plus, User, Pencil, Trash2, Heart, Book } from 'lucide-react';
 import './FlashcardSetsPage.css';
-import { getPublicFlashcardSets, getMyFlashcardSets, deleteFlashcardSet } from '../api/flashcards';
-import { saveFlashcardSet, unsaveFlashcardSet } from '../api/savedSets';
-import { Button, Card, Loader, ConfirmationModal } from '../components/ui';
-import { useAuth } from '../context/AuthContext';
-import { useToast } from '../context/ToastContext';
-import { useModal } from '../context/ModalContext';
-import MainLayout from '../components/layout';
+import { getPublicFlashcardSets, getMyFlashcardSets, deleteFlashcardSet } from '@/api/flashcards';
+import { saveFlashcardSet, unsaveFlashcardSet } from '@/api/savedSets';
+import { Button, Card, Loader, ConfirmationModal } from '@/components/ui';
+import { useAuth } from '@/context/AuthContext';
+import { useToast } from '@/context/ToastContext';
+import { useModal } from '@/context/ModalContext';
+import MainLayout from '@/components/layout';
 import { useNavigate } from 'react-router-dom';
 
 const FlashcardSetsPage = () => {

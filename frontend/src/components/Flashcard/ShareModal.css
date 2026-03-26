@@ -1,0 +1,195 @@
+.share-modal-p6 {
+    padding: 1.5rem;
+}
+
+.share-status-card {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+    margin-bottom: 2rem;
+    padding: 1.25rem;
+    background: linear-gradient(135deg, #f0f4ff 0%, #eef2ff 100%);
+    border-radius: 1.25rem;
+    border: 1px solid #e0e7ff;
+}
+
+.share-status-icon-box {
+    width: 3.5rem;
+    height: 3.5rem;
+    background: white;
+    border-radius: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--primary, #4255ff);
+    box-shadow: 0 4px 12px rgba(66, 85, 255, 0.08);
+}
+
+.share-status-info h4 {
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 700;
+}
+
+.share-status-info p {
+    margin: 0.25rem 0 0;
+    font-size: 0.875rem;
+    color: var(--text-light);
+}
+
+.share-url-section {
+    margin-bottom: 2.5rem;
+}
+
+.share-label-caps {
+    display: block;
+    font-size: 0.75rem;
+    font-weight: 800;
+    color: #94a3b8;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 0.75rem;
+    padding-left: 0.25rem;
+}
+
+.share-url-input-container {
+    position: relative;
+    display: flex;
+    gap: 0.75rem;
+    background: #f8fafc;
+    padding: 0.5rem;
+    border-radius: 1.25rem;
+    border: 1px solid var(--border-color);
+    transition: all 0.3s ease;
+}
+
+.share-url-input-container:focus-within {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 4px rgba(66, 85, 255, 0.1);
+    background: white;
+}
+
+.share-url-input {
+    flex: 1;
+    border: none;
+    background: transparent;
+    padding: 0 0.75rem;
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: var(--text-dark);
+    outline: none;
+}
+
+.share-social-section {
+    margin-top: 2rem;
+}
+
+.share-social-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.share-social-header .line {
+    flex: 1;
+    height: 1px;
+    background: #f1f5f9;
+}
+
+.share-social-header span {
+    font-size: 0.7rem;
+    font-weight: 900;
+    color: #cbd5e1;
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+}
+
+.share-social-grid {
+    display: flex;
+    justify-content: space-around;
+    padding: 0 0.5rem;
+}
+
+.share-social-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.75rem;
+    text-decoration: none;
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.share-social-icon-wrapper {
+    width: 4.5rem;
+    height: 4.5rem;
+    border-radius: 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1.75rem;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.share-social-item:hover {
+    transform: translateY(-8px);
+}
+
+.share-social-item:hover .share-social-icon-wrapper {
+    transform: scale(1.1);
+    box-shadow: 0 20px 30px -10px rgba(0, 0, 0, 0.2);
+}
+
+.share-social-label {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--text-light);
+    opacity: 0;
+    transform: translateY(5px);
+    transition: all 0.3s ease;
+}
+
+.share-social-item:hover .share-social-label {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Social Colors */
+.bg-facebook { background-color: #1877F2; box-shadow: 0 10px 20px -5px rgba(24, 119, 242, 0.3); }
+.bg-x { background-color: #000000; box-shadow: 0 10px 20px -5px rgba(0, 0, 0, 0.3); }
+.bg-whatsapp { background-color: #25D366; box-shadow: 0 10px 20px -5px rgba(37, 211, 102, 0.3); }
+.bg-email { background-color: #EA4335; box-shadow: 0 10px 20px -5px rgba(234, 67, 53, 0.3); }
+
+.share-footer {
+    margin-top: 3rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid #f8fafc;
+    display: flex;
+    justify-content: center;
+}
+
+.share-close-btn {
+    padding: 0.75rem 2.5rem;
+    background: transparent;
+    color: #94a3b8;
+    font-weight: 700;
+    font-size: 0.875rem;
+    border-radius: 9999px;
+    transition: all 0.2s ease;
+}
+
+.share-close-btn:hover {
+    background: #f1f5f9;
+    color: var(--text-dark);
+}
+
+@media (max-width: 640px) {
+    .share-social-icon-wrapper {
+        width: 3.5rem;
+        height: 3.5rem;
+        border-radius: 1.25rem;
+        font-size: 1.25rem;
+    }
+}
