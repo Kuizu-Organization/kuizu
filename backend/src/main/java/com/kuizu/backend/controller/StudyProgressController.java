@@ -5,6 +5,7 @@ import com.kuizu.backend.dto.request.StudySessionRequest;
 import com.kuizu.backend.dto.response.StudyProgressResponse;
 import com.kuizu.backend.service.StudyProgressService;
 import lombok.RequiredArgsConstructor;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,9 +19,15 @@ public class StudyProgressController {
     private final StudyProgressService studyProgressService;
 
     @PostMapping("/quiz/submit")
-    public ResponseEntity<Void> submitQuiz(Principal principal, @RequestBody QuizSubmitRequest request) {
+    public ResponseEntity<Void> submitQuiz(Principal principal, @Valid @RequestBody QuizSubmitRequest request) {
         studyProgressService.recordQuizSubmission(principal.getName(), request);
         return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/quiz/initialize")
+    public ResponseEntity<java.util.List<com.kuizu.backend.dto.response.FlashcardResponse>> initializeQuiz(
+            Principal principal, @Valid @RequestBody com.kuizu.backend.dto.request.QuizInitializeRequest request) {
+        return ResponseEntity.ok(studyProgressService.prepareQuizCards(principal.getName(), request));
     }
 
     @GetMapping("/progress/{setId}")

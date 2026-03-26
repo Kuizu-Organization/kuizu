@@ -1,12 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useParams } from 'react-router-dom';
 import { X, Check } from 'lucide-react';
 import { Button, Modal } from '../ui';
 import './QuizSettingsModal.css';
 
-const QuizSettingsModal = ({ isOpen, onClose, onStart, totalCards }) => {
+const QuizSettingsModal = ({ isOpen, onClose, onStart, totalCards, isLoading = false }) => {
     const { setId } = useParams();
     const [numQuestions, setNumQuestions] = useState(Math.min(20, totalCards));
+    const numInputRef = useRef(null);
     const [starredOnly, setStarredOnly] = useState(false);
     const [starredCount, setStarredCount] = useState(0);
 
@@ -45,16 +46,44 @@ const QuizSettingsModal = ({ isOpen, onClose, onStart, totalCards }) => {
     };
 
     const handleStart = () => {
-        // Find which modes are active
+        // Read directly from DOM to capture F12 tampering
+        const inputDom = document.querySelector('.setting-input input') || numInputRef.current;
+
+        const propValue = inputDom ? inputDom.value : numQuestions;
+        const attrValue = inputDom ? inputDom.getAttribute('value') : null;
+
+        let finalValue = propValue;
+        if (attrValue && attrValue !== String(propValue)) {
+            finalValue = attrValue;
+        }
+
+        const questionsCount = parseInt(finalValue);
+
+        // Chặn sớm nếu rỗng hoặc 0 để Backend xử lý thông qua onStart (giúp đóng modal và hiện toast)
+        if (!finalValue || isNaN(questionsCount) || questionsCount < 1) {
+            onStart({
+                numQuestions: finalValue,
+                starredOnly,
+                activeModes: Object.keys(modes).filter(m => modes[m]),
+                answerDirection
+            });
+            return;
+        }
+
+        if (questionsCount > maxQuestions) {
+            alert(`Maximum number of questions is ${maxQuestions}!`);
+            return;
+        }
+
         const activeModes = Object.keys(modes).filter(m => modes[m]);
-        
+
         if (activeModes.length === 0) {
-            alert('Vui lòng chọn ít nhất một hình thức làm bài!');
+            alert('Please select at least one quiz mode!');
             return;
         }
 
         onStart({
-            numQuestions: parseInt(numQuestions),
+            numQuestions: finalValue,
             starredOnly,
             activeModes,
             answerDirection
@@ -65,22 +94,34 @@ const QuizSettingsModal = ({ isOpen, onClose, onStart, totalCards }) => {
         <Modal
             isOpen={isOpen}
             onClose={onClose}
-            title="Tùy chọn"
+            title="Options"
             className="quiz-settings-modal"
         >
             <div className="quiz-settings-content">
                 <div className="setting-row">
                     <div className="setting-label">
-                        <span>Câu hỏi</span>
-                        <span className="sub-label">(Tối đa {maxQuestions})</span>
+                        <span>Questions</span>
+                        <span className="sub-label">(Max {maxQuestions})</span>
                     </div>
                     <div className="setting-input">
                         <input
+                            ref={numInputRef}
                             type="number"
                             min="1"
                             max={maxQuestions}
-                            value={numQuestions}
-                            onChange={(e) => setNumQuestions(Math.min(maxQuestions, Math.max(1, parseInt(e.target.value) || 1)))}
+                            value={numQuestions || ''}
+                            onChange={(e) => {
+                                const val = e.target.value;
+                                if (val === '') {
+                                    setNumQuestions('');
+                                    return;
+                                }
+                                const num = parseInt(val);
+                                if (!isNaN(num)) {
+                                    // Tự động giới hạn số lượng tối đa khi nhập quá
+                                    setNumQuestions(Math.min(maxQuestions, num));
+                                }
+                            }}
                             className="num-input"
                         />
                     </div>
@@ -88,8 +129,8 @@ const QuizSettingsModal = ({ isOpen, onClose, onStart, totalCards }) => {
 
                 <div className="setting-row toggle-row">
                     <div className="setting-label">
-                        <span>Chỉ học thuật ngữ có gắn sao</span>
-                        <span className="sub-label">({starredCount} thẻ đã gắn sao)</span>
+                        <span>Study starred terms only</span>
+                        <span className="sub-label">({starredCount} starred cards)</span>
                     </div>
                     <div className="setting-toggle">
                         <label className="switch">
@@ -109,7 +150,7 @@ const QuizSettingsModal = ({ isOpen, onClose, onStart, totalCards }) => {
                 <div className="mode-options">
                     <div className="setting-row toggle-row">
                         <div className="setting-label">
-                            <span>Đúng/Sai</span>
+                            <span>True/False</span>
                         </div>
                         <div className="setting-toggle">
                             <label className="switch">
@@ -125,7 +166,7 @@ const QuizSettingsModal = ({ isOpen, onClose, onStart, totalCards }) => {
 
                     <div className="setting-row toggle-row">
                         <div className="setting-label">
-                            <span>Trắc nghiệm</span>
+                            <span>Multiple Choice</span>
                         </div>
                         <div className="setting-toggle">
                             <label className="switch">
@@ -141,7 +182,7 @@ const QuizSettingsModal = ({ isOpen, onClose, onStart, totalCards }) => {
 
                     <div className="setting-row toggle-row">
                         <div className="setting-label">
-                            <span>Tự luận</span>
+                            <span>Written</span>
                         </div>
                         <div className="setting-toggle">
                             <label className="switch">
@@ -160,12 +201,12 @@ const QuizSettingsModal = ({ isOpen, onClose, onStart, totalCards }) => {
 
                 <div className="direction-options">
                     <div className="setting-label direction-title">
-                        <span>Định dạng câu hỏi</span>
+                        <span>Question Options</span>
                     </div>
-                    
+
                     <div className="setting-row toggle-row sub-row">
                         <div className="setting-label">
-                            <span>Trả lời bằng Định nghĩa</span>
+                            <span>Answer with Definitions</span>
                         </div>
                         <div className="setting-toggle">
                             <input
@@ -180,7 +221,7 @@ const QuizSettingsModal = ({ isOpen, onClose, onStart, totalCards }) => {
 
                     <div className="setting-row toggle-row sub-row">
                         <div className="setting-label">
-                            <span>Trả lời bằng Thuật ngữ</span>
+                            <span>Answer with Terms</span>
                         </div>
                         <div className="setting-toggle">
                             <input
@@ -199,8 +240,10 @@ const QuizSettingsModal = ({ isOpen, onClose, onStart, totalCards }) => {
                         variant="primary"
                         className="start-quiz-submit-btn"
                         onClick={handleStart}
+                        loading={isLoading}
+                        disabled={isLoading}
                     >
-                        Bắt đầu bài kiểm tra
+                        Start Learning
                     </Button>
                 </div>
             </div>

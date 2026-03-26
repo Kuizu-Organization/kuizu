@@ -1,8 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { Search, Plus, User, Pencil, Trash2 } from 'lucide-react';
+import { Search, Plus, User, Pencil, Trash2, Heart, Book } from 'lucide-react';
 import './FlashcardSetsPage.css';
 import { getPublicFlashcardSets, getMyFlashcardSets, deleteFlashcardSet } from '../api/flashcards';
+import { saveFlashcardSet, unsaveFlashcardSet } from '../api/savedSets';
 import { Button, Card, Loader, ConfirmationModal } from '../components/ui';
+import { useAuth } from '../context/AuthContext';
+import { useToast } from '../context/ToastContext';
 import { useModal } from '../context/ModalContext';
 import MainLayout from '../components/layout';
 import { useNavigate } from 'react-router-dom';
@@ -17,6 +20,8 @@ const FlashcardSetsPage = () => {
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const [setToDelete, setSetToDelete] = useState(null);
     const [isDeleting, setIsDeleting] = useState(false);
+    const { user } = useAuth();
+    const toast = useToast();
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -70,11 +75,34 @@ const FlashcardSetsPage = () => {
             setSets(sets.filter(s => s.setId !== setToDelete));
             setIsDeleteModalOpen(false);
             setSetToDelete(null);
+            toast.success('Set deleted successfully');
         } catch (err) {
             console.error('Delete failed:', err);
-            alert('Failed to delete set');
+            toast.error('Failed to delete set');
         } finally {
             setIsDeleting(false);
+        }
+    };
+
+    const handleToggleFavorite = async (e, setId, isFavorite) => {
+        e.stopPropagation();
+        if (!user) {
+            toast.error('Please log in to favorite sets');
+            return;
+        }
+
+        try {
+            if (isFavorite) {
+                await unsaveFlashcardSet(setId);
+                setSets(sets.map(s => s.setId === setId ? { ...s, isFavorite: false } : s));
+                toast.success('Removed from favorites');
+            } else {
+                await saveFlashcardSet(setId);
+                setSets(sets.map(s => s.setId === setId ? { ...s, isFavorite: true } : s));
+                toast.success('Added to favorites');
+            }
+        } catch (err) {
+            toast.error('Failed to update favorite status');
         }
     };
 
@@ -147,19 +175,40 @@ const FlashcardSetsPage = () => {
                                     onClick={() => navigate(`/flashcard-sets/${set.setId}`)}
                                 >
                                     <Card.Header className="set-card-header">
-                                        <h3 className="set-title">
-                                            {set.title}
-                                            {set.status === 'PENDING' && (
-                                                <span style={{ fontSize: '0.75rem', backgroundColor: '#eab308', color: 'black', padding: '2px 6px', borderRadius: '4px', marginLeft: '8px', verticalAlign: 'middle', fontWeight: 600 }}>Pending Review</span>
+                                        <div className="set-title-container">
+                                            <h3 className="set-title">
+                                                {set.title}
+                                            </h3>
+                                            <div className="set-status-badges">
+                                                {set.status === 'PENDING' && (
+                                                    <span className="status-badge pending">Pending</span>
+                                                )}
+                                                {set.status === 'REJECTED' && (
+                                                    <span className="status-badge rejected">Rejected</span>
+                                                )}
+                                                {set.status === 'APPROVED' && activeTab === 'my' && (
+                                                    <span className="status-badge approved">Approved</span>
+                                                )}
+                                            </div>
+                                        </div>
+                                        <div className="card-header-actions">
+                                            {user && user.userId !== set.ownerId && (
+                                                <button 
+                                                    className={`card-favorite-btn ${set.isFavorite ? 'active' : ''}`}
+                                                    onClick={(e) => handleToggleFavorite(e, set.setId, set.isFavorite)}
+                                                    title={set.isFavorite ? "Remove from favorites" : "Add to favorites"}
+                                                >
+                                                    <Heart size={20} fill={set.isFavorite ? "currentColor" : "none"} />
+                                                </button>
                                             )}
-                                            {set.status === 'REJECTED' && (
-                                                <span style={{ fontSize: '0.75rem', backgroundColor: '#ef4444', color: 'white', padding: '2px 6px', borderRadius: '4px', marginLeft: '8px', verticalAlign: 'middle', fontWeight: 600 }}>Rejected</span>
-                                            )}
-                                            {set.status === 'APPROVED' && activeTab === 'my' && (
-                                                <span style={{ fontSize: '0.75rem', backgroundColor: '#22c55e', color: 'white', padding: '2px 6px', borderRadius: '4px', marginLeft: '8px', verticalAlign: 'middle', fontWeight: 600 }}>Approved</span>
-                                            )}
-                                        </h3>
-                                        <span className="card-count">{set.cardCount || 0} terms</span>
+                                            <div className="card-count-badge">
+                                                <div className="count-main">
+                                                    <Book size={14} />
+                                                    <span>{set.cardCount || 0}</span>
+                                                </div>
+                                                <span className="count-label">TERMS</span>
+                                            </div>
+                                        </div>
                                     </Card.Header>
                                     <Card.Body>
                                         <p className="set-description">{set.description || 'No description provided.'}</p>

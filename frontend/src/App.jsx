@@ -23,6 +23,7 @@ import QuizPage from './pages/QuizPage';
 import QuizResultPage from './pages/QuizResultPage';
 import StudyPage from './pages/StudyPage';
 import AdminModerationPage from './pages/AdminModerationPage';
+import SavedSetsPage from './pages/SavedSetsPage';
 import NotFoundPage from './pages/NotFoundPage';
 
 import MainLayout from './components/layout';
@@ -145,6 +146,12 @@ function App() {
           <MainLayout>
             <SearchPage />
           </MainLayout>
+        } />
+
+        <Route path="/saved-sets" element={
+          <ProtectedRoute>
+            <SavedSetsPage />
+          </ProtectedRoute>
         } />
 
         <Route path="/users/:username" element={

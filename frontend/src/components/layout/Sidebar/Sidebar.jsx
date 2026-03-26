@@ -12,7 +12,8 @@ import {
     Shield,
     History as HistoryIcon,
     BarChart3,
-    Activity
+    Activity,
+    Heart
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../../context/AuthContext';
@@ -59,6 +60,7 @@ const Sidebar = ({ isCollapsed, onToggle, activePath = '/dashboard' }) => {
     const mainLinks = [
         { icon: <Home size={22} />, label: 'Home', path: '/dashboard' },
         { icon: <Library size={22} />, label: 'Library', path: '/library' },
+        { icon: <Heart size={22} />, label: 'Favorite Sets', path: '/saved-sets' },
     ];
 
     const adminLinks = [

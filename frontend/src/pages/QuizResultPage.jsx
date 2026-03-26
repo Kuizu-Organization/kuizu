@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { ChevronLeft, CheckCircle2, XCircle, RefreshCcw, Home } from 'lucide-react';
+import { ChevronLeft, CheckCircle2, XCircle, RefreshCcw, Home, Trophy, Star } from 'lucide-react';
 import { Button, Card } from '../components/ui';
 import MainLayout from '../components/layout';
 import './QuizResultPage.css';
@@ -37,16 +37,36 @@ const QuizResultPage = () => {
                 </div>
 
                 <div className="result-summary-section">
-                    <Card className="summary-card">
-                        <div className="circular-progress" style={{ '--progress': `${percentage}%` }}>
-                            <div className="inner-circle">
-                                <span className="percentage">{percentage}%</span>
-                                <span className="fraction">{result.score}/{result.totalQuestions}</span>
+                    <Card className={`summary-card ${percentage === 100 ? 'perfect-score' : ''}`}>
+                        <div className="circular-progress-wrapper">
+                            <div className="circular-progress" style={{ '--progress': `${percentage}%` }}>
+                                <div className="inner-circle">
+                                    <span className="percentage">{percentage}%</span>
+                                    <span className="fraction">{result.score}/{result.totalQuestions}</span>
+                                </div>
                             </div>
+                            {percentage === 100 && (
+                                <div className="trophy-badge">
+                                    <Trophy size={40} />
+                                </div>
+                            )}
                         </div>
                         <div className="summary-info">
-                            <h2>{percentage >= 80 ? 'Excellent Work!' : percentage >= 60 ? 'Good Job!' : 'Keep Practicing!'}</h2>
-                            <p>You answered {result.score} out of {result.totalQuestions} questions correctly.</p>
+                            <div className="badge-row">
+                                {percentage === 100 && <span className="perfect-badge">PERFECT!</span>}
+                                {percentage >= 80 && percentage < 100 && <span className="mastery-badge">MASTERY</span>}
+                            </div>
+                            <h2>
+                                {percentage === 100 ? 'Level Up! Mastery Achieved!' : 
+                                 percentage >= 80 ? 'Excellent Work!' : 
+                                 percentage >= 60 ? 'Good Job!' : 
+                                 'Keep Practicing!'}
+                            </h2>
+                            <p>
+                                {percentage === 100 
+                                    ? `You've mastered these ${result.totalQuestions} cards completely!` 
+                                    : `You answered ${result.score} out of ${result.totalQuestions} questions correctly.`}
+                            </p>
                             <div className="result-actions">
                                 <Button onClick={() => navigate(`/quiz/${result.setId}`)}>
                                     <RefreshCcw size={18} />
@@ -75,7 +95,7 @@ const QuizResultPage = () => {
                                         {!item.isCorrect && (
                                             <div className="user-wrong-answer">
                                                 <span className="label">You said:</span>
-                                                <span className="wrong-text">{item.userAnswer === 'TRUE' ? 'Đúng' : item.userAnswer === 'FALSE' ? 'Sai' : item.userAnswer}</span>
+                                                <span className="wrong-text">{item.userAnswer === 'TRUE' ? 'True' : item.userAnswer === 'FALSE' ? 'False' : item.userAnswer}</span>
                                             </div>
                                         )}
                                         <div className="correct-answer">

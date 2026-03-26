@@ -8,6 +8,9 @@ import com.kuizu.backend.exception.ApiException;
 import com.kuizu.backend.repository.FlashcardRepository;
 import com.kuizu.backend.repository.FlashcardSetRepository;
 import com.kuizu.backend.repository.UserRepository;
+import com.kuizu.backend.repository.SavedSetRepository;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,17 +26,20 @@ public class FlashcardSetService {
     private final UserRepository userRepository;
     private final NotificationService notificationService;
     private final StatisticService statisticService;
+    private final SavedSetRepository savedSetRepository;
 
     public FlashcardSetService(FlashcardSetRepository flashcardSetRepository,
             FlashcardRepository flashcardRepository,
             UserRepository userRepository,
             NotificationService notificationService,
-            StatisticService statisticService) {
+            StatisticService statisticService,
+            SavedSetRepository savedSetRepository) {
         this.flashcardSetRepository = flashcardSetRepository;
         this.flashcardRepository = flashcardRepository;
         this.userRepository = userRepository;
         this.notificationService = notificationService;
         this.statisticService = statisticService;
+        this.savedSetRepository = savedSetRepository;
     }
 
     public List<FlashcardSetResponse> getAllPublicSets() {
@@ -199,6 +205,17 @@ public class FlashcardSetService {
 
     private FlashcardSetResponse mapToResponse(FlashcardSet set) {
         long count = flashcardRepository.countByFlashcardSetAndIsDeletedFalse(set);
+        
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        boolean isFavorite = false;
+        if (auth != null && auth.isAuthenticated() && !auth.getPrincipal().equals("anonymousUser")) {
+            String currentUsername = auth.getName();
+            User currentUser = userRepository.findByUsername(currentUsername).orElse(null);
+            if (currentUser != null) {
+                isFavorite = savedSetRepository.existsById_UserIdAndId_SetId(currentUser.getUserId(), set.getSetId());
+            }
+        }
+
         return FlashcardSetResponse.builder()
                 .setId(set.getSetId())
                 .ownerId(set.getOwner().getUserId())
@@ -209,6 +226,7 @@ public class FlashcardSetService {
                 .status(set.getStatus() != null ? set.getStatus().name() : null)
                 .moderationNotes(set.getModerationNotes())
                 .cardCount((int) count)
+                .isFavorite(isFavorite)
                 .createdAt(set.getCreatedAt())
                 .updatedAt(set.getUpdatedAt())
                 .build();

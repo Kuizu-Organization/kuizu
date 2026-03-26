@@ -6,11 +6,13 @@ import { submitQuiz } from '../api/study';
 import { Button, Card, Loader, Modal, Input } from '../components/ui';
 import MainLayout from '../components/layout';
 import './QuizPage.css';
+import { useToast } from '../context/ToastContext';
 
 const QuizPage = () => {
     const { setId } = useParams();
     const navigate = useNavigate();
     const location = useLocation();
+    const toast = useToast();
 
     const [cards, setCards] = useState(location.state?.cards || []);
     const settings = location.state?.settings || {
@@ -197,7 +199,7 @@ const QuizPage = () => {
                     term: q.term,
                     definition: q.type === 'TRUE_FALSE' ? q.originalDefinition : q.correctAnswer,
                     isCorrect: false,
-                    userAnswer: '(Bỏ qua)',
+                    userAnswer: '(Skipped)',
                     questionType: q.type
                 };
             });
@@ -206,6 +208,8 @@ const QuizPage = () => {
                 setId: parseInt(setId),
                 answers: completeAnswers.map(a => ({ cardId: a.cardId, isCorrect: a.isCorrect }))
             });
+
+            toast.success('Study progress updated!');
 
             const correctCount = completeAnswers.filter(a => a.isCorrect).length;
             navigate(`/quiz/results/summary`, {
@@ -231,7 +235,7 @@ const QuizPage = () => {
                     term: q.term,
                     definition: q.type === 'TRUE_FALSE' ? q.originalDefinition : q.correctAnswer,
                     isCorrect: false,
-                    userAnswer: '(Bỏ qua)',
+                    userAnswer: '(Skipped)',
                     questionType: q.type
                 };
             });
@@ -340,9 +344,9 @@ const QuizPage = () => {
 
                 <div className="question-content">
                     <div className="question-type-badge">
-                        {currentQuestion.type === 'TRUE_FALSE' && 'Đúng hoặc Sai'}
-                        {currentQuestion.type === 'WRITTEN' && 'Tự luận'}
-                        {currentQuestion.type === 'MULTIPLE_CHOICE' && 'Trắc nghiệm'}
+                        {currentQuestion.type === 'TRUE_FALSE' && 'True or False'}
+                        {currentQuestion.type === 'WRITTEN' && 'Written'}
+                        {currentQuestion.type === 'MULTIPLE_CHOICE' && 'Multiple Choice'}
                     </div>
                     
                     <h1 className="question-term">{currentQuestion.term}</h1>
@@ -389,7 +393,7 @@ const QuizPage = () => {
                                     disabled={selectedOption !== null}
                                 >
                                     <Check size={24} />
-                                    <span>Đúng</span>
+                                    <span>True</span>
                                 </button>
                                 <button 
                                     className={`tf-btn false-btn ${selectedOption === 'FALSE' ? (currentQuestion.correctAnswer === 'FALSE' ? 'correct' : 'incorrect') : (selectedOption !== null && currentQuestion.correctAnswer === 'FALSE' ? 'correct' : '')}`}
@@ -397,7 +401,7 @@ const QuizPage = () => {
                                     disabled={selectedOption !== null}
                                 >
                                     <X size={24} />
-                                    <span>Sai</span>
+                                    <span>False</span>
                                 </button>
                             </div>
                         </div>
@@ -407,7 +411,7 @@ const QuizPage = () => {
                         <div className="written-content">
                             <form onSubmit={handleWrittenSubmit}>
                                 <Input
-                                    placeholder="Nhập câu trả lời của bạn..."
+                                    placeholder="Type your answer here..."
                                     value={writtenAnswer}
                                     onChange={(e) => setWrittenAnswer(e.target.value)}
                                     autoFocus
@@ -417,18 +421,18 @@ const QuizPage = () => {
                                 {selectedOption !== null && (
                                     <div className={`written-feedback ${selectedOption}`}>
                                         {selectedOption === 'correct' ? (
-                                            <p className="success-text"><Check size={16} /> Chính xác!</p>
+                                            <p className="success-text"><Check size={16} /> Correct!</p>
                                         ) : (
                                             <div className="error-text">
-                                                <p><X size={16} /> Sai rồi!</p>
-                                                <p className="correct-display">Đáp án đúng: <strong>{currentQuestion.correctAnswer}</strong></p>
+                                                <p><X size={16} /> Incorrect!</p>
+                                                <p className="correct-display">Correct answer: <strong>{currentQuestion.correctAnswer}</strong></p>
                                             </div>
                                         )}
                                     </div>
                                 )}
                                 {selectedOption === null && (
                                     <Button type="submit" variant="primary" className="written-submit-btn">
-                                        Gửi câu trả lời
+                                        Submit answer
                                     </Button>
                                 )}
                             </form>

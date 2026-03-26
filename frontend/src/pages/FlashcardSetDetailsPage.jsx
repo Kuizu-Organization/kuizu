@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ChevronLeft, Play, Plus, Pencil, Trash2, User, Layers, BookOpen, Clock, Sparkles, Book, CheckCircle } from 'lucide-react';
+import { ChevronLeft, Play, Plus, Pencil, Trash2, User, Layers, BookOpen, Clock, Sparkles, Book, CheckCircle, Heart } from 'lucide-react';
 import './FlashcardSetDetailsPage.css';
 import { getFlashcardSetById, getFlashcardsBySetId, deleteFlashcard, reRequestFlashcardSetReview } from '../api/flashcards';
-import { getStudyProgress, resetStudyProgress } from '../api/study';
+import { getStudyProgress, resetStudyProgress, initializeQuiz } from '../api/study';
+import { saveFlashcardSet, unsaveFlashcardSet } from '../api/savedSets';
 import { Button, Card, Badge, Loader, ConfirmationModal, CelebrationModal } from '../components/ui';
 import { useModal } from '../context/ModalContext';
 import MainLayout from '../components/layout';
@@ -22,6 +23,8 @@ const FlashcardSetDetailsPage = () => {
     const [progress, setProgress] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [isFavorite, setIsFavorite] = useState(false);
+    const [isSaving, setIsSaving] = useState(false);
 
     const [isResetModalOpen, setIsResetModalOpen] = useState(false);
     const [isDeleting, setIsDeleting] = useState(false);
@@ -30,6 +33,7 @@ const FlashcardSetDetailsPage = () => {
     const [isCelebrationOpen, setIsCelebrationOpen] = useState(false);
     const [isReRequesting, setIsReRequesting] = useState(false);
     const [isQuizSettingsOpen, setIsQuizSettingsOpen] = useState(false);
+    const [isQuizLoading, setIsQuizLoading] = useState(false);
 
     useEffect(() => {
         fetchData();
@@ -59,6 +63,7 @@ const FlashcardSetDetailsPage = () => {
             setSet(setData);
             setCards(cardsData);
             setProgress(progressData);
+            setIsFavorite(setData.isFavorite);
         } catch (err) {
             console.error('Error fetching data:', err);
             setError('Could not load set details.');
@@ -86,11 +91,11 @@ const FlashcardSetDetailsPage = () => {
     };
 
     const handleAddCardClick = () => {
-        openCardModal(setId, null, handleCardSuccess);
+        openCardModal(setId, null, handleCardSuccess, cards);
     };
 
     const handleEditCardClick = (cardId) => {
-        openCardModal(setId, cardId, handleCardSuccess);
+        openCardModal(setId, cardId, handleCardSuccess, cards);
     };
 
     const handleDeleteCard = async () => {
@@ -151,14 +156,68 @@ const FlashcardSetDetailsPage = () => {
         }
     };
 
-    const handleStartQuiz = (settings) => {
-        setIsQuizSettingsOpen(false);
-        navigate(`/quiz/${setId}`, {
-            state: {
-                cards,
-                settings
+    const handleToggleSave = async () => {
+        if (!user) {
+            toast.error('Please log in to save sets');
+            return;
+        }
+
+        try {
+            setIsSaving(true);
+            if (isFavorite) {
+                await unsaveFlashcardSet(setId);
+                setIsFavorite(false);
+                toast.success('Removed from favorites');
+            } else {
+                await saveFlashcardSet(setId);
+                setIsFavorite(true);
+                toast.success('Added to favorites');
             }
-        });
+        } catch (err) {
+            toast.error('Failed to update favorite status');
+        } finally {
+            setIsSaving(false);
+        }
+    };
+
+    const handleStartQuiz = async (settings) => {
+        setIsQuizLoading(true);
+        try {
+            const quizCards = await initializeQuiz({
+                setId: parseInt(setId),
+                numQuestions: settings.numQuestions,
+                activeModes: settings.activeModes,
+                starredOnly: settings.starredOnly
+            });
+
+            setIsQuizSettingsOpen(false);
+            navigate(`/quiz/${setId}`, {
+                state: {
+                    cards: quizCards,
+                    settings
+                }
+            });
+        } catch (err) {
+            console.error('Quiz initialization failed:', err);
+            
+            let errorMessage = 'Failed to start the quiz. Please try again.';
+            if (err.response?.status === 400) {
+                // Check if Backend sent a list of validation errors (@Valid)
+                const springErrors = err.response.data?.errors;
+                if (springErrors && Array.isArray(springErrors) && springErrors.length > 0) {
+                    errorMessage = springErrors[0].defaultMessage;
+                } else {
+                    errorMessage = err.response.data?.message || 'Invalid setting. Ensure questions are within allowed range.';
+                }
+            } else if (err.response?.status === 404) {
+                errorMessage = 'Flashcard set not found.';
+            }
+
+            toast.error(errorMessage);
+            setIsQuizSettingsOpen(false);
+        } finally {
+            setIsQuizLoading(false);
+        }
     };
 
     if (loading) return <MainLayout><div className="loading-container"><Loader /></div></MainLayout>;
@@ -179,6 +238,16 @@ const FlashcardSetDetailsPage = () => {
                     <div className="set-info-main">
                         <div className="set-title-row">
                             <h1 className="set-title">{set.title}</h1>
+                            {user && !isOwner && (
+                                <button 
+                                    className={`favorite-btn ${isFavorite ? 'is-saved' : ''} ${isSaving ? 'is-animating' : ''}`}
+                                    onClick={handleToggleSave}
+                                    disabled={isSaving}
+                                    title={isFavorite ? "Remove from favorite" : "Add to favorite"}
+                                >
+                                    <Heart size={24} fill={isFavorite ? "currentColor" : "none"} />
+                                </button>
+                            )}
                             {set.status && (
                                 <Badge variant={
                                     set.status === 'APPROVED' ? 'success' :
@@ -346,6 +415,14 @@ const FlashcardSetDetailsPage = () => {
                                     <div className="v2-card-body">
                                         <div className="v2-index-col">
                                             <span>{index + 1}</span>
+                                            {progress?.cardDetails?.find(cp => cp.cardId === card.cardId) && (
+                                                <div className={`mastery-badge-small ${
+                                                    progress.cardDetails.find(cp => cp.cardId === card.cardId).masteryLevel >= 4 ? 'mastered' : 
+                                                    progress.cardDetails.find(cp => cp.cardId === card.cardId).masteryLevel > 0 ? 'learning' : 'new'
+                                                }`}>
+                                                    {progress.cardDetails.find(cp => cp.cardId === card.cardId).masteryLevel}/5
+                                                </div>
+                                            )}
                                         </div>
                                         <div className="v2-content-col">
                                             <div className="v2-term">
@@ -432,6 +509,7 @@ const FlashcardSetDetailsPage = () => {
                     onClose={() => setIsQuizSettingsOpen(false)}
                     onStart={handleStartQuiz}
                     totalCards={cards.length}
+                    isLoading={isQuizLoading}
                 />
             </div>
         </MainLayout>

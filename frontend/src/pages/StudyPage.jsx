@@ -53,7 +53,7 @@ const StudyPage = () => {
         if (!loading && cards.length > 0 && location.state?.startIndex !== undefined && !progressRestored) {
             setCurrentIndex(location.state.startIndex);
             setProgressRestored(true);
-            toast.success(`Đã quay lại thẻ thứ ${location.state.startIndex + 1}`);
+            toast.success(`Resumed from card ${location.state.startIndex + 1}`);
         }
     }, [loading, cards.length, location.state, progressRestored]);
 
@@ -102,7 +102,7 @@ const StudyPage = () => {
             setCards(seededShuffle(fetchedCards, setId));
         } catch (err) {
             console.error('Failed to load study data:', err);
-            toast.error('Không thể tải dữ liệu bài học');
+            toast.error('Failed to load study data');
         } finally {
             setLoading(false);
         }

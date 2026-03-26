@@ -23,3 +23,8 @@ export const updateStudyProgress = async (cardId, isCorrect) => {
     const response = await api.post('/study/study/update', { cardId, isCorrect });
     return response.data;
 };
+
+export const initializeQuiz = async (quizConfig) => {
+    const response = await api.post('/study/quiz/initialize', quizConfig);
+    return response.data;
+};

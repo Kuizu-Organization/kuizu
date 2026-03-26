@@ -129,7 +129,7 @@ const StudyBulletin = () => {
                                                     <div className="bulletin-dropdown">
                                                         <button onClick={(e) => handleDeleteProgress(e, item.setId)} className="delete-action">
                                                             <Trash2 size={14} />
-                                                            Xoá tiến trình
+                                                            Delete progress
                                                         </button>
                                                     </div>
                                                 )}

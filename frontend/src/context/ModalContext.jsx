@@ -6,7 +6,7 @@ const ModalContext = createContext();
 
 export const ModalProvider = ({ children }) => {
     const [setModal, setSetModal] = useState({ isOpen: false, setId: null, callback: null });
-    const [cardModal, setCardModal] = useState({ isOpen: false, setId: null, cardId: null, callback: null });
+    const [cardModal, setCardModal] = useState({ isOpen: false, setId: null, cardId: null, callback: null, existingCards: [] });
 
     const openSetModal = (setId = null, callback = null) => {
         setSetModal({ isOpen: true, setId, callback });
@@ -16,12 +16,12 @@ export const ModalProvider = ({ children }) => {
         setSetModal({ isOpen: false, setId: null, callback: null });
     };
 
-    const openCardModal = (setId = null, cardId = null, callback = null) => {
-        setCardModal({ isOpen: true, setId, cardId, callback });
+    const openCardModal = (setId = null, cardId = null, callback = null, existingCards = []) => {
+        setCardModal({ isOpen: true, setId, cardId, callback, existingCards });
     };
 
     const closeCardModal = () => {
-        setCardModal({ isOpen: false, setId: null, cardId: null, callback: null });
+        setCardModal({ isOpen: false, setId: null, cardId: null, callback: null, existingCards: [] });
     };
 
     const handleSetSuccess = (data) => {
@@ -46,6 +46,7 @@ export const ModalProvider = ({ children }) => {
                 onClose={closeCardModal}
                 setId={cardModal.setId}
                 cardId={cardModal.cardId}
+                existingCards={cardModal.existingCards}
                 onSuccess={handleCardSuccess}
             />
         </ModalContext.Provider>

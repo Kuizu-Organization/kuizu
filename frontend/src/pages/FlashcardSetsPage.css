@@ -118,7 +118,6 @@
 }
 
 /* Clear section boundaries like in the reference image */
-.set-card .card-header,
 .set-card .set-card-header {
     display: flex !important;
     justify-content: space-between !important;
@@ -126,29 +125,107 @@
     padding: 1.5rem !important;
     background: transparent !important;
     border: none !important;
-    gap: 1rem !important;
+    gap: 1.25rem !important;
+    flex-wrap: nowrap !important; /* Prevent wrapping */
 }
 
-.set-card .card-title,
+.set-title-container {
+    flex: 1;
+    min-width: 0; /* Important for text-overflow */
+}
+
 .set-card .set-title {
-    font-size: 1.25rem !important;
-    font-weight: 700 !important;
-    color: var(--text-dark) !important;
+    font-size: 1.4rem !important;
+    font-weight: 800 !important;
+    color: #1e293b !important;
     margin: 0 !important;
-    line-height: 1.4 !important;
-    flex: 1 !important;
+    line-height: 1.2 !important;
+    display: -webkit-box !important;
+    line-clamp: 2 !important;
+    -webkit-line-clamp: 2 !important;
+    -webkit-box-orient: vertical !important;
+    overflow: hidden !important;
 }
 
-.set-card .card-count {
-    font-size: 0.75rem !important;
-    font-weight: 700 !important;
-    background-color: var(--primary-light) !important;
-    padding: 4px 10px !important;
-    border-radius: 6px !important;
-    color: var(--primary) !important;
-    white-space: nowrap !important;
-    text-transform: uppercase !important;
-    letter-spacing: 0.5px !important;
+.set-status-badges {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+}
+
+.status-badge {
+    font-size: 0.7rem;
+    font-weight: 800;
+    padding: 2px 8px;
+    border-radius: 6px;
+    text-transform: uppercase;
+}
+
+.status-badge.pending { background: #fef9c3; color: #a16207; }
+.status-badge.rejected { background: #fee2e2; color: #b91c1c; }
+.status-badge.approved { background: #dcfce7; color: #15803d; }
+
+.card-header-actions {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    flex-shrink: 0; /* Prevent the actions from shrinking or wrapping */
+}
+
+.card-favorite-btn {
+    background: white;
+    border: 1px solid #e2e8f0;
+    color: #94a3b8;
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+}
+
+.card-favorite-btn:hover {
+    color: #f43f5e;
+    background: #fff1f2;
+    border-color: #fecdd3;
+    transform: scale(1.1);
+}
+
+.card-favorite-btn.active {
+    color: #f43f5e;
+    background: #fff1f2;
+    border-color: #fecdd3;
+}
+
+.card-count-badge {
+    background: #f0f3ff;
+    padding: 8px 14px;
+    border-radius: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-width: 70px;
+    border: 1px solid #e0e7ff;
+}
+
+.count-main {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    color: #4255ff;
+    font-weight: 800;
+    font-size: 1.1rem;
+}
+
+.count-label {
+    font-size: 0.6rem;
+    font-weight: 900;
+    color: #4255ff;
+    letter-spacing: 0.5px;
+    margin-top: -2px;
 }
 
 .set-card .card-body {
@@ -157,11 +234,12 @@
 }
 
 .set-card .set-description {
-    color: var(--text-light) !important;
-    font-size: 0.95rem !important;
-    line-height: 1.5 !important;
+    color: #64748b !important;
+    font-size: 1rem !important;
+    line-height: 1.6 !important;
     margin: 0 !important;
     display: -webkit-box !important;
+    line-clamp: 2 !important;
     -webkit-line-clamp: 2 !important;
     -webkit-box-orient: vertical !important;
     overflow: hidden !important;

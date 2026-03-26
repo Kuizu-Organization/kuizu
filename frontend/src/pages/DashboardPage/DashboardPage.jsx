@@ -3,12 +3,14 @@ import { useNavigate } from 'react-router-dom';
 import { getMyClasses, getSuggestedClasses } from '../../api/class';
 import { getMyFolders, getPublicFolders, getSuggestedFolders } from '../../api/folder';
 import { getMyFlashcardSets, getFlashcardSetById, getPublicFlashcardSets } from '../../api/flashcards';
+import { saveFlashcardSet, unsaveFlashcardSet } from '../../api/savedSets';
 import CreateClassModal from '../../components/Class/CreateClassModal';
 import CreateFolderModal from '../../components/Folder/CreateFolderModal';
 import { useAuth } from '../../context/AuthContext';
 import { useModal } from '../../context/ModalContext';
-import { FolderOpen, Globe, BookOpen } from 'lucide-react';
+import { FolderOpen, Globe, BookOpen, Heart, Book } from 'lucide-react';
 import { Button, Card, Loader, EmptyState, ItemCard } from '../../components/ui';
+import { useToast } from '../../context/ToastContext';
 import StudyBulletin from '../../components/dashboard/StudyBulletin';
 import './DashboardPage.css';
 
@@ -25,6 +27,7 @@ const DashboardPage = () => {
     const [isLoading, setIsLoading] = useState(true);
     const [isCreateClassOpen, setIsCreateClassOpen] = useState(false);
     const [isCreateFolderOpen, setIsCreateFolderOpen] = useState(false);
+    const toast = useToast();
     const navigate = useNavigate();
 
     const isTeacherOrAdmin = user?.role === 'ROLE_TEACHER' || user?.role === 'ROLE_ADMIN';
@@ -111,6 +114,30 @@ const DashboardPage = () => {
         });
     };
 
+    const handleToggleFavorite = async (e, setId, isFavorite) => {
+        e.stopPropagation();
+        if (!user) {
+            toast.error('Please log in to favorite sets');
+            return;
+        }
+
+        try {
+            if (isFavorite) {
+                await unsaveFlashcardSet(setId);
+                setFlashcardSets(flashcardSets.map(s => s.setId === setId ? { ...s, isFavorite: false } : s));
+                setPublicFlashcardSets(publicFlashcardSets.map(s => s.setId === setId ? { ...s, isFavorite: false } : s));
+                toast.success('Removed from favorites');
+            } else {
+                await saveFlashcardSet(setId);
+                setFlashcardSets(flashcardSets.map(s => s.setId === setId ? { ...s, isFavorite: true } : s));
+                setPublicFlashcardSets(publicFlashcardSets.map(s => s.setId === setId ? { ...s, isFavorite: true } : s));
+                toast.success('Added to favorites');
+            }
+        } catch (err) {
+            toast.error('Failed to update favorite status');
+        }
+    };
+
     const triggerComingSoon = (feature = '') => {
         const query = feature ? `?feature=${encodeURIComponent(feature)}` : '';
         navigate(`/coming-soon${query}`);
@@ -153,11 +180,24 @@ const DashboardPage = () => {
                                 onClick={() => navigate(`/flashcard-sets/${set.setId}`)}
                             >
                                 <div className="card-header-custom">
-                                    <h3 className="card-title-custom">{set.title}</h3>
-                                    <span className="badge-custom">
-                                        <BookOpen size={12} style={{ marginRight: 4, verticalAlign: 'middle' }} />
-                                        {set.cardCount || 0} terms
-                                    </span>
+                                    <h3 className="card-title-custom" title={set.title}>{set.title}</h3>
+                                    <div className="card-header-actions">
+                                        {user && user.userId !== set.ownerId && (
+                                            <button 
+                                                className={`card-favorite-btn ${set.isFavorite ? 'active' : ''}`}
+                                                onClick={(e) => handleToggleFavorite(e, set.setId, set.isFavorite)}
+                                            >
+                                                <Heart size={16} fill={set.isFavorite ? "currentColor" : "none"} />
+                                            </button>
+                                        )}
+                                        <div className="card-count-badge">
+                                            <div className="count-main">
+                                                <Book size={12} />
+                                                <span>{set.cardCount || 0}</span>
+                                            </div>
+                                            <span className="count-label">TERMS</span>
+                                        </div>
+                                    </div>
                                 </div>
                                 <div className="card-body-custom">
                                     <p className="card-description-custom">{set.description || 'No description provided.'}</p>
@@ -200,11 +240,24 @@ const DashboardPage = () => {
                                 onClick={() => navigate(`/flashcard-sets/${set.setId}`)}
                             >
                                 <div className="card-header-custom">
-                                    <h3 className="card-title-custom">{set.title}</h3>
-                                    <span className="badge-custom badge-green">
-                                        <BookOpen size={12} style={{ marginRight: 4, verticalAlign: 'middle' }} />
-                                        {set.cardCount || 0} terms
-                                    </span>
+                                    <h3 className="card-title-custom" title={set.title}>{set.title}</h3>
+                                    <div className="card-header-actions">
+                                        {user && user.userId !== set.ownerId && (
+                                            <button 
+                                                className={`card-favorite-btn ${set.isFavorite ? 'active' : ''}`}
+                                                onClick={(e) => handleToggleFavorite(e, set.setId, set.isFavorite)}
+                                            >
+                                                <Heart size={16} fill={set.isFavorite ? "currentColor" : "none"} />
+                                            </button>
+                                        )}
+                                        <div className="card-count-badge badge-green">
+                                            <div className="count-main">
+                                                <Book size={12} />
+                                                <span>{set.cardCount || 0}</span>
+                                            </div>
+                                            <span className="count-label">TERMS</span>
+                                        </div>
+                                    </div>
                                 </div>
                                 <div className="card-body-custom">
                                     <p className="card-description-custom">{set.description || 'No description provided.'}</p>
@@ -237,11 +290,14 @@ const DashboardPage = () => {
                                 onClick={() => navigate(`/folders/${folder.folderId}`)}
                             >
                                 <div className="card-header-custom">
-                                    <h3 className="card-title-custom">{folder.name}</h3>
-                                    <span className="badge-custom">
-                                        <FolderOpen size={12} style={{ marginRight: 4, verticalAlign: 'middle' }} />
-                                        {folder.setCount} sets
-                                    </span>
+                                    <h3 className="card-title-custom" title={folder.name}>{folder.name}</h3>
+                                    <div className="card-count-badge badge-purple">
+                                        <div className="count-main">
+                                            <FolderOpen size={12} />
+                                            <span>{folder.setCount}</span>
+                                        </div>
+                                        <span className="count-label">SETS</span>
+                                    </div>
                                 </div>
                                 <div className="card-body-custom">
                                     <p className="card-description-custom">{folder.description || 'No description provided.'}</p>
