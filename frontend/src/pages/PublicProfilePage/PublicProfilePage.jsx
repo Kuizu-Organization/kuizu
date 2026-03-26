@@ -1,18 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-<<<<<<< HEAD
-import { getPublicUserByUsername } from '../../api/user';
-import MainLayout from '../../components/layout';
-import { Loader, Card, Button } from '../../components/ui';
-import { Calendar, MapPin, Clock } from 'lucide-react';
-import '../ProfilePage.css';
-=======
 import { getPublicUserByUsername } from '@/api/user';
 import MainLayout from '@/components/layout';
 import { Loader, Card, Button } from '@/components/ui';
 import { Calendar, MapPin, Clock } from 'lucide-react';
 import '@/pages/ProfilePage/ProfilePage.css';
->>>>>>> feature/flashcard
 
 const PublicProfilePage = () => {
     const { username } = useParams();
@@ -99,19 +91,11 @@ const PublicProfilePage = () => {
                             </div>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--text-secondary)' }}>
                                 <Calendar size={16} />
-<<<<<<< HEAD
-                                <span>Joined on {new Date(user.createdAt).toLocaleDateString(undefined, {
-                                    year: 'numeric',
-                                    month: 'long',
-                                    day: 'numeric'
-                                })}</span>
-=======
                                 <span>Joined on {user.createdAt ? new Date(user.createdAt).toLocaleDateString(undefined, {
                                     year: 'numeric',
                                     month: 'long',
                                     day: 'numeric'
                                 }) : 'Unknown'}</span>
->>>>>>> feature/flashcard
                             </div>
                         </div>
                     </Card>

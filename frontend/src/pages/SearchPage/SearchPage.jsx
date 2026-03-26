@@ -5,7 +5,7 @@ import { searchFolders, getSuggestedFolders } from '@/api/folder';
 import { searchFlashcardSets, getSuggestedSets } from '@/api/flashcardSet';
 import { searchPublicUsers } from '@/api/user';
 import { Search, BookOpen, Users, FolderOpen, Layers, User } from 'lucide-react';
-import { Loader, EmptyState, ItemCard } from '@/components/ui';
+import { Loader, EmptyState, ItemCard, Card, Badge } from '@/components/ui';
 import PublicProfileModal from '@/pages/PublicProfilePage/PublicProfileModal';
 import './SearchPage.css';
 
@@ -120,14 +120,8 @@ const SearchPage = () => {
                 owner: set.ownerDisplayName,
                 description: set.description,
                 onClick: () => navigate(`/flashcard-sets/${set.setId}`),
-                badge: `${set.flashcardCount} terms`,
-                footerText: (
-                    <div className="result-meta">
-                        <Layers size={14} />
-                        <span>Owner: {set.ownerDisplayName}</span>
-                        <span className="meta-badge">{set.flashcardCount} terms</span>
-                    </div>
-                )
+                cardCount: set.cardCount,
+                itemType: 'set'
             }));
         }
 
@@ -140,14 +134,8 @@ const SearchPage = () => {
                 owner: folder.ownerDisplayName,
                 description: folder.description,
                 onClick: () => navigate(`/folders/${folder.folderId}`),
-                badge: `${folder.setCount} sets`,
-                footerText: (
-                    <div className="result-meta">
-                        <FolderOpen size={14} />
-                        <span>Owner: {folder.ownerDisplayName}</span>
-                        <span className="meta-badge">{folder.setCount} sets</span>
-                    </div>
-                )
+                setCount: folder.setCount,
+                itemType: 'folder'
             }));
         }
 
@@ -160,12 +148,7 @@ const SearchPage = () => {
                 owner: cls.ownerDisplayName,
                 description: cls.description,
                 onClick: () => navigate(`/classes/${cls.classId}`),
-                footerText: (
-                    <div className="result-meta">
-                        <Users size={14} />
-                        <span>Owner: {cls.ownerDisplayName}</span>
-                    </div>
-                )
+                itemType: 'class'
             }));
         }
 
@@ -183,7 +166,7 @@ const SearchPage = () => {
                 },
                 badge: user.role ? (user.role.charAt(5).toUpperCase() + user.role.slice(6).toLowerCase()) : 'User',
                 profilePicture: user.profilePictureUrl || 'https://api.dicebear.com/7.x/avataaars/svg?seed=' + user.username,
-                footerText: null
+                itemType: 'user'
             }));
         }
 
@@ -204,15 +187,46 @@ const SearchPage = () => {
             <>
                 <div className="search-results-grid">
                     {items.map(item => (
-                        <ItemCard
+                        <Card
                             key={item.id}
+                            className="home-item-card"
                             onClick={item.onClick}
-                            title={item.title}
-                            badge={item.badge}
-                            description={item.description || 'No description provided.'}
-                            profilePicture={item.profilePicture}
-                            footerText={item.footerText}
-                        />
+                        >
+                            <div className="card-header-custom">
+                                <h3 className="card-title-custom" title={item.title}>{item.title}</h3>
+                                {item.itemType === 'set' && (
+                                    <div className="card-count-badge">
+                                        <div className="count-main">
+                                            <BookOpen size={12} />
+                                            <span>{item.cardCount || 0}</span>
+                                        </div>
+                                        <span className="count-label">TERMS</span>
+                                    </div>
+                                )}
+                                {item.itemType === 'folder' && (
+                                    <div className="card-count-badge">
+                                        <div className="count-main">
+                                            <FolderOpen size={12} />
+                                            <span>{item.setCount || 0}</span>
+                                        </div>
+                                        <span className="count-label">SETS</span>
+                                    </div>
+                                )}
+                                {(item.itemType === 'class' || item.itemType === 'user') && (
+                                    <span className="badge-custom">{item.badge || item.type}</span>
+                                )}
+                            </div>
+                            <div className="card-body-custom">
+                                {item.profilePicture && (
+                                    <img src={item.profilePicture} alt={item.title} className="item-card-profile-pic" style={{ marginBottom: 12 }} />
+                                )}
+                                <p className="card-description-custom">{item.description || 'No description provided.'}</p>
+                            </div>
+                            <div className="card-footer-custom">
+                                <span className="owner-text">{item.itemType === 'user' ? item.owner : `by ${item.owner}`}</span>
+                                <span className="visibility-tag public">🌐 Public</span>
+                            </div>
+                        </Card>
                     ))}
                 </div>
                 {showMoreButton && (

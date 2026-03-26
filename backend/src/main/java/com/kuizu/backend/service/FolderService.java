@@ -280,21 +280,6 @@ public class FolderService {
         return mapFoldersToResponse(folders);
     }
 
-    @Transactional(readOnly = true)
-    public List<FolderResponse> searchFolders(String query) {
-        List<Folder> folders = folderRepository.findByNameContainingIgnoreCaseAndVisibilityAndIsDeletedFalse(query, "PUBLIC");
-        return mapFoldersToResponse(folders);
-    }
-
-    @Transactional(readOnly = true)
-    public List<FolderResponse> getSuggestedFolders(int limit) {
-        List<Folder> folders = folderRepository.findByVisibilityAndIsDeletedFalse("PUBLIC")
-                .stream()
-                .limit(limit)
-                .collect(Collectors.toList());
-        return mapFoldersToResponse(folders);
-    }
-
     private List<FolderResponse> mapFoldersToResponse(List<Folder> folders) {
         return folders.stream().map(folder -> FolderResponse.builder()
                 .folderId(folder.getFolderId())

@@ -24,7 +24,6 @@ import QuizResultPage from '@/pages/QuizResultPage/QuizResultPage';
 import StudyPage from '@/pages/StudyPage/StudyPage';
 import AdminModerationPage from '@/pages/AdminModerationPage/AdminModerationPage';
 import SavedSetsPage from '@/pages/SavedSetsPage/SavedSetsPage';
-import NotFoundPage from '@/pages/NotFoundPage/NotFoundPage';
 
 import MainLayout from '@/components/layout';
 
