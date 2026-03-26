@@ -123,22 +123,22 @@ const DashboardPage = () => {
                         {flashcardSets.slice(0, 4).map(set => (
                             <Card
                                 key={set.setId}
-                                className="dashboard-item-card"
+                                className="resource-card"
                                 onClick={() => navigate(`/flashcard-sets/${set.setId}`)}
                             >
-                                <div className="card-header-custom">
-                                    <h3 className="card-title-custom">{set.title}</h3>
-                                    <span className="badge-custom">
-                                        <BookOpen size={12} style={{ marginRight: 4, verticalAlign: 'middle' }} />
+                                <div className="resource-card-header">
+                                    <h3 className="resource-card-title">{set.title}</h3>
+                                    <span className="resource-card-badge">
+                                        <BookOpen size={12} />
                                         {set.cardCount || 0} terms
                                     </span>
                                 </div>
-                                <div className="card-body-custom">
-                                    <p className="card-description-custom">{set.description || 'No description provided.'}</p>
+                                <div className="resource-card-body">
+                                    <p className="resource-card-description">{set.description || 'No description provided.'}</p>
                                 </div>
-                                <div className="card-footer-custom">
-                                    <span className="owner-text">by {set.ownerDisplayName}</span>
-                                    <span className={`visibility-tag ${set.visibility?.toLowerCase()}`}>
+                                <div className="resource-card-footer">
+                                    <span className="resource-card-owner">by {set.ownerDisplayName}</span>
+                                    <span className={`resource-card-visibility ${set.visibility?.toLowerCase()}`}>
                                         {set.visibility === 'PUBLIC' ? '🌐 Public' : '🔒 Private'}
                                     </span>
                                 </div>
@@ -170,22 +170,22 @@ const DashboardPage = () => {
                         {publicFlashcardSets.slice(0, 4).map(set => (
                             <Card
                                 key={set.setId}
-                                className="dashboard-item-card"
+                                className="resource-card"
                                 onClick={() => navigate(`/flashcard-sets/${set.setId}`)}
                             >
-                                <div className="card-header-custom">
-                                    <h3 className="card-title-custom">{set.title}</h3>
-                                    <span className="badge-custom badge-green">
-                                        <BookOpen size={12} style={{ marginRight: 4, verticalAlign: 'middle' }} />
+                                <div className="resource-card-header">
+                                    <h3 className="resource-card-title">{set.title}</h3>
+                                    <span className="resource-card-badge">
+                                        <BookOpen size={12} />
                                         {set.cardCount || 0} terms
                                     </span>
                                 </div>
-                                <div className="card-body-custom">
-                                    <p className="card-description-custom">{set.description || 'No description provided.'}</p>
+                                <div className="resource-card-body">
+                                    <p className="resource-card-description">{set.description || 'No description provided.'}</p>
                                 </div>
-                                <div className="card-footer-custom">
-                                    <span className="owner-text">by {set.ownerDisplayName}</span>
-                                    <span className="visibility-tag public">🌐 Public</span>
+                                <div className="resource-card-footer">
+                                    <span className="resource-card-owner">by {set.ownerDisplayName}</span>
+                                    <span className="resource-card-visibility public">🌐 Public</span>
                                 </div>
                             </Card>
                         ))}
@@ -208,22 +208,22 @@ const DashboardPage = () => {
                         {folders.map(folder => (
                             <Card
                                 key={folder.folderId}
-                                className="dashboard-item-card"
+                                className="resource-card"
                                 onClick={() => navigate(`/folders/${folder.folderId}`)}
                             >
-                                <div className="card-header-custom">
-                                    <h3 className="card-title-custom">{folder.name}</h3>
-                                    <span className="badge-custom">
-                                        <FolderOpen size={12} style={{ marginRight: 4, verticalAlign: 'middle' }} />
+                                <div className="resource-card-header">
+                                    <h3 className="resource-card-title">{folder.name}</h3>
+                                    <span className="resource-card-badge">
+                                        <FolderOpen size={12} />
                                         {folder.setCount} sets
                                     </span>
                                 </div>
-                                <div className="card-body-custom">
-                                    <p className="card-description-custom">{folder.description || 'No description provided.'}</p>
+                                <div className="resource-card-body">
+                                    <p className="resource-card-description">{folder.description || 'No description provided.'}</p>
                                 </div>
-                                <div className="card-footer-custom">
-                                    <span className="owner-text">by {folder.ownerDisplayName}</span>
-                                    <span className={`visibility-tag ${folder.visibility?.toLowerCase()}`}>
+                                <div className="resource-card-footer">
+                                    <span className="resource-card-owner">by {folder.ownerDisplayName}</span>
+                                    <span className={`resource-card-visibility ${folder.visibility?.toLowerCase()}`}>
                                         {folder.visibility === 'PUBLIC' ? '🌐 Public' : '🔒 Private'}
                                     </span>
                                 </div>
@@ -255,22 +255,22 @@ const DashboardPage = () => {
                         {publicFolders.slice(0, 4).map(folder => (
                             <Card
                                 key={folder.folderId}
-                                className="dashboard-item-card"
+                                className="resource-card"
                                 onClick={() => navigate(`/folders/${folder.folderId}`)}
                             >
-                                <div className="card-header-custom">
-                                    <h3 className="card-title-custom">{folder.name}</h3>
-                                    <span className="badge-custom badge-green">
-                                        <Globe size={12} style={{ marginRight: 4, verticalAlign: 'middle' }} />
+                                <div className="resource-card-header">
+                                    <h3 className="resource-card-title">{folder.name}</h3>
+                                    <span className="resource-card-badge">
+                                        <Globe size={12} />
                                         {folder.setCount} sets
                                     </span>
                                 </div>
-                                <div className="card-body-custom">
-                                    <p className="card-description-custom">{folder.description || 'No description provided.'}</p>
+                                <div className="resource-card-body">
+                                    <p className="resource-card-description">{folder.description || 'No description provided.'}</p>
                                 </div>
-                                <div className="card-footer-custom">
-                                    <span className="owner-text">by {folder.ownerDisplayName}</span>
-                                    <span className="visibility-tag public">🌐 Public</span>
+                                <div className="resource-card-footer">
+                                    <span className="resource-card-owner">by {folder.ownerDisplayName}</span>
+                                    <span className="resource-card-visibility public">🌐 Public</span>
                                 </div>
                             </Card>
                         ))}

@@ -5,7 +5,7 @@ import { searchFolders, getSuggestedFolders } from '@/api/folder';
 import { searchFlashcardSets, getSuggestedSets } from '@/api/flashcardSet';
 import { searchPublicUsers } from '@/api/user';
 import { Search, BookOpen, Users, FolderOpen, Layers, User } from 'lucide-react';
-import { Loader, EmptyState, ItemCard } from '@/components/ui';
+import { Loader, EmptyState, Card } from '@/components/ui';
 import PublicProfileModal from '@/pages/PublicProfilePage/PublicProfileModal';
 import './SearchPage.css';
 
@@ -114,19 +114,27 @@ const SearchPage = () => {
         if (activeTab === 'all' || activeTab === 'sets') {
             results.sets.forEach(set => items.push({
                 id: `set-${set.setId}`,
-                title: set.title,
-                type: 'Set',
-                icon: <Layers size={14} />,
-                owner: set.ownerDisplayName,
-                description: set.description,
+                className: "resource-card",
                 onClick: () => navigate(`/flashcard-sets/${set.setId}`),
-                badge: `${set.flashcardCount} terms`,
-                footerText: (
-                    <div className="result-meta">
-                        <Layers size={14} />
-                        <span>Owner: {set.ownerDisplayName}</span>
-                        <span className="meta-badge">{set.flashcardCount} terms</span>
-                    </div>
+                content: (
+                    <>
+                        <div className="resource-card-header">
+                            <h3 className="resource-card-title">{set.title}</h3>
+                            <span className="resource-card-badge">
+                                <BookOpen size={12} />
+                                {set.cardCount} terms
+                            </span>
+                        </div>
+                        <div className="resource-card-body">
+                            <p className="resource-card-description">{set.description || 'No description provided.'}</p>
+                        </div>
+                        <div className="resource-card-footer">
+                            <span className="resource-card-owner">by {set.ownerDisplayName}</span>
+                            <span className={`resource-card-visibility ${set.visibility?.toLowerCase()}`}>
+                                {set.visibility === 'PUBLIC' ? '🌐 Public' : '🔒 Private'}
+                            </span>
+                        </div>
+                    </>
                 )
             }));
         }
@@ -134,19 +142,27 @@ const SearchPage = () => {
         if (activeTab === 'all' || activeTab === 'folders') {
             results.folders.forEach(folder => items.push({
                 id: `folder-${folder.folderId}`,
-                title: folder.name,
-                type: 'Folder',
-                icon: <FolderOpen size={14} />,
-                owner: folder.ownerDisplayName,
-                description: folder.description,
+                className: "resource-card",
                 onClick: () => navigate(`/folders/${folder.folderId}`),
-                badge: `${folder.setCount} sets`,
-                footerText: (
-                    <div className="result-meta">
-                        <FolderOpen size={14} />
-                        <span>Owner: {folder.ownerDisplayName}</span>
-                        <span className="meta-badge">{folder.setCount} sets</span>
-                    </div>
+                content: (
+                    <>
+                        <div className="resource-card-header">
+                            <h3 className="resource-card-title">{folder.name}</h3>
+                            <span className="resource-card-badge">
+                                <FolderOpen size={12} />
+                                {folder.setCount} sets
+                            </span>
+                        </div>
+                        <div className="resource-card-body">
+                            <p className="resource-card-description">{folder.description || 'No description provided.'}</p>
+                        </div>
+                        <div className="resource-card-footer">
+                            <span className="resource-card-owner">by {folder.ownerDisplayName}</span>
+                            <span className={`resource-card-visibility ${folder.visibility?.toLowerCase()}`}>
+                                {folder.visibility === 'PUBLIC' ? '🌐 Public' : '🔒 Private'}
+                            </span>
+                        </div>
+                    </>
                 )
             }));
         }
@@ -154,17 +170,27 @@ const SearchPage = () => {
         if (activeTab === 'all' || activeTab === 'classes') {
             results.classes.forEach(cls => items.push({
                 id: `class-${cls.classId}`,
-                title: cls.className,
-                type: 'Class',
-                icon: <Users size={14} />,
-                owner: cls.ownerDisplayName,
-                description: cls.description,
+                className: "resource-card",
                 onClick: () => navigate(`/classes/${cls.classId}`),
-                footerText: (
-                    <div className="result-meta">
-                        <Users size={14} />
-                        <span>Owner: {cls.ownerDisplayName}</span>
-                    </div>
+                content: (
+                    <>
+                        <div className="resource-card-header">
+                            <h3 className="resource-card-title">{cls.className}</h3>
+                            <span className="resource-card-badge">
+                                <Users size={12} />
+                                Class
+                            </span>
+                        </div>
+                        <div className="resource-card-body">
+                            <p className="resource-card-description">{cls.description || 'No description provided.'}</p>
+                        </div>
+                        <div className="resource-card-footer">
+                            <span className="resource-card-owner">by {cls.ownerDisplayName}</span>
+                            <span className={`resource-card-visibility public`}>
+                                🌐 Public
+                            </span>
+                        </div>
+                    </>
                 )
             }));
         }
@@ -172,18 +198,36 @@ const SearchPage = () => {
         if (activeTab === 'all' || activeTab === 'users') {
             results.users.forEach(user => items.push({
                 id: `user-${user.username}`,
-                title: user.displayName || user.username,
-                type: 'User',
-                icon: <User size={14} />,
-                owner: user.role && user.role.replace('ROLE_', '').toLowerCase(),
-                description: user.bio,
+                className: "resource-card user-card",
                 onClick: () => {
                     setSelectedUser(user.username);
                     setIsUserModalOpen(true);
                 },
-                badge: user.role ? (user.role.charAt(5).toUpperCase() + user.role.slice(6).toLowerCase()) : 'User',
-                profilePicture: user.profilePictureUrl || 'https://api.dicebear.com/7.x/avataaars/svg?seed=' + user.username,
-                footerText: null
+                content: (
+                    <>
+                        <div className="resource-card-header">
+                            <div className="user-profile-info">
+                                <img 
+                                    src={user.profilePictureUrl || 'https://api.dicebear.com/7.x/avataaars/svg?seed=' + user.username} 
+                                    className="user-card-avatar"
+                                    alt={user.username}
+                                />
+                                <h3 className="resource-card-title">{user.displayName || user.username}</h3>
+                            </div>
+                            <span className="resource-card-badge">
+                                <User size={12} />
+                                {user.role ? (user.role.charAt(5).toUpperCase() + user.role.slice(6).toLowerCase()) : 'User'}
+                            </span>
+                        </div>
+                        <div className="resource-card-body">
+                            <p className="resource-card-description">{user.bio || 'This user hasn\'t provided a bio yet.'}</p>
+                        </div>
+                        <div className="resource-card-footer">
+                            <span className="resource-card-owner">@{user.username}</span>
+                            <span className="resource-card-visibility public">🌐 Global</span>
+                        </div>
+                    </>
+                )
             }));
         }
 
@@ -204,15 +248,13 @@ const SearchPage = () => {
             <>
                 <div className="search-results-grid">
                     {items.map(item => (
-                        <ItemCard
+                        <Card
                             key={item.id}
+                            className={item.className}
                             onClick={item.onClick}
-                            title={item.title}
-                            badge={item.badge}
-                            description={item.description || 'No description provided.'}
-                            profilePicture={item.profilePicture}
-                            footerText={item.footerText}
-                        />
+                        >
+                            {item.content}
+                        </Card>
                     ))}
                 </div>
                 {showMoreButton && (

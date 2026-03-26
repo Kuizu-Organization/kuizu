@@ -109,3 +109,117 @@ textarea {
 .main-content {
   min-height: calc(100vh - 72px);
 }
+
+/* Resource Card Styles (Common across app) */
+.resource-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 24px;
+}
+
+.resource-card {
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  flex-direction: column;
+  min-height: 180px;
+  height: 100%;
+  border-radius: 20px;
+  overflow: hidden;
+  border: 1px solid var(--border-color);
+  background: var(--white);
+}
+
+.resource-card:hover {
+  transform: translateY(-6px);
+  border-color: var(--primary);
+  box-shadow: 0 12px 30px rgba(66, 85, 255, 0.12);
+}
+
+.resource-card-header {
+  padding: 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.resource-card-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text-dark);
+  margin: 0;
+  line-height: 1.4;
+}
+
+.resource-card-badge {
+  background-color: var(--primary-light);
+  color: var(--primary);
+  font-size: 11px;
+  font-weight: 700;
+  padding: 4px 12px;
+  border-radius: 20px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.resource-card-badge.badge-green {
+  background: rgba(16, 185, 129, 0.1);
+  color: #10b981;
+}
+
+.resource-card-body {
+  padding: 24px;
+  flex-grow: 1;
+}
+
+.resource-card-description {
+  color: var(--text-light);
+  font-size: 14px;
+  line-height: 1.6;
+  margin: 0;
+  display: -webkit-box;
+  line-clamp: 3;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.resource-card-footer {
+  padding: 16px 24px;
+  border-top: 1px solid var(--border-color);
+  background-color: var(--input-bg);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.resource-card-owner {
+  font-size: 13px;
+  color: var(--text-light);
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.resource-card-visibility {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 8px;
+  text-transform: capitalize;
+}
+
+.resource-card-visibility.public {
+  background: rgba(16, 185, 129, 0.1);
+  color: #10b981;
+}
+
+.resource-card-visibility.private {
+  background: rgba(255, 114, 94, 0.1);
+  color: #ff725e;
+}
