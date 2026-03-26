@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Modal, Button, Input, Textarea } from '../ui';
-import { joinClass } from '../../api/class';
-import { useToast } from '../../context/ToastContext';
+import { joinClass } from '@/api/class';
+import { useToast } from '@/context/ToastContext';
 import './JoinClassModal.css';
 
 const JoinClassModal = ({ isOpen, onClose, classId, onJoinSuccess }) => {

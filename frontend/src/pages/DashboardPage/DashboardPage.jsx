@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getMyClasses } from '../../api/class';
-import { getMyFolders, getPublicFolders } from '../../api/folder';
-import { getMyFlashcardSets, getFlashcardSetById, getPublicFlashcardSets } from '../../api/flashcards';
-import CreateClassModal from '../../components/Class/CreateClassModal';
-import CreateFolderModal from '../../components/Folder/CreateFolderModal';
-import { useAuth } from '../../context/AuthContext';
-import { useModal } from '../../context/ModalContext';
+import { getMyClasses } from '@/api/class';
+import { getMyFolders, getPublicFolders } from '@/api/folder';
+import { getMyFlashcardSets, getFlashcardSetById, getPublicFlashcardSets } from '@/api/flashcards';
+import CreateClassModal from '@/components/Class/CreateClassModal';
+import CreateFolderModal from '@/components/Folder/CreateFolderModal';
+import { useAuth } from '@/context/AuthContext';
+import { useModal } from '@/context/ModalContext';
 import { FolderOpen, Globe, BookOpen } from 'lucide-react';
-import { Button, Card, Loader, EmptyState, ItemCard } from '../../components/ui';
+import { Button, Card, Loader, EmptyState, ItemCard } from '@/components/ui';
 import './DashboardPage.css';
 
 const DashboardPage = () => {

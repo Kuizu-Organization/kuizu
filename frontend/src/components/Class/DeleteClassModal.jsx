@@ -8,9 +8,9 @@ const DeleteClassModal = ({ isOpen, onClose, onConfirm, isDeleting, className })
             <Button variant="outline" onClick={onClose} disabled={isDeleting}>
                 Cancel
             </Button>
-            <Button 
-                variant="primary" 
-                onClick={onConfirm} 
+            <Button
+                variant="primary"
+                onClick={onConfirm}
                 disabled={isDeleting}
                 className="delete-confirm-btn"
             >
@@ -20,10 +20,10 @@ const DeleteClassModal = ({ isOpen, onClose, onConfirm, isDeleting, className })
     );
 
     return (
-        <Modal 
-            isOpen={isOpen} 
-            onClose={onClose} 
-            title="Delete Class" 
+        <Modal
+            isOpen={isOpen}
+            onClose={onClose}
+            title="Delete Class"
             size="sm"
             footer={footer}
         >

@@ -1,20 +1,21 @@
 import React, { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
 import { useNavigate, useLocation, Navigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
-import { useToast } from '../context/ToastContext';
+import { useAuth } from '@/context/AuthContext';
+import { useToast } from '@/context/ToastContext';
 
-import LoginForm from '../components/Auth/LoginForm';
-import RegisterForm from '../components/Auth/RegisterForm';
-import { Tabs } from '../components/ui';
+import LoginForm from '@/components/Auth/LoginForm';
+import RegisterForm from '@/components/Auth/RegisterForm';
+import { Tabs } from '@/components/ui';
 import { GoogleLogin } from '@react-oauth/google';
-import { googleLogin } from '../api/auth';
+import { googleLogin } from '@/api/auth';
 import './AuthPage.css';
 
 const AuthPage = () => {
     const { user, login } = useAuth();
     const toast = useToast();
     const location = useLocation();
+    const navigate = useNavigate();
     const [isLogin, setIsLogin] = useState(true);
     const [isSocialLoading, setIsSocialLoading] = useState(false);
     const [hasCheckedReason, setHasCheckedReason] = useState(false);
@@ -51,6 +52,8 @@ const AuthPage = () => {
 
     const handleGoogleSuccess = async (credentialResponse) => {
         setIsSocialLoading(true);
+        // Clear any old logout reasons so they don't appear as error toasts on success
+        sessionStorage.removeItem('logout_reason');
         try {
             const { credential } = credentialResponse;
             const data = await googleLogin(credential);
@@ -121,7 +124,7 @@ const AuthPage = () => {
                             onError={handleGoogleError}
                             theme="outline"
                             size="large"
-                            width="100%"
+                            width="350"
                             text={isLogin ? 'signin_with' : 'signup_with'}
                             shape="rectangular"
                         />

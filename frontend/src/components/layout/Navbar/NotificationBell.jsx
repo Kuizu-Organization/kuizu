@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Bell, Check, Trash2, Clock, ShieldCheck, ShieldX, UserCheck, UserX, ExternalLink, ShieldAlert } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { getNotifications, getUnreadCount, markAsRead, markAllAsRead } from '../../../api/notifications';
 import { Loader, Modal, Button } from '../../ui';
+import { getNotifications, getUnreadCount, markAsRead, markAllAsRead } from '@/api/notifications';
 import './NotificationBell.css';
 
 const NotificationBell = () => {

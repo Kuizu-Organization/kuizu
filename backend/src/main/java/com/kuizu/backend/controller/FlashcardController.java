@@ -4,7 +4,6 @@ import com.kuizu.backend.dto.request.FlashcardRequest;
 import com.kuizu.backend.dto.response.FlashcardResponse;
 import com.kuizu.backend.service.FlashcardService;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 

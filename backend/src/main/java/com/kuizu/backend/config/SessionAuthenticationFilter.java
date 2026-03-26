@@ -41,6 +41,13 @@ public class SessionAuthenticationFilter extends OncePerRequestFilter {
             @NonNull FilterChain filterChain) throws ServletException, IOException {
         final String authHeader = request.getHeader("Authorization");
         final String sessionToken;
+        String path = request.getRequestURI();
+
+        // Skip session check for auth related endpoints
+        if (path.startsWith("/api/auth/")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
 
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             filterChain.doFilter(request, response);
@@ -58,7 +65,7 @@ public class SessionAuthenticationFilter extends OncePerRequestFilter {
 
             if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
                 UserDetails userDetails = this.userDetailsService.loadUserByUsername(username);
-                
+
                 if (userDetails.isEnabled() && userDetails.isAccountNonLocked()) {
                     UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
                             userDetails,
@@ -73,14 +80,12 @@ public class SessionAuthenticationFilter extends OncePerRequestFilter {
                 } else {
                     logger.warn("User {} is disabled or locked. Revoking session.", username);
                     sessionService.revokeSession(sessionToken);
-                    response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                    response.setContentType("application/json");
-                    response.getWriter().write("{\"error\": \"Unauthorized\", \"message\": \"Account is suspended or locked\"}");
-                    return;
+                    // Don't set authentication but let the filter chain continue for permitAll
+                    // requests.
                 }
             }
         } else {
-            logger.warn("No active session found for token: {}", sessionToken);
+            logger.warn("No active session found for token: '{}' at path: {}", sessionToken, path);
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             response.setContentType("application/json");
             response.getWriter().write("{\"error\": \"Unauthorized\", \"message\": \"Session expired or invalid\"}");

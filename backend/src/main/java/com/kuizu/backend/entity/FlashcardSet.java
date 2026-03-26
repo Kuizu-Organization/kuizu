@@ -2,12 +2,10 @@ package com.kuizu.backend.entity;
 
 import com.kuizu.backend.entity.enumeration.Visibility;
 import com.kuizu.backend.entity.enumeration.ModerationStatus;
-
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
-
 import java.time.LocalDateTime;
 
 @Entity
@@ -66,6 +64,9 @@ public class FlashcardSet {
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
+
+    @Column(length = 100)
+    private String category;
 
     @UpdateTimestamp
     @Column(name = "updated_at")

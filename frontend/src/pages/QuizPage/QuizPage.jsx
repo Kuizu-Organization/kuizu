@@ -1,16 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { ChevronLeft, CheckCircle2, XCircle, AlertCircle } from 'lucide-react';
-import { getFlashcardsBySetId } from '../api/flashcards';
-import { submitQuiz } from '../api/study';
-import { Button, Card, Loader, Modal } from '../components/ui';
-import MainLayout from '../components/layout';
+import { getFlashcardsBySetId } from '@/api/flashcards';
+import { submitQuiz } from '@/api/study';
+import { Button, Card, Loader, Modal } from '@/components/ui';
+import MainLayout from '@/components/layout';
 import './QuizPage.css';
 
 const QuizPage = () => {
     const { setId } = useParams();
     const navigate = useNavigate();
     const location = useLocation();
+
+    const backPath = location.state?.from || `/flashcard-sets/${setId}`;
+    const backLabel = location.state?.fromLabel || 'Back to Set';
 
     const [cards, setCards] = useState(location.state?.cards || []);
     const [loading, setLoading] = useState(!location.state?.cards);
@@ -99,18 +102,22 @@ const QuizPage = () => {
     };
 
     const handleSubmitQuiz = async () => {
+        const isFolder = setId.startsWith('folder-');
         try {
             setIsSubmitting(true);
-            await submitQuiz({
-                setId: parseInt(setId),
-                answers: answers.map(a => ({ cardId: a.cardId, isCorrect: a.isCorrect }))
-            });
+            
+            if (!isFolder) {
+                await submitQuiz({
+                    setId: parseInt(setId),
+                    answers: answers.map(a => ({ cardId: a.cardId, isCorrect: a.isCorrect }))
+                });
+            }
 
             const correctCount = answers.filter(a => a.isCorrect).length;
             navigate(`/quiz/results/summary`, {
                 state: {
                     result: {
-                        setId: parseInt(setId),
+                        setId: isFolder ? setId : parseInt(setId),
                         score: correctCount,
                         totalQuestions: questions.length,
                         items: answers
@@ -118,12 +125,12 @@ const QuizPage = () => {
                 }
             });
         } catch (err) {
-            alert('Failed to update progress');
+            console.error('Failed to submit quiz:', err);
             const correctCount = answers.filter(a => a.isCorrect).length;
             navigate(`/quiz/results/summary`, {
                 state: {
                     result: {
-                        setId: parseInt(setId),
+                        setId: isFolder ? setId : parseInt(setId),
                         score: correctCount,
                         totalQuestions: questions.length,
                         items: answers
@@ -181,18 +188,18 @@ const QuizPage = () => {
                     <Button
                         variant="outline"
                         size="sm"
-                        onClick={() => navigate(`/flashcard-sets/${setId}`)}
+                        onClick={() => navigate(backPath)}
                         leftIcon={<ChevronLeft size={20} />}
                         className="back-set-btn"
                     >
-                        Back to Set
+                        {backLabel}
                     </Button>
                     <div className="quiz-header-right">
                         <div className="quiz-progress-text">
                             Question <span className="current">{currentQuestionIndex + 1}</span> of <span className="total">{questions.length}</span>
                         </div>
-                        <Button 
-                            variant="primary" 
+                        <Button
+                            variant="primary"
                             size="sm"
                             className="finish-quiz-btn"
                             onClick={() => setShowFinishModal(true)}
@@ -249,15 +256,15 @@ const QuizPage = () => {
                 title="Finish Quiz Early?"
                 footer={
                     <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end' }}>
-                        <Button 
-                            variant="secondary" 
+                        <Button
+                            variant="secondary"
                             onClick={() => setShowFinishModal(false)}
                             disabled={isSubmitting}
                         >
                             Cancel
                         </Button>
-                        <Button 
-                            variant="primary" 
+                        <Button
+                            variant="primary"
                             onClick={() => {
                                 setShowFinishModal(false);
                                 handleSubmitQuiz();

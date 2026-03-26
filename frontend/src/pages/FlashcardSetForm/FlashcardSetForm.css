@@ -116,3 +116,10 @@
     justify-content: center;
     padding: 3rem;
 }
+
+.form-help {
+    display: block;
+    margin-top: 0.5rem;
+    font-size: 0.85rem;
+    color: var(--text-light);
+}

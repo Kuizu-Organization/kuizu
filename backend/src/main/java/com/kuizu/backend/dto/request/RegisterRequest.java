@@ -16,6 +16,8 @@ import lombok.NoArgsConstructor;
 public class RegisterRequest {
     @NotBlank(message = "Username is required")
     @Size(min = 3, max = 50, message = "Username must be between 3 and 50 characters")
+    @Pattern(regexp = "^[a-zA-Z0-9._-]+$", message = "Username can only contain letters, numbers, dots, underscores, and hyphens")
+    @Pattern(regexp = "^(?!^\\d+$).+$", message = "Username cannot be only numbers")
     private String username;
 
     @NotBlank(message = "Email is required")
@@ -25,7 +27,7 @@ public class RegisterRequest {
 
     @NotBlank(message = "Password is required")
     @Size(min = 8, message = "Password must be at least 8 characters")
-    @Pattern(regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+=!]).*$", message = "Password must contain at least one uppercase letter, one lowercase letter, and one special character (@#$%^&+=!)")
+    @Pattern(regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@#$%^&+=!]).*$", message = "Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character (@#$%^&+=!)")
     private String password;
 
     @Size(max = 150, message = "Display name must be at most 150 characters")
@@ -35,5 +37,6 @@ public class RegisterRequest {
     private String bio;
 
     @NotBlank(message = "Role is required")
+    @Pattern(regexp = "^(ROLE_STUDENT|ROLE_TEACHER)$", message = "Role must be either ROLE_STUDENT or ROLE_TEACHER")
     private String role;
 }

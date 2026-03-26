@@ -1,7 +1,6 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import AuthPage from './pages/AuthPage';
-import { BookOpen, Plus } from 'lucide-react';
-import ProfilePage from './pages/ProfilePage';
+import AuthPage from './pages/AuthPage/AuthPage';
+import ProfilePage from './pages/ProfilePage/ProfilePage';
 import HomePage from './pages/HomePage/HomePage';
 import ProtectedRoute from './components/layout/ProtectedRoute';
 import DashboardPage from './pages/DashboardPage/DashboardPage';
@@ -14,15 +13,14 @@ import ComingSoonPage from './pages/ComingSoonPage';
 import FoldersPage from './pages/FoldersPage/FoldersPage';
 import FolderDetailPage from './pages/FolderDetailPage/FolderDetailPage';
 import ForgotPasswordPage from './pages/ForgotPasswordPage/ForgotPasswordPage';
-import FlashcardSetsPage from './pages/FlashcardSetsPage';
-import FlashcardSetDetailsPage from './pages/FlashcardSetDetailsPage';
-import FlashcardSetForm from './pages/FlashcardSetForm';
-import FlashcardForm from './pages/FlashcardForm';
-import QuizPage from './pages/QuizPage';
-import QuizResultPage from './pages/QuizResultPage';
-import StudyPage from './pages/StudyPage';
-import AdminModerationPage from './pages/AdminModerationPage';
-import NotFoundPage from './pages/NotFoundPage';
+import FlashcardSetsPage from './pages/FlashcardSetsPage/FlashcardSetsPage';
+import FlashcardSetDetailsPage from './pages/FlashcardSetDetailsPage/FlashcardSetDetailsPage';
+import FlashcardSetForm from './pages/FlashcardSetForm/FlashcardSetForm';
+import FlashcardForm from './pages/FlashcardForm/FlashcardForm';
+import QuizPage from './pages/QuizPage/QuizPage';
+import QuizResultPage from './pages/QuizResultPage/QuizResultPage';
+import StudyPage from './pages/StudyPage/StudyPage';
+import AdminModerationPage from './pages/AdminModerationPage/AdminModerationPage';
 
 import MainLayout from './components/layout';
 

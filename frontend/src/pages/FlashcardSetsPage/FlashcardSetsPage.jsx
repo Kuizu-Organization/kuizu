@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { Search, Plus, User, Pencil, Trash2 } from 'lucide-react';
 import './FlashcardSetsPage.css';
-import { getPublicFlashcardSets, getMyFlashcardSets, deleteFlashcardSet } from '../api/flashcards';
-import { Button, Card, Loader, ConfirmationModal } from '../components/ui';
-import { useModal } from '../context/ModalContext';
-import MainLayout from '../components/layout';
+import { getPublicFlashcardSets, getMyFlashcardSets, deleteFlashcardSet } from '@/api/flashcards';
+import { Button, Card, Loader, ConfirmationModal } from '@/components/ui';
+import { useModal } from '@/context/ModalContext';
+import MainLayout from '@/components/layout';
 import { useNavigate } from 'react-router-dom';
 
 const FlashcardSetsPage = () => {

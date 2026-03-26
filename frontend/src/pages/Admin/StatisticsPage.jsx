@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Button, Card, Badge, Table, Pagination, EmptyState, Loader } from '../../components/ui';
-import { getUserStatistics, getFlashcardSetStatistics, getClassStatistics, getDashboardSummary, getFlashcardSummary, getClassSummary } from '../../api/statistics';
+import { Button, Card, Badge, Table, Pagination, EmptyState, Loader } from '@/components/ui';
+import { getUserStatistics, getFlashcardSetStatistics, getClassStatistics, getDashboardSummary, getFlashcardSummary, getClassSummary } from '@/api/statistics';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, Brush } from 'recharts';
-import { useToast } from '../../context/ToastContext';
+import { useToast } from '@/context/ToastContext';
 import { TrendingUp, BookOpen, Users, GraduationCap, Mail, UserPlus, BarChart } from 'lucide-react';
 import './AdminDashboard.css';
 import './StatisticsPage.css';

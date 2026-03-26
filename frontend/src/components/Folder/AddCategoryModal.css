@@ -1,0 +1,98 @@
+.ac-modal-content {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    padding: 8px 0;
+}
+
+.ac-form-group {
+    margin-bottom: 8px;
+}
+
+.ac-section {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.ac-section-label {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--text-light);
+    margin-bottom: 4px;
+}
+
+.ac-tags-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.ac-tag-pill {
+    padding: 8px 16px;
+    border-radius: 100px;
+    background-color: var(--input-bg);
+    border: 1px solid var(--border-color);
+    font-size: 0.9375rem;
+    font-weight: 500;
+    color: var(--text-dark);
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    white-space: nowrap;
+}
+
+.ac-tag-pill:hover {
+    background-color: var(--white);
+    border-color: var(--primary);
+    color: var(--primary);
+    box-shadow: 0 4px 12px rgba(66, 85, 255, 0.1);
+    transform: translateY(-1px);
+}
+
+.ac-tag-pill.active {
+    background-color: rgba(66, 85, 255, 0.08);
+    border-color: var(--primary);
+    color: var(--primary);
+    cursor: default;
+    pointer-events: none;
+}
+
+.ac-tag-pill.active::before {
+    content: '✓';
+    margin-right: 6px;
+    font-weight: 700;
+}
+
+.ac-modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    width: 100%;
+    margin-top: 12px;
+}
+
+/* Slide in animation for tags */
+.ac-tag-pill {
+    animation: tagFadeIn 0.3s ease-out forwards;
+    opacity: 0;
+}
+
+@keyframes tagFadeIn {
+    from {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+/* Stagger animation for recommended tags */
+.ac-tags-list button:nth-child(1) { animation-delay: 0.05s; }
+.ac-tags-list button:nth-child(2) { animation-delay: 0.1s; }
+.ac-tags-list button:nth-child(3) { animation-delay: 0.15s; }
+.ac-tags-list button:nth-child(4) { animation-delay: 0.2s; }
+.ac-tags-list button:nth-child(5) { animation-delay: 0.25s; }
+.ac-tags-list button:nth-child(6) { animation-delay: 0.3s; }
+.ac-tags-list button:nth-child(7) { animation-delay: 0.35s; }

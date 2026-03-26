@@ -13,4 +13,5 @@ public class FlashcardSetRequest {
     private String title;
     private String description;
     private String visibility;
+    private String category;
 }

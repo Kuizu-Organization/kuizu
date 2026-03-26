@@ -1,14 +1,14 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ChevronLeft, Play, Plus, Pencil, Trash2, User, Layers, BookOpen } from 'lucide-react';
 import './FlashcardSetDetailsPage.css';
-import { getFlashcardSetById, getFlashcardsBySetId, deleteFlashcard, reRequestFlashcardSetReview } from '../api/flashcards';
-import { getStudyProgress, resetStudyProgress } from '../api/study';
-import { Button, Card, Loader, ConfirmationModal, CelebrationModal } from '../components/ui';
-import { useModal } from '../context/ModalContext';
-import MainLayout from '../components/layout';
-import { useAuth } from '../context/AuthContext';
-import { useToast } from '../context/ToastContext';
+import { getFlashcardSetById, getFlashcardsBySetId, deleteFlashcard, reRequestFlashcardSetReview } from '@/api/flashcards';
+import { getStudyProgress, resetStudyProgress } from '@/api/study';
+import { Button, Card, Loader, ConfirmationModal, CelebrationModal } from '@/components/ui';
+import { useModal } from '@/context/ModalContext';
+import MainLayout from '@/components/layout';
+import { useAuth } from '@/context/AuthContext';
+import { useToast } from '@/context/ToastContext';
 
 const FlashcardSetDetailsPage = () => {
     const { setId } = useParams();
@@ -21,7 +21,7 @@ const FlashcardSetDetailsPage = () => {
     const [progress, setProgress] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    
+
     const [isResetModalOpen, setIsResetModalOpen] = useState(false);
     const [isDeleting, setIsDeleting] = useState(false);
     const [cardToDelete, setCardToDelete] = useState(null);

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Modal, Button, Input, Dropdown, Textarea } from '../ui';
-import { updateClass } from '../../api/class';
-import { useToast } from '../../context/ToastContext';
+import { updateClass } from '@/api/class';
+import { useToast } from '@/context/ToastContext';
 import './EditClassModal.css';
 
 const EditClassModal = ({ isOpen, onClose, classData, onUpdateSuccess }) => {

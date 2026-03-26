@@ -20,9 +20,6 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.kuizu.backend.service.NotificationService;
-
-import com.kuizu.backend.service.NotificationService;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -259,6 +256,7 @@ public class ModerationService {
                                 .ownerDisplayName(set.getOwner() != null ? set.getOwner().getDisplayName() : null)
                                 .title(set.getTitle())
                                 .description(set.getDescription())
+                                .category(set.getCategory())
                                 .visibility(set.getVisibility())
                                 .submittedAt(set.getSubmittedAt())
                                 .flashcards(flashcards)

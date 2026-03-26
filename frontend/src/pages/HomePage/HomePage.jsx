@@ -1,6 +1,6 @@
 import React from 'react';
-import { Navbar, Footer } from '../../components/layout';
-import { Button } from '../../components/ui';
+import { Navbar, Footer } from '@/components/layout';
+import { Button } from '@/components/ui';
 import { BookOpen, Brain, Users, Sparkles, ArrowRight, CheckCircle2 } from 'lucide-react';
 import './HomePage.css';
 

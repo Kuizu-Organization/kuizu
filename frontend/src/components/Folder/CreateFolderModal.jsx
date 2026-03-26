@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Modal, Button, Input } from '../ui';
 import { createFolder, getMySets } from '../../api/folder';
 import { useToast } from '../../context/ToastContext';
-import { BookOpen, Check } from 'lucide-react';
+import { BookOpen, Check, Plus } from 'lucide-react';
 import './CreateFolderModal.css';
 
 const CreateFolderModal = ({ isOpen, onClose, onCreateSuccess }) => {
@@ -11,10 +11,11 @@ const CreateFolderModal = ({ isOpen, onClose, onCreateSuccess }) => {
     const [description, setDescription] = useState('');
     const [visibility, setVisibility] = useState('PUBLIC');
     const [isSubmitting, setIsSubmitting] = useState(false);
-    
+
     const [mySets, setMySets] = useState([]);
     const [selectedSetIds, setSelectedSetIds] = useState([]);
     const [isLoadingSets, setIsLoadingSets] = useState(false);
+    const [error, setError] = useState(null);
 
     useEffect(() => {
         if (isOpen) {
@@ -22,7 +23,7 @@ const CreateFolderModal = ({ isOpen, onClose, onCreateSuccess }) => {
             setDescription('');
             setVisibility('PUBLIC');
             setSelectedSetIds([]);
-            
+            setError(null);
             const fetchSets = async () => {
                 setIsLoadingSets(true);
                 try {
@@ -39,8 +40,8 @@ const CreateFolderModal = ({ isOpen, onClose, onCreateSuccess }) => {
     }, [isOpen]);
 
     const toggleSetSelection = (setId) => {
-        setSelectedSetIds(prev => 
-            prev.includes(setId) 
+        setSelectedSetIds(prev =>
+            prev.includes(setId)
                 ? prev.filter(id => id !== setId)
                 : [...prev, setId]
         );
@@ -75,7 +76,9 @@ const CreateFolderModal = ({ isOpen, onClose, onCreateSuccess }) => {
 
         } catch (error) {
             console.error('Failed to create folder:', error);
-            toast.error(error.response?.data?.message || 'Failed to create folder');
+            const message = error.response?.data?.message || 'Failed to create folder';
+            setError(message);
+            toast.error(message);
         } finally {
             setIsSubmitting(false);
         }
@@ -106,13 +109,21 @@ const CreateFolderModal = ({ isOpen, onClose, onCreateSuccess }) => {
             footer={footer}
         >
             <div className="create-folder-content">
+                {error && (
+                    <div className="modal-error-message">
+                        {error}
+                    </div>
+                )}
                 <form onSubmit={handleSubmit}>
-                    <div className="form-group slide-in">
+                    <div className={`form-group slide-in ${error ? 'error-input' : ''}`}>
                         <label>Folder name *</label>
                         <Input
                             placeholder="e.g., Semester 1 Materials"
                             value={folderName}
-                            onChange={(e) => setFolderName(e.target.value)}
+                            onChange={(e) => {
+                                setFolderName(e.target.value);
+                                if (error) setError(null);
+                            }}
                             autoFocus
                             required
                         />
@@ -138,21 +149,33 @@ const CreateFolderModal = ({ isOpen, onClose, onCreateSuccess }) => {
                                 <div className="empty-sets-msg">You don't have any sets yet.</div>
                             ) : (
                                 mySets.map(set => (
-                                    <div 
-                                        key={set.setId} 
+                                    <div
+                                        key={set.setId}
                                         className={`suggested-set-item ${selectedSetIds.includes(set.setId) ? 'selected' : ''}`}
-                                        onClick={() => toggleSetSelection(set.setId)}
                                     >
-                                        <div className="set-item-main">
+                                        <div className="set-item-left">
                                             <BookOpen size={16} className="set-icon" />
-                                            <div className="set-info-minimal">
-                                                <div className="set-title">{set.title}</div>
-                                                <div className="set-terms">{set.termCount} terms</div>
+                                            <div className="set-info">
+                                                <div className="suggested-set-title">{set.title}</div>
+                                                <div className="suggested-set-subtitle">
+                                                    {set.termCount} terms {set.ownerDisplayName && ` · by ${set.ownerDisplayName}`}
+                                                </div>
                                             </div>
                                         </div>
-                                        <div className="set-checkbox">
-                                            {selectedSetIds.includes(set.setId) && <Check size={14} />}
-                                        </div>
+                                        <button 
+                                            type="button"
+                                            className={`set-add-btn ${selectedSetIds.includes(set.setId) ? 'added' : ''}`}
+                                            onClick={(e) => {
+                                                e.preventDefault();
+                                                toggleSetSelection(set.setId);
+                                            }}
+                                        >
+                                            {selectedSetIds.includes(set.setId) ? (
+                                                <><Check size={14} /> Added</>
+                                            ) : (
+                                                <><Plus size={14} /> Add</>
+                                            )}
+                                        </button>
                                     </div>
                                 ))
                             )}

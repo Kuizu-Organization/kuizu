@@ -1,16 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { getClassDetails, leaveClass, getClassJoinCode, deleteClass, removeMember, processJoinRequest, removeClassMaterial, reRequestClassReview } from '../../api/class';
-import { Button } from '../../components/ui';
+import { getClassDetails, leaveClass, getClassJoinCode, deleteClass, removeMember, processJoinRequest, removeClassMaterial, reRequestClassReview } from '@/api/class';
+import { Button } from '@/components/ui';
 import { Users, File, Calendar, Share2, MoreVertical, Copy, Check, Trash2, Folder, Layers } from 'lucide-react';
-import JoinClassModal from '../../components/Class/JoinClassModal';
-import LeaveClassModal from '../../components/Class/LeaveClassModal';
-import EditClassModal from '../../components/Class/EditClassModal';
-import DeleteClassModal from '../../components/Class/DeleteClassModal';
-import RemoveMemberModal from '../../components/Class/RemoveMemberModal';
-import AddClassMaterialModal from '../../components/Class/AddClassMaterialModal';
-import RemoveMaterialModal from '../../components/Class/RemoveMaterialModal';
-import { useToast } from '../../context/ToastContext';
+import JoinClassModal from '@/components/Class/JoinClassModal';
+import LeaveClassModal from '@/components/Class/LeaveClassModal';
+import EditClassModal from '@/components/Class/EditClassModal';
+import DeleteClassModal from '@/components/Class/DeleteClassModal';
+import RemoveMemberModal from '@/components/Class/RemoveMemberModal';
+import AddClassMaterialModal from '@/components/Class/AddClassMaterialModal';
+import RemoveMaterialModal from '@/components/Class/RemoveMaterialModal';
+import { useToast } from '@/context/ToastContext';
 import './ClassDetailPage.css';
 
 const ClassDetailPage = () => {

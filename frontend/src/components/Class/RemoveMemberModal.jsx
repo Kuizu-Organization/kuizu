@@ -8,9 +8,9 @@ const RemoveMemberModal = ({ isOpen, onClose, onConfirm, isRemoving, memberName 
             <Button variant="outline" onClick={onClose} disabled={isRemoving}>
                 Cancel
             </Button>
-            <Button 
-                variant="primary" 
-                onClick={onConfirm} 
+            <Button
+                variant="primary"
+                onClick={onConfirm}
                 disabled={isRemoving}
                 className="remove-confirm-btn"
             >
@@ -20,10 +20,10 @@ const RemoveMemberModal = ({ isOpen, onClose, onConfirm, isRemoving, memberName 
     );
 
     return (
-        <Modal 
-            isOpen={isOpen} 
-            onClose={onClose} 
-            title="Remove Member" 
+        <Modal
+            isOpen={isOpen}
+            onClose={onClose}
+            title="Remove Member"
             size="sm"
             footer={footer}
         >

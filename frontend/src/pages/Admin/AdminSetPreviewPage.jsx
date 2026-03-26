@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
-import { Button, Card, Badge, Textarea, Loader, Table, EmptyState } from '../../components/ui';
+import { Button, Card, Badge, Textarea, Loader, Table, EmptyState } from '@/components/ui';
 import { ArrowLeft, BookOpen, Clock, CheckCircle, XCircle, MessageSquare, AlertCircle } from 'lucide-react';
-import MainLayout from '../../components/layout';
-import { approveFlashcardSet, rejectFlashcardSet } from '../../api/moderation';
-import { useToast } from '../../context/ToastContext';
+import MainLayout from '@/components/layout';
+import { approveFlashcardSet, rejectFlashcardSet } from '@/api/moderation';
+import { useToast } from '@/context/ToastContext';
 import './AdminSetPreviewPage.css';
 
 const AdminSetPreviewPage = () => {

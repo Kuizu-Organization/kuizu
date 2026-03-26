@@ -1,0 +1,142 @@
+.cs-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2000;
+    backdrop-filter: blur(4px);
+}
+
+.cs-modal-content {
+    background: white;
+    width: 100%;
+    max-width: 440px;
+    border-radius: 20px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+    animation: cs-modal-fade-in 0.2s ease-out;
+}
+
+@keyframes cs-modal-fade-in {
+    from { opacity: 0; transform: scale(0.95); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+.cs-modal-header {
+    padding: 24px 24px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.cs-modal-header h2 {
+    margin: 0;
+    font-size: 24px;
+    font-weight: 700;
+    color: #1a1a1a;
+}
+
+.cs-close-btn {
+    background: none;
+    border: none;
+    color: #939bb4;
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 50%;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.cs-close-btn:hover {
+    background-color: #f6f7fb;
+    color: #1a1a1a;
+}
+
+.cs-modal-body {
+    padding: 0 24px 32px;
+}
+
+.cs-input-group {
+    margin-bottom: 24px;
+}
+
+.cs-input-group input {
+    width: 100%;
+    padding: 16px;
+    border: 1px solid #edeff4;
+    border-radius: 12px;
+    font-size: 16px;
+    background-color: #f6f7fb;
+    transition: all 0.2s;
+}
+
+.cs-input-group input:focus {
+    outline: none;
+    border-color: var(--primary);
+    background-color: white;
+    box-shadow: 0 0 0 4px rgba(66, 85, 255, 0.1);
+}
+
+.cs-error-msg {
+    color: #ff4d4f;
+    font-size: 14px;
+    margin-top: 8px;
+    margin-left: 4px;
+}
+
+.cs-suggestions-section {
+    margin-bottom: 32px;
+}
+
+.cs-suggestions-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #939bb4;
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 16px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.cs-suggestions-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.cs-suggestion-chip {
+    padding: 10px 18px;
+    border-radius: 100px;
+    border: 1px solid #edeff4;
+    background: white;
+    color: #303545;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.cs-suggestion-chip:hover {
+    border-color: var(--primary);
+    color: var(--primary);
+    background-color: #f0f2ff;
+}
+
+.cs-suggestion-chip.active {
+    background-color: var(--primary);
+    border-color: var(--primary);
+    color: white;
+}
+
+.cs-modal-footer {
+    display: flex;
+    gap: 12px;
+}

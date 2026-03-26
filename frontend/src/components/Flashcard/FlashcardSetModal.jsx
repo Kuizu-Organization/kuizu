@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Save, Loader } from 'lucide-react';
-import { getFlashcardSetById, createFlashcardSet, updateFlashcardSet } from '../../api/flashcards';
+import { getFlashcardSetById, createFlashcardSet, updateFlashcardSet } from '@/api/flashcards';
 import { Button, Input, Modal, Textarea, Select } from '../ui';
 import './FlashcardModal.css';
 
@@ -61,7 +61,7 @@ const FlashcardSetModal = ({ isOpen, onClose, setId, onSuccess }) => {
             } else {
                 result = await createFlashcardSet(formData);
             }
-            
+
             if (onSuccess) onSuccess(result);
             onClose();
         } catch (err) {

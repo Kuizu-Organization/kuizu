@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState } from 'react';
-import FlashcardSetModal from '../components/Flashcard/FlashcardSetModal';
-import FlashcardModal from '../components/Flashcard/FlashcardModal';
+import FlashcardSetModal from '@/components/Flashcard/FlashcardSetModal';
+import FlashcardModal from '@/components/Flashcard/FlashcardModal';
 
 const ModalContext = createContext();
 

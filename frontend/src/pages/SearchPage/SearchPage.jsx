@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
-import { searchClasses } from '../../api/class';
+import { searchClasses } from '@/api/class';
 import { Search, BookOpen, Users } from 'lucide-react';
-import { Loader, EmptyState, ItemCard } from '../../components/ui';
+import { Loader, EmptyState, ItemCard } from '@/components/ui';
 import './SearchPage.css';
 
 const SearchPage = () => {

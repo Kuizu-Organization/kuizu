@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Modal, Button } from '../ui';
-import { useToast } from '../../context/ToastContext';
-import { getMyFolders } from '../../api/folder';
-import { getMyFlashcardSets } from '../../api/flashcards';
-import { addClassMaterial } from '../../api/class';
+import { useToast } from '@/context/ToastContext';
+import { getMyFolders } from '@/api/folder';
+import { getMyFlashcardSets } from '@/api/flashcards';
+import { addClassMaterial } from '@/api/class';
 import { Folder, Layers, Plus, Loader2 } from 'lucide-react';
 import './AddClassMaterialModal.css';
 

@@ -8,9 +8,9 @@ const RemoveMaterialModal = ({ isOpen, onClose, onConfirm, isRemoving, materialN
             <Button variant="outline" onClick={onClose} disabled={isRemoving}>
                 Cancel
             </Button>
-            <Button 
-                variant="primary" 
-                onClick={onConfirm} 
+            <Button
+                variant="primary"
+                onClick={onConfirm}
                 disabled={isRemoving}
                 className="remove-material-confirm-btn"
             >
@@ -20,10 +20,10 @@ const RemoveMaterialModal = ({ isOpen, onClose, onConfirm, isRemoving, materialN
     );
 
     return (
-        <Modal 
-            isOpen={isOpen} 
-            onClose={onClose} 
-            title="Remove Material" 
+        <Modal
+            isOpen={isOpen}
+            onClose={onClose}
+            title="Remove Material"
             size="sm"
             footer={footer}
         >

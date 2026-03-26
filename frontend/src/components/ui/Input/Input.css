@@ -37,7 +37,6 @@
     color: #a0aec0;
 }
 
-/* Icons */
 .input-icon {
     position: absolute;
     top: 50%;
@@ -47,6 +46,11 @@
     align-items: center;
     justify-content: center;
     pointer-events: none;
+}
+
+.input-icon button,
+.input-icon a {
+    pointer-events: auto;
 }
 
 .input-icon-left {

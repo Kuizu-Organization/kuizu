@@ -70,12 +70,13 @@ public class FlashcardSetService {
                 .owner(owner)
                 .title(request.getTitle())
                 .description(request.getDescription())
+                .category(request.getCategory())
                 .visibility(request.getVisibility() != null ? Visibility.valueOf(request.getVisibility().toUpperCase())
                         : Visibility.PUBLIC)
                 .status(com.kuizu.backend.entity.enumeration.ModerationStatus.PENDING)
                 .isDeleted(false)
                 .version(1)
-                .submittedBy(owner.getUserId())
+                .submittedBy(owner.getUserId().toString())
                 .submittedAt(java.time.LocalDateTime.now())
                 .build();
 
@@ -114,6 +115,8 @@ public class FlashcardSetService {
             set.setTitle(request.getTitle());
         if (request.getDescription() != null)
             set.setDescription(request.getDescription());
+        if (request.getCategory() != null)
+            set.setCategory(request.getCategory());
         if (request.getVisibility() != null)
             set.setVisibility(Visibility.valueOf(request.getVisibility().toUpperCase()));
 
@@ -187,6 +190,7 @@ public class FlashcardSetService {
                 .ownerDisplayName(set.getOwner().getDisplayName())
                 .title(set.getTitle())
                 .description(set.getDescription())
+                .category(set.getCategory())
                 .visibility(set.getVisibility() != null ? set.getVisibility().name() : null)
                 .status(set.getStatus() != null ? set.getStatus().name() : null)
                 .moderationNotes(set.getModerationNotes())

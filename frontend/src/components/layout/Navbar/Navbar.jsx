@@ -2,11 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { Search, Plus, ChevronDown, Menu, Book, Zap, Users, GraduationCap, Palette, Languages, Calculator, FlaskConical, Layout, BookOpen, Folder } from 'lucide-react';
 import { Button, Dropdown, SearchBar } from '../../ui';
 import './Navbar.css';
-import { useAuth } from '../../../context/AuthContext';
-import { useToast } from '../../../context/ToastContext';
-import { useModal } from '../../../context/ModalContext';
+import { useAuth } from '@/context/AuthContext';
+import { useToast } from '@/context/ToastContext';
+import { useModal } from '@/context/ModalContext';
 import { useNavigate } from 'react-router-dom';
-import { searchClasses } from '../../../api/class';
+import { searchClasses } from '@/api/class';
 
 
 const Navbar = ({ isSidebarCollapsed, onToggleSidebar }) => {
@@ -98,7 +98,7 @@ const Navbar = ({ isSidebarCollapsed, onToggleSidebar }) => {
                         onSearch={handleSearchInput}
                         onResultClick={handleResultClick}
                         onEnter={handleSearchEnter}
-                        placeholder="Search for classes..."
+                        placeholder="Search for study guides"
                     />
                 </div>
 

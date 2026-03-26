@@ -1,16 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { getAllUsers, updateUserStatus, updateUserRole } from '../../api/user';
+import { getAllUsers, updateUserStatus, updateUserRole } from '@/api/user';
 import {
     getPendingFlashcardSets,
     getPendingClasses,
     getModerationHistory,
     approveClass,
     rejectClass
-} from '../../api/moderation';
-import { Button, Card, Loader, Badge, Modal, Tabs, EmptyState, Table, Pagination, Dropdown, Textarea } from '../../components/ui';
-import { useToast } from '../../context/ToastContext';
-import { useAuth } from '../../context/AuthContext';
+} from '@/api/moderation';
+import { Button, Card, Loader, Badge, Modal, Tabs, EmptyState, Table, Pagination, Dropdown, Textarea } from '@/components/ui';
+import { useToast } from '@/context/ToastContext';
+import { useAuth } from '@/context/AuthContext';
 import {
     Users,
     UserCheck,

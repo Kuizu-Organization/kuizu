@@ -20,6 +20,7 @@ public class FlashcardSetSubmissionResponse {
     private String ownerDisplayName;
     private String title;
     private String description;
+    private String category;
     private Visibility visibility;
     private LocalDateTime submittedAt;
     private List<FlashcardResponse> flashcards;
