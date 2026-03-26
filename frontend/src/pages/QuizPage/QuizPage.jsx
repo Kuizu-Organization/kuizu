@@ -6,6 +6,7 @@ import { submitQuiz } from '@/api/study';
 import { Button, Card, Loader, Modal, Input } from '@/components/ui';
 import MainLayout from '@/components/layout';
 import './QuizPage.css';
+import { useToast } from '@/context/ToastContext';
 
 const QuizPage = () => {
     const { setId } = useParams();
@@ -34,13 +35,23 @@ const QuizPage = () => {
     const [showFinishModal, setShowFinishModal] = useState(false);
     const [isSwapped, setIsSwapped] = useState(settings.answerDirection === 'TERM');
 
+    const toast = useToast();
+
     useEffect(() => {
+        // Validation check for tampered settings
+        const num = parseInt(settings.numQuestions);
+        if (isNaN(num) || num < 1) {
+            toast.error('Invalid quiz settings detected. Returning to set.');
+            navigate(backPath);
+            return;
+        }
+
         if (cards.length > 0) {
             generateQuestions(cards, isSwapped);
         } else {
             fetchCards();
         }
-    }, [setId]);
+    }, [setId, settings.numQuestions]);
 
     const fetchCards = async () => {
         try {

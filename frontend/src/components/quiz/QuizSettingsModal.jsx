@@ -57,12 +57,13 @@ const QuizSettingsModal = ({ isOpen, onClose, onStart, totalCards, isLoading = f
             finalValue = attrValue;
         }
 
-        const questionsCount = parseInt(finalValue);
+        let questionsCount = parseInt(finalValue);
 
-        // Chặn sớm nếu rỗng hoặc 0 để Backend xử lý thông qua onStart (giúp đóng modal và hiện toast)
+        // Chặn sớm nếu rỗng, 0, hoặc chuỗi không phải số (như abc)
         if (!finalValue || isNaN(questionsCount) || questionsCount < 1) {
+            // Truyền giá trị "0" để Backend/Parent kích hoạt thông báo lỗi "At least 1 question" chuẩn xác
             onStart({
-                numQuestions: finalValue,
+                numQuestions: 0, 
                 starredOnly,
                 activeModes: Object.keys(modes).filter(m => modes[m]),
                 answerDirection
@@ -70,9 +71,9 @@ const QuizSettingsModal = ({ isOpen, onClose, onStart, totalCards, isLoading = f
             return;
         }
 
+        // Tự động giới hạn số lượng câu hỏi tối đa dựa trên Max thực tế (Phòng chống DevTools manipulation)
         if (questionsCount > maxQuestions) {
-            alert(`Maximum number of questions is ${maxQuestions}!`);
-            return;
+            questionsCount = maxQuestions;
         }
 
         const activeModes = Object.keys(modes).filter(m => modes[m]);
@@ -83,7 +84,7 @@ const QuizSettingsModal = ({ isOpen, onClose, onStart, totalCards, isLoading = f
         }
 
         onStart({
-            numQuestions: finalValue,
+            numQuestions: questionsCount,
             starredOnly,
             activeModes,
             answerDirection
