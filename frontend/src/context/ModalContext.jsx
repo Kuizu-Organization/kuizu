@@ -1,12 +1,14 @@
 import React, { createContext, useContext, useState } from 'react';
 import FlashcardSetModal from '@/components/Flashcard/FlashcardSetModal';
 import FlashcardModal from '@/components/Flashcard/FlashcardModal';
+import ShareModal from '@/components/Flashcard/ShareModal';
 
 const ModalContext = createContext();
 
 export const ModalProvider = ({ children }) => {
     const [setModal, setSetModal] = useState({ isOpen: false, setId: null, callback: null });
     const [cardModal, setCardModal] = useState({ isOpen: false, setId: null, cardId: null, callback: null });
+    const [shareModal, setShareModal] = useState({ isOpen: false, set: null });
 
     const openSetModal = (setId = null, callback = null) => {
         setSetModal({ isOpen: true, setId, callback });
@@ -24,6 +26,14 @@ export const ModalProvider = ({ children }) => {
         setCardModal({ isOpen: false, setId: null, cardId: null, callback: null });
     };
 
+    const openShareModal = (set) => {
+        setShareModal({ isOpen: true, set });
+    };
+
+    const closeShareModal = () => {
+        setShareModal({ isOpen: false, set: null });
+    };
+
     const handleSetSuccess = (data) => {
         if (setModal.callback) setModal.callback(data);
     };
@@ -33,7 +43,7 @@ export const ModalProvider = ({ children }) => {
     };
 
     return (
-        <ModalContext.Provider value={{ openSetModal, openCardModal }}>
+        <ModalContext.Provider value={{ openSetModal, openCardModal, openShareModal }}>
             {children}
             <FlashcardSetModal
                 isOpen={setModal.isOpen}
@@ -47,6 +57,11 @@ export const ModalProvider = ({ children }) => {
                 setId={cardModal.setId}
                 cardId={cardModal.cardId}
                 onSuccess={handleCardSuccess}
+            />
+            <ShareModal
+                isOpen={shareModal.isOpen}
+                onClose={closeShareModal}
+                set={shareModal.set}
             />
         </ModalContext.Provider>
     );

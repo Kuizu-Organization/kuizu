@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Save, Loader, Globe, Lock, Link } from 'lucide-react';
 import { getFlashcardSetById, createFlashcardSet, updateFlashcardSet } from '@/api/flashcards';
 import { Button, Input, Modal, Textarea, Dropdown } from '@/components/ui';
+import { useModal } from '@/context/ModalContext';
 import './FlashcardModal.css';
 
 const FlashcardSetModal = ({ isOpen, onClose, setId, onSuccess }) => {
@@ -11,6 +12,7 @@ const FlashcardSetModal = ({ isOpen, onClose, setId, onSuccess }) => {
         description: '',
         visibility: 'PUBLIC'
     });
+    const { openShareModal } = useModal();
     const [loading, setLoading] = useState(false);
     const [submitting, setSubmitting] = useState(false);
     const [error, setError] = useState(null);
@@ -76,6 +78,10 @@ const FlashcardSetModal = ({ isOpen, onClose, setId, onSuccess }) => {
             
             if (onSuccess) onSuccess(result);
             onClose();
+
+            if (formData.visibility === 'UNLISTED') {
+                setTimeout(() => openShareModal(result), 300);
+            }
         } catch (err) {
             setError(err.response?.data?.message || 'Something went wrong');
         } finally {
