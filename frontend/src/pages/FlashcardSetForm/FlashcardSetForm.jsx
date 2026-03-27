@@ -151,10 +151,10 @@ const FlashcardSetForm = () => {
                                     </Button>
                                     <Button
                                         type="submit"
-                                        disabled={submitting}
+                                        isLoading={submitting}
                                         className="submit-btn"
                                     >
-                                        {submitting ? <Loader size="sm" /> : <><Save size={18} /> {isEdit ? 'Save Changes' : 'Create Set'}</>}
+                                        {isEdit ? 'Save Changes' : 'Create Set'}
                                     </Button>
                                 </div>
                             </form>

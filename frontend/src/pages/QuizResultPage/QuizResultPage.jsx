@@ -9,7 +9,7 @@ const QuizResultPage = () => {
     const navigate = useNavigate();
     const location = useLocation();
 
-    // Luôn lấy kết quả từ State truyền tới
+    // Always get results from passed State
     const result = location.state?.result;
 
     if (!result) {
@@ -74,7 +74,7 @@ const QuizResultPage = () => {
                                     : `You answered ${result.score} out of ${result.totalQuestions} questions correctly.`}
                             </p>
                             <div className="result-actions">
-                                <Button onClick={() => navigate(`/quiz/${result.setId}`)}>
+                                <Button onClick={() => navigate(returnPath, { state: { openQuizModal: true } })}>
                                     <RefreshCcw size={18} />
                                     Try Again
                                 </Button>

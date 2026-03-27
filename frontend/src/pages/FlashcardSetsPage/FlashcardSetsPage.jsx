@@ -45,9 +45,20 @@ const FlashcardSetsPage = () => {
 
     const handleSetSuccess = (updatedSet) => {
         const existing = sets.find(s => s.setId === updatedSet.setId);
+        
+        // Rules for visibility in current tab
+        const shouldBeInMy = true; // My sets tab shows everything I own
+        const shouldBeInPublic = updatedSet.visibility === 'PUBLIC';
+        const shouldBeVisible = activeTab === 'my' ? shouldBeInMy : shouldBeInPublic;
+
         if (existing) {
-            setSets(sets.map(s => s.setId === updatedSet.setId ? updatedSet : s));
-        } else {
+            if (shouldBeVisible) {
+                setSets(sets.map(s => s.setId === updatedSet.setId ? updatedSet : s));
+            } else {
+                // If it was visible but now isn't (e.g. changed from Public to Private in Public tab)
+                setSets(sets.filter(s => s.setId !== updatedSet.setId));
+            }
+        } else if (shouldBeVisible) {
             setSets([updatedSet, ...sets]);
         }
     };
@@ -218,7 +229,7 @@ const FlashcardSetsPage = () => {
                                             <div className="user-avatar">
                                                 <User size={14} />
                                             </div>
-                                            <span className="username">{activeTab === 'my' ? 'You' : set.ownerDisplayName}</span>
+                                            <span className="username">{user?.userId === set.ownerId ? 'You' : set.ownerDisplayName}</span>
                                         </div>
                                         {activeTab === 'my' && (
                                             <div className="set-actions">

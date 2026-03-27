@@ -7,12 +7,14 @@ import { searchPublicUsers } from '@/api/user';
 import { Search, BookOpen, Users, FolderOpen, Layers, User } from 'lucide-react';
 import { Loader, EmptyState, ItemCard, Card, Badge } from '@/components/ui';
 import PublicProfileModal from '@/pages/PublicProfilePage/PublicProfileModal';
+import { useAuth } from '@/context/AuthContext';
 import './SearchPage.css';
 
 const SearchPage = () => {
     const [searchParams] = useSearchParams();
     const query = searchParams.get('q') || '';
     const navigate = useNavigate();
+    const { user: currentUser } = useAuth();
 
     const [results, setResults] = useState({ classes: [], folders: [], sets: [], users: [] });
     const [activeTab, setActiveTab] = useState('all');
@@ -117,7 +119,7 @@ const SearchPage = () => {
                 title: set.title,
                 type: 'Set',
                 icon: <Layers size={14} />,
-                owner: set.ownerDisplayName,
+                owner: currentUser?.userId === set.ownerId ? 'You' : set.ownerDisplayName,
                 description: set.description,
                 onClick: () => navigate(`/flashcard-sets/${set.setId}`),
                 cardCount: set.cardCount,
@@ -131,7 +133,7 @@ const SearchPage = () => {
                 title: folder.name,
                 type: 'Folder',
                 icon: <FolderOpen size={14} />,
-                owner: folder.ownerDisplayName,
+                owner: currentUser?.userId === folder.ownerId ? 'You' : folder.ownerDisplayName,
                 description: folder.description,
                 onClick: () => navigate(`/folders/${folder.folderId}`),
                 setCount: folder.setCount,
@@ -145,7 +147,7 @@ const SearchPage = () => {
                 title: cls.className,
                 type: 'Class',
                 icon: <Users size={14} />,
-                owner: cls.ownerDisplayName,
+                owner: currentUser?.userId === cls.ownerId ? 'You' : cls.ownerDisplayName,
                 description: cls.description,
                 onClick: () => navigate(`/classes/${cls.classId}`),
                 itemType: 'class'

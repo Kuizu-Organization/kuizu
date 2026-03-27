@@ -2,10 +2,12 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useParams } from 'react-router-dom';
 import { X, Check } from 'lucide-react';
 import { Button, Modal } from '../ui';
+import { useToast } from '@/context/ToastContext';
 import './QuizSettingsModal.css';
 
 const QuizSettingsModal = ({ isOpen, onClose, onStart, totalCards, isLoading = false }) => {
     const { setId } = useParams();
+    const toast = useToast();
     const [numQuestions, setNumQuestions] = useState(Math.min(20, totalCards));
     const numInputRef = useRef(null);
     const [starredOnly, setStarredOnly] = useState(false);
@@ -59,26 +61,24 @@ const QuizSettingsModal = ({ isOpen, onClose, onStart, totalCards, isLoading = f
 
         const questionsCount = parseInt(finalValue);
 
-        // Chặn sớm nếu rỗng hoặc 0 để Backend xử lý thông qua onStart (giúp đóng modal và hiện toast)
+        // Early exit if empty or zero
         if (!finalValue || isNaN(questionsCount) || questionsCount < 1) {
-            onStart({
-                numQuestions: finalValue,
-                starredOnly,
-                activeModes: Object.keys(modes).filter(m => modes[m]),
-                answerDirection
-            });
+            toast.error('Please enter a valid number of questions!');
+            onClose();
             return;
         }
 
         if (questionsCount > maxQuestions) {
-            alert(`Maximum number of questions is ${maxQuestions}!`);
+            toast.error(`Maximum number of questions is ${maxQuestions}!`);
+            onClose();
             return;
         }
 
         const activeModes = Object.keys(modes).filter(m => modes[m]);
 
         if (activeModes.length === 0) {
-            alert('Please select at least one quiz mode!');
+            toast.error('Please select at least one quiz mode!');
+            onClose();
             return;
         }
 
@@ -109,7 +109,7 @@ const QuizSettingsModal = ({ isOpen, onClose, onStart, totalCards, isLoading = f
                             type="number"
                             min="1"
                             max={maxQuestions}
-                            value={numQuestions || ''}
+                            value={numQuestions !== '' ? numQuestions : ''}
                             onChange={(e) => {
                                 const val = e.target.value;
                                 if (val === '') {
@@ -118,7 +118,7 @@ const QuizSettingsModal = ({ isOpen, onClose, onStart, totalCards, isLoading = f
                                 }
                                 const num = parseInt(val);
                                 if (!isNaN(num)) {
-                                    // Tự động giới hạn số lượng tối đa khi nhập quá
+                                    // Automatically limit the maximum value
                                     setNumQuestions(Math.min(maxQuestions, num));
                                 }
                             }}

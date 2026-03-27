@@ -56,6 +56,12 @@ public class FlashcardService {
             throw new ApiException("You do not have permission to add cards to this set");
         }
 
+        if (request.getOrderIndex() != null) {
+            if (flashcardRepository.existsByFlashcardSetAndOrderIndexAndIsDeletedFalse(set, request.getOrderIndex())) {
+                throw new ApiException("Position " + (request.getOrderIndex() + 1) + " is already occupied in this set. Please choose another order.");
+            }
+        }
+
         Flashcard card = Flashcard.builder()
                 .flashcardSet(set)
                 .term(request.getTerm())
@@ -82,7 +88,13 @@ public class FlashcardService {
 
         if (request.getTerm() != null) card.setTerm(request.getTerm());
         if (request.getDefinition() != null) card.setDefinition(request.getDefinition());
-        if (request.getOrderIndex() != null) card.setOrderIndex(request.getOrderIndex());
+        if (request.getOrderIndex() != null) {
+            if (flashcardRepository.existsByFlashcardSetAndOrderIndexAndCardIdNotAndIsDeletedFalse(
+                    card.getFlashcardSet(), request.getOrderIndex(), cardId)) {
+                throw new ApiException("Position " + (request.getOrderIndex() + 1) + " is already occupied in this set. Please choose another order.");
+            }
+            card.setOrderIndex(request.getOrderIndex());
+        }
 
         card = flashcardRepository.save(card);
         return mapToResponse(card);

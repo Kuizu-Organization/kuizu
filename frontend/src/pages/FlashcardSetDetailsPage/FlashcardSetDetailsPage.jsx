@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
-import { ChevronLeft, Play, Plus, Pencil, Trash2, User, Layers, BookOpen, Clock, Sparkles, Book, CheckCircle } from 'lucide-react';
+import { ChevronLeft, Play, Plus, Pencil, Trash2, User, Layers, BookOpen, Clock, Sparkles, Book, CheckCircle, Star } from 'lucide-react';
 import './FlashcardSetDetailsPage.css';
 import { getFlashcardSetById, getFlashcardsBySetId, deleteFlashcard, reRequestFlashcardSetReview } from '@/api/flashcards';
 import { getStudyProgress, resetStudyProgress } from '@/api/study';
@@ -25,17 +25,30 @@ const FlashcardSetDetailsPage = () => {
     const [error, setError] = useState(null);
 
     const [isResetModalOpen, setIsResetModalOpen] = useState(false);
+    const [isDeleteSetModalOpen, setIsDeleteSetModalOpen] = useState(false);
     const [isDeleting, setIsDeleting] = useState(false);
     const [cardToDelete, setCardToDelete] = useState(null);
     const [isResetting, setIsResetting] = useState(false);
     const [isCelebrationOpen, setIsCelebrationOpen] = useState(false);
     const [isReRequesting, setIsReRequesting] = useState(false);
     const [isQuizSettingsOpen, setIsQuizSettingsOpen] = useState(false);
+    const [starredCardIds, setStarredCardIds] = useState(() => {
+        const saved = localStorage.getItem(`starred_cards_${setId}`);
+        return saved ? new Set(JSON.parse(saved)) : new Set();
+    });
 
     useEffect(() => {
         fetchData();
         trackVisit(setId);
-    }, [setId]);
+        
+        if (location.state?.openQuizModal) {
+            setIsQuizSettingsOpen(true);
+        }
+    }, [setId, location.state]);
+
+    useEffect(() => {
+        localStorage.setItem(`starred_cards_${setId}`, JSON.stringify(Array.from(starredCardIds)));
+    }, [starredCardIds, setId]);
 
     const trackVisit = (id) => {
         try {
@@ -87,18 +100,17 @@ const FlashcardSetDetailsPage = () => {
             ]);
             setCards(cardsData);
             setProgress(progressData);
-            toast.success('Card updated successfully!');
         } catch (err) {
             toast.error('Failed to refresh data');
         }
     };
 
     const handleAddCardClick = () => {
-        openCardModal(setId, null, handleCardSuccess);
+        openCardModal(setId, null, handleCardSuccess, cards);
     };
 
     const handleEditCardClick = (cardId) => {
-        openCardModal(setId, cardId, handleCardSuccess);
+        openCardModal(setId, cardId, handleCardSuccess, cards);
     };
 
     const handleDeleteCard = async () => {
@@ -115,6 +127,21 @@ const FlashcardSetDetailsPage = () => {
             toast.error('Failed to delete card.');
         } finally {
             setIsDeleting(false);
+        }
+    };
+
+    const handleDeleteSet = async () => {
+        try {
+            setIsDeleting(true);
+            const { deleteFlashcardSet } = await import('@/api/flashcards');
+            await deleteFlashcardSet(setId);
+            toast.success('Flashcard set deleted successfully.');
+            navigate('/flashcard-sets');
+        } catch (err) {
+            toast.error('Failed to delete flashcard set.');
+        } finally {
+            setIsDeleting(false);
+            setIsDeleteSetModalOpen(false);
         }
     };
 
@@ -157,6 +184,18 @@ const FlashcardSetDetailsPage = () => {
         } finally {
             setIsReRequesting(false);
         }
+    };
+
+    const toggleStar = (cardId) => {
+        setStarredCardIds(prev => {
+            const next = new Set(prev);
+            if (next.has(cardId)) {
+                next.delete(cardId);
+            } else {
+                next.add(cardId);
+            }
+            return next;
+        });
     };
 
     const handleStartQuiz = (settings) => {
@@ -211,7 +250,7 @@ const FlashcardSetDetailsPage = () => {
                                 <div className="meta-icon-bg">
                                     <User size={16} />
                                 </div>
-                                <span>Created by <strong>{set.ownerDisplayName}</strong></span>
+                                <span>Created by <strong>{user?.userId === set.ownerId ? 'You' : set.ownerDisplayName}</strong></span>
                             </div>
                             <div className="meta-item">
                                 <div className="meta-icon-bg">
@@ -268,15 +307,26 @@ const FlashcardSetDetailsPage = () => {
                             )}
                             
                             {isOwner && (
-                                <Button
-                                    className="action-btn edit-btn-main"
-                                    variant="outline"
-                                    size="lg"
-                                    onClick={() => openSetModal(setId, handleSetUpdateSuccess)}
-                                    leftIcon={<Pencil size={20} />}
-                                >
-                                    Edit Set
-                                </Button>
+                                <>
+                                    <Button
+                                        className="action-btn edit-btn-main"
+                                        variant="outline"
+                                        size="lg"
+                                        onClick={() => openSetModal(setId, handleSetUpdateSuccess)}
+                                        leftIcon={<Pencil size={20} />}
+                                    >
+                                        Edit Set
+                                    </Button>
+                                    <Button
+                                        className="action-btn delete-btn-main"
+                                        variant="danger"
+                                        size="lg"
+                                        onClick={() => setIsDeleteSetModalOpen(true)}
+                                        leftIcon={<Trash2 size={20} />}
+                                    >
+                                        Delete Set
+                                    </Button>
+                                </>
                             )}
 
                             {isOwner && set.status === 'REJECTED' && (
@@ -382,26 +432,37 @@ const FlashcardSetDetailsPage = () => {
                                                 <p>{card.definition}</p>
                                             </div>
                                         </div>
-                                        {isOwner && (
-                                            <div className="v2-actions-col">
-                                                <Button
-                                                    variant="ghost"
-                                                    size="sm"
-                                                    className="action-minor-btn edit"
-                                                    onClick={() => handleEditCardClick(card.cardId)}
-                                                >
-                                                    < Pencil size={18} />
-                                                </Button>
-                                                <Button
-                                                    variant="ghost"
-                                                    size="sm"
-                                                    className="action-minor-btn delete"
-                                                    onClick={() => setCardToDelete(card.cardId)}
-                                                >
-                                                    <Trash2 size={18} />
-                                                </Button>
-                                            </div>
-                                        )}
+                                        <div className="v2-actions-col">
+                                            <Button
+                                                variant="ghost"
+                                                size="sm"
+                                                className={`action-minor-btn star ${starredCardIds.has(card.cardId) ? 'starred' : ''}`}
+                                                onClick={() => toggleStar(card.cardId)}
+                                                title={starredCardIds.has(card.cardId) ? "Unstar" : "Star"}
+                                            >
+                                                <Star size={18} fill={starredCardIds.has(card.cardId) ? "currentColor" : "none"} />
+                                            </Button>
+                                            {isOwner && (
+                                                <>
+                                                    <Button
+                                                        variant="ghost"
+                                                        size="sm"
+                                                        className="action-minor-btn edit"
+                                                        onClick={() => handleEditCardClick(card.cardId)}
+                                                    >
+                                                        < Pencil size={18} />
+                                                    </Button>
+                                                    <Button
+                                                        variant="ghost"
+                                                        size="sm"
+                                                        className="action-minor-btn delete"
+                                                        onClick={() => setCardToDelete(card.cardId)}
+                                                    >
+                                                        <Trash2 size={18} />
+                                                    </Button>
+                                                </>
+                                            )}
+                                        </div>
                                     </div>
                                 </Card>
                             ))
@@ -423,6 +484,16 @@ const FlashcardSetDetailsPage = () => {
                 </div>
 
                 {/* Modals */}
+                <ConfirmationModal
+                    isOpen={isDeleteSetModalOpen}
+                    onClose={() => setIsDeleteSetModalOpen(false)}
+                    onConfirm={handleDeleteSet}
+                    title="Delete Flashcard Set"
+                    message={`Are you sure you want to delete "${set.title}"? This action cannot be undone.`}
+                    confirmText="Delete Set"
+                    type="danger"
+                    isLoading={isDeleting}
+                />
                 <ConfirmationModal
                     isOpen={isResetModalOpen}
                     onClose={() => setIsResetModalOpen(false)}

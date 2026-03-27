@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
-import { ChevronLeft, RotateCcw, CheckCircle2, XCircle, Trophy, Keyboard, Shuffle, Star, ArrowLeftRight } from 'lucide-react';
+import { ChevronLeft, RotateCcw, CheckCircle2, XCircle, Trophy, Keyboard, Shuffle, Star, ArrowLeftRight, Play, Pause } from 'lucide-react';
 import { getFlashcardsBySetId, getFlashcardSetById } from '@/api/flashcards';
 import { updateStudyProgress } from '@/api/study';
 import { useToast } from '@/context/ToastContext';
@@ -21,6 +21,8 @@ const StudyPage = () => {
     const [currentIndex, setCurrentIndex] = useState(0);
     const [isFlipped, setIsFlipped] = useState(false);
     const [isFinished, setIsFinished] = useState(false);
+    const [isPlaying, setIsPlaying] = useState(false);
+    const [isNavigating, setIsNavigating] = useState(false);
     const [hasTriggeredFinish, setHasTriggeredFinish] = useState(false);
     const [progressRestored, setProgressRestored] = useState(false);
     const [starredCardIds, setStarredCardIds] = useState(() => {
@@ -154,6 +156,7 @@ const StudyPage = () => {
 
 
     const handleShuffle = () => {
+        if (isNavigating) return;
         const shuffled = shuffleArray(cards);
         setCards(shuffled);
         setCurrentIndex(0);
@@ -161,29 +164,66 @@ const StudyPage = () => {
     };
 
     const handleSwap = () => {
+        if (isNavigating) return;
         setIsSwapped(!isSwapped);
         setIsFlipped(false);
     };
 
     const handleFlip = () => {
+        if (isNavigating) return;
         setIsFlipped(!isFlipped);
     };
 
     const handleNext = () => {
+        if (isNavigating) return;
+        
         if (currentIndex < cards.length - 1) {
-            setIsFlipped(false);
-            setCurrentIndex(prev => prev + 1);
+            if (isFlipped) {
+                setIsNavigating(true);
+                setIsFlipped(false);
+                // Wait for the flip animation to hide the back face before changing index
+                setTimeout(() => {
+                    setCurrentIndex(prev => prev + 1);
+                    setIsNavigating(false);
+                }, 300); // 300ms is about 90 degrees of the 0.6s transition
+            } else {
+                setCurrentIndex(prev => prev + 1);
+            }
         } else {
             setIsFinished(true);
+            setIsPlaying(false);
         }
     };
 
     const handlePrevious = () => {
-        if (currentIndex > 0) {
+        if (isNavigating || currentIndex === 0) return;
+
+        if (isFlipped) {
+            setIsNavigating(true);
             setIsFlipped(false);
+            setTimeout(() => {
+                setCurrentIndex(prev => prev - 1);
+                setIsNavigating(false);
+            }, 300);
+        } else {
             setCurrentIndex(prev => prev - 1);
         }
     };
+
+    // Auto-play logic
+    useEffect(() => {
+        let timer;
+        if (isPlaying && !isFinished) {
+            timer = setTimeout(() => {
+                if (!isFlipped) {
+                    setIsFlipped(true);
+                } else {
+                    handleNext();
+                }
+            }, 3000); // 3 seconds interval
+        }
+        return () => clearTimeout(timer);
+    }, [isPlaying, isFlipped, currentIndex, isFinished, isNavigating]);
 
     // Keyboard shortcuts
     useEffect(() => {
@@ -199,12 +239,15 @@ const StudyPage = () => {
             } else if (e.code === 'ArrowLeft' || e.code === 'ArrowUp') {
                 e.preventDefault();
                 handlePrevious();
+            } else if (e.code === 'KeyP') {
+                e.preventDefault();
+                setIsPlaying(prev => !prev);
             }
         };
 
         window.addEventListener('keydown', handleKeyDown);
         return () => window.removeEventListener('keydown', handleKeyDown);
-    }, [currentIndex, isFlipped, isFinished, cards.length]);
+    }, [currentIndex, isFlipped, isFinished, cards.length, isNavigating]);
 
     if (loading) return <MainLayout><div className="loading-container"><Loader /></div></MainLayout>;
 
@@ -305,9 +348,18 @@ const StudyPage = () => {
                         </div>
                         <div className="header-actions">
                             <button
+                                className={`shuffle-btn ${isPlaying ? 'active' : ''}`}
+                                onClick={() => setIsPlaying(!isPlaying)}
+                                title={isPlaying ? "Pause auto-play" : "Start auto-play"}
+                                disabled={isNavigating}
+                            >
+                                {isPlaying ? <Pause size={18} /> : <Play size={18} />}
+                            </button>
+                            <button
                                 className="shuffle-btn"
                                 onClick={handleShuffle}
                                 title="Shuffle cards"
+                                disabled={isNavigating}
                             >
                                 <Shuffle size={18} />
                             </button>
@@ -315,6 +367,7 @@ const StudyPage = () => {
                                 className={`shuffle-btn ${isSwapped ? 'active' : ''}`}
                                 onClick={handleSwap}
                                 title="Swap Term/Definition"
+                                disabled={isNavigating}
                             >
                                 <ArrowLeftRight size={18} />
                             </button>
@@ -369,7 +422,7 @@ const StudyPage = () => {
                                 size="lg"
                                 className="nav-btn"
                                 onClick={(e) => { e.stopPropagation(); handlePrevious(); }}
-                                disabled={currentIndex === 0}
+                                disabled={currentIndex === 0 || isNavigating}
                             >
                                 <ChevronLeft size={24} />
                                 Previous
@@ -382,6 +435,7 @@ const StudyPage = () => {
                                 size="lg"
                                 className="nav-btn"
                                 onClick={(e) => { e.stopPropagation(); handleNext(); }}
+                                disabled={isNavigating}
                             >
                                 {currentIndex === cards.length - 1 ? 'Finish' : (
                                     <>

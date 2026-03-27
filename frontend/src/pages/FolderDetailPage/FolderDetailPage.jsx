@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import AddSetToFolderModal from '../../components/Folder/AddSetToFolderModal';
 import EditFolderModal from '../../components/Folder/EditFolderModal';
 import CreateSetInFolderModal from '../../components/Folder/CreateSetInFolderModal';
@@ -9,11 +9,13 @@ import { Dropdown, Button, Modal, Loader } from '../../components/ui';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
 import { getFolderDetail, removeSetFromFolder, createSetInFolder, deleteFolder, deleteFolderCategory } from '../../api/folder';
+import QuizSettingsModal from '../../components/quiz/QuizSettingsModal';
 import './FolderDetailPage.css';
 
 const FolderDetailPage = () => {
     const { folderId } = useParams();
     const navigate = useNavigate();
+    const location = useLocation();
     const { user } = useAuth();
     const toast = useToast();
     const [folder, setFolder] = useState(null);
@@ -31,6 +33,7 @@ const FolderDetailPage = () => {
     const [searchQuery, setSearchQuery] = useState('');
     const [activeTab, setActiveTab] = useState('all');
     const [sortBy, setSortBy] = useState('recent');
+    const [isQuizSettingsOpen, setIsQuizSettingsOpen] = useState(false);
 
     const fetchFolder = async () => {
         try {
@@ -51,7 +54,11 @@ const FolderDetailPage = () => {
 
     useEffect(() => {
         fetchFolder();
-    }, [folderId]);
+        
+        if (location.state?.openQuizModal) {
+            setIsQuizSettingsOpen(true);
+        }
+    }, [folderId, location.state]);
 
     const getInitials = (name) => {
         if (!name) return '?';
@@ -131,7 +138,11 @@ const FolderDetailPage = () => {
     };
 
     const handleStudyAll = (mode = 'study') => {
-        // Collect all cards from all sets in the current view (filtered by category)
+        if (mode === 'quiz') {
+            setIsQuizSettingsOpen(true);
+            return;
+        }
+
         const allCards = filteredSets.reduce((acc, set) => {
             const setCards = set.flashcards || [];
             return [...acc, ...setCards];
@@ -149,6 +160,28 @@ const FolderDetailPage = () => {
                 fromLabel: 'Back to Folder',
                 folderName: folder.name
             } 
+        });
+    };
+
+    const handleStartQuiz = (settings) => {
+        setIsQuizSettingsOpen(false);
+        const allCards = filteredSets.reduce((acc, set) => {
+            const setCards = set.flashcards || [];
+            return [...acc, ...setCards];
+        }, []);
+
+        if (allCards.length === 0) {
+            toast.info("No sets with terms found");
+            return;
+        }
+
+        navigate(`/quiz/folder-${folderId}`, {
+            state: {
+                cards: allCards,
+                settings,
+                from: `/folders/${folderId}`,
+                fromLabel: 'Back to Folder'
+            }
         });
     };
 
@@ -498,6 +531,13 @@ const FolderDetailPage = () => {
                     <p>Are you sure you want to remove this set from the folder? The set itself will not be deleted.</p>
                 </div>
             </Modal>
+
+            <QuizSettingsModal
+                isOpen={isQuizSettingsOpen}
+                onClose={() => setIsQuizSettingsOpen(false)}
+                onStart={handleStartQuiz}
+                totalCards={getTotalTerms()}
+            />
         </div>
     );
 };

@@ -41,8 +41,9 @@ public class StudyProgressService {
         List<QuizSubmitRequest.AnswerItem> answers = request.getAnswers();
         if (answers == null || answers.isEmpty()) return; // Added null check for answers
 
-        // Tính toán tỷ lệ chính xác (score) của cả bài Quiz
+        // Tính toán tỷ lệ chính xác và số câu sai
         long correctCount = answers.stream().filter(QuizSubmitRequest.AnswerItem::getIsCorrect).count();
+        long incorrectCount = answers.size() - correctCount;
         double quizScore = (double) correctCount / answers.size();
 
         // Update statistics for the quiz submission
@@ -59,11 +60,11 @@ public class StudyProgressService {
                 throw new RuntimeException("Card " + card.getCardId() + " does not belong to set " + set.getSetId());
             }
 
-            updateCardProgressWithBonus(user, card, answer.getIsCorrect(), quizScore);
+            updateCardProgressWithBonus(user, card, answer.getIsCorrect(), incorrectCount);
         }
     }
 
-    private void updateCardProgressWithBonus(User user, Flashcard card, boolean isCorrect, double quizScore) {
+    private void updateCardProgressWithBonus(User user, Flashcard card, boolean isCorrect, long incorrectCount) {
         StudyProgress progress = studyProgressRepository.findByUserAndFlashcard(user, card)
                 .orElse(StudyProgress.builder()
                         .user(user)
@@ -74,21 +75,17 @@ public class StudyProgressService {
                         .build());
 
         if (isCorrect) {
-            // Logic Mastery Bonus dựa theo điểm số bài Quiz
-            if (quizScore == 1.0) {
-                // Đạt 100%: Lên thẳng mức Thành thạo cao nhất
+            // Nếu sai dưới 5 câu: Các câu đúng được đánh giá là Mastered (Level 5)
+            if (incorrectCount < 5) {
                 progress.setMasteryLevel(5);
-            } else if (quizScore >= 0.8) {
-                // Đạt từ 80% trở lên: Đảm bảo thẻ ở mức Mastered (ít nhất là 4)
-                progress.setMasteryLevel(Math.max(progress.getMasteryLevel(), 4));
             } else {
-                // Dưới 80%: Chỉ tăng 1 cấp độ như bình thường
+                // Nếu sai từ 5 câu trở lên: Chưa thực sự thuộc bài, chỉ cộng 1 điểm cho câu đúng
                 progress.setMasteryLevel(Math.min(progress.getMasteryLevel() + 1, 5));
             }
             progress.setStreak(progress.getStreak() + 1);
         } else {
-            // Trả lời sai: Trừ điểm và phá vỡ chuỗi trả lời đúng
-            progress.setMasteryLevel(Math.max(progress.getMasteryLevel() - 1, 0));
+            // Trả lời sai: Đưa về trạng thái Learning (Level 1)
+            progress.setMasteryLevel(1);
             progress.setStreak(0);
         }
         
@@ -103,8 +100,9 @@ public class StudyProgressService {
         Flashcard card = flashcardRepository.findById(cardId)
                 .orElseThrow(() -> new RuntimeException("Card not found: " + cardId));
         
-        // Học từng thẻ đơn lẻ (như trong mode Study) không áp dụng Bonus bài Quiz
-        updateCardProgressWithBonus(user, card, isCorrect, 0.0);
+        // Học từng thẻ đơn lẻ thì coi như số câu sai = 0 (để được lên thẳng nếu đúng) hoặc có thể để 5 để +1 tích lũy.
+        // Tốt nhất là để tính tích lũy (+1) cho từng thẻ khi tự học bằng cách truyền incorrectCount = 5.
+        updateCardProgressWithBonus(user, card, isCorrect, 5);
     }
 
     @Transactional

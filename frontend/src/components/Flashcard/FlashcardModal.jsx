@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { Save, Loader, AlertCircle } from 'lucide-react';
 import { getFlashcardById, createFlashcard, updateFlashcard } from '@/api/flashcards';
 import { Button, Input, Modal, Textarea } from '@/components/ui';
+import { useModal } from '@/context/ModalContext';
+import { useToast } from '@/context/ToastContext';
 import './FlashcardModal.css';
 
 const FlashcardModal = ({ isOpen, onClose, setId, cardId, onSuccess, existingCards = [] }) => {
@@ -14,6 +16,7 @@ const FlashcardModal = ({ isOpen, onClose, setId, cardId, onSuccess, existingCar
     const [loading, setLoading] = useState(false);
     const [submitting, setSubmitting] = useState(false);
     const [error, setError] = useState(null);
+    const toast = useToast();
     const [duplicateError, setDuplicateError] = useState(null);
 
     useEffect(() => {
@@ -52,16 +55,21 @@ const FlashcardModal = ({ isOpen, onClose, setId, cardId, onSuccess, existingCar
 
         if (name === 'orderNumber') {
             setDuplicateError(null);
-            // Check for duplicate in existingCards (excluding current card if editing)
+            // Check for duplicate or too large value
             if (value !== '') {
                 const num = parseInt(value, 10);
                 if (!isNaN(num)) {
-                    const internalIndex = num - 1;
-                    const isDuplicate = existingCards.some(card =>
-                        card.orderIndex === internalIndex && card.cardId !== cardId
-                    );
-                    if (isDuplicate) {
-                        setDuplicateError(`Card with order number ${num} already exists in this set.`);
+                    // Prevent overflow: check 9999 limit
+                    if (num > 9999) {
+                        setDuplicateError("Order number cannot exceed 9999.");
+                    } else {
+                        const internalIndex = num - 1;
+                        const isDuplicate = existingCards.some(card => 
+                            card.orderIndex === internalIndex && card.cardId !== cardId
+                        );
+                        if (isDuplicate) {
+                            setDuplicateError(`Card with order number ${num} already exists in this set.`);
+                        }
                     }
                 }
             }
@@ -100,6 +108,7 @@ const FlashcardModal = ({ isOpen, onClose, setId, cardId, onSuccess, existingCar
             }
 
             if (onSuccess) onSuccess(result);
+            toast.success(`Flashcard ${isEdit ? 'updated' : 'added'} successfully!`);
             onClose();
         } catch (err) {
             setError(err.response?.data?.message || 'Something went wrong');
@@ -121,10 +130,11 @@ const FlashcardModal = ({ isOpen, onClose, setId, cardId, onSuccess, existingCar
             <Button
                 type="submit"
                 form="flashcard-card-form"
-                disabled={submitting || loading || !!duplicateError}
+                isLoading={submitting}
+                disabled={loading || !!duplicateError}
                 className="submit-btn"
             >
-                {submitting ? <Loader size={18} className="animate-spin" /> : <><Save size={18} /> {isEdit ? 'Save Changes' : 'Add Card'}</>}
+                {isEdit ? 'Save Changes' : 'Add Card'}
             </Button>
         </div>
     );
@@ -141,7 +151,7 @@ const FlashcardModal = ({ isOpen, onClose, setId, cardId, onSuccess, existingCar
                 <div className="flex justify-center p-8"><Loader className="animate-spin" /></div>
             ) : (
                 <form id="flashcard-card-form" onSubmit={handleSubmit} className="modal-form">
-                    {error && <div className="error-msg mb-4 p-3 bg-red-50 text-red-600 rounded-lg text-sm">{error}</div>}
+                    {error && <div className="error-msg" style={{ marginBottom: '1rem', padding: '0.75rem', backgroundColor: '#fef2f2', color: '#dc2626', borderRadius: '0.5rem', fontSize: '0.875rem' }}>{error}</div>}
 
                     <div className="form-group mb-4">
                         <label htmlFor="term" className="block text-sm font-medium text-gray-700 mb-1">Term</label>
@@ -177,9 +187,11 @@ const FlashcardModal = ({ isOpen, onClose, setId, cardId, onSuccess, existingCar
                             name="orderNumber"
                             type="number"
                             min="1"
+                            max="9999"
                             placeholder="Auto (next available)"
                             value={formData.orderNumber}
                             onChange={handleChange}
+                            onWheel={(e) => e.target.blur()} 
                             fullWidth
                             className={duplicateError ? 'border-red-500' : ''}
                         />

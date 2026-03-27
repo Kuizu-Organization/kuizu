@@ -86,6 +86,16 @@ public class FlashcardSetService {
         User owner = userRepository.findByUsername(username)
                 .orElseThrow(() -> new ApiException("User not found"));
 
+        if (request.getTitle() == null || request.getTitle().trim().isEmpty()) {
+            throw new ApiException("Title is required");
+        }
+        if (request.getTitle().length() > 50) {
+            throw new ApiException("Title cannot exceed 50 characters");
+        }
+        if (flashcardSetRepository.existsByTitleAndOwnerAndIsDeletedFalse(request.getTitle(), owner)) {
+            throw new ApiException("A flashcard set with this title already exists. Please choose a different title.");
+        }
+
         FlashcardSet set = FlashcardSet.builder()
                 .owner(owner)
                 .title(request.getTitle())
@@ -131,8 +141,18 @@ public class FlashcardSetService {
             throw new ApiException("You do not have permission to update this set");
         }
 
-        if (request.getTitle() != null)
+        if (request.getTitle() != null) {
+            if (request.getTitle().trim().isEmpty()) {
+                throw new ApiException("Title cannot be empty");
+            }
+            if (request.getTitle().length() > 50) {
+                throw new ApiException("Title cannot exceed 50 characters");
+            }
+            if (flashcardSetRepository.existsByTitleAndOwnerAndSetIdNotAndIsDeletedFalse(request.getTitle(), set.getOwner(), setId)) {
+                throw new ApiException("A flashcard set with this title already exists. Please choose a different title.");
+            }
             set.setTitle(request.getTitle());
+        }
         if (request.getDescription() != null)
             set.setDescription(request.getDescription());
         if (request.getCategory() != null)

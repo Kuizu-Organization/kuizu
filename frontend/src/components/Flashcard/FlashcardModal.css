@@ -134,3 +134,116 @@
         transform: translateY(0);
     }
 }
+
+/* New Premium UI Styles */
+.form-label-custom {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #334155;
+    margin-bottom: 8px;
+    margin-left: 2px;
+}
+
+.required-asterisk {
+    color: var(--error, #ef4444) !important;
+    font-weight: 700;
+    margin-left: 2px;
+}
+
+.char-counter-badge {
+    display: flex;
+    align-items: center;
+    height: 22px;
+    padding: 0 8px;
+    border-radius: 8px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    border: 1px solid transparent;
+    transition: all 0.3s ease;
+    pointer-events: none;
+    user-select: none;
+}
+
+.char-counter-badge.default {
+    background-color: #f1f5f9;
+    color: #64748b;
+    border-color: #f1f5f9;
+}
+
+.char-counter-badge.warning {
+    background-color: #fff7ed;
+    color: #ea580c;
+    border-color: #ffedd5;
+}
+
+.char-counter-badge.error {
+    background-color: #fef2f2;
+    color: #dc2626;
+    border-color: #fee2e2;
+    box-shadow: 0 1px 2px rgba(220, 38, 38, 0.05);
+}
+
+.custom-alert-box {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 24px;
+    padding: 14px;
+    background-color: #fef2f2;
+    border: 1px solid #fee2e2;
+    color: #dc2626;
+    border-radius: 12px;
+    font-size: 0.875rem;
+    animation: fadeInSlide 0.3s ease-out;
+}
+
+.alert-dot {
+    flex-shrink: 0;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background-color: #dc2626;
+    animation: alertPulse 2s infinite;
+}
+
+@keyframes alertPulse {
+    0% { transform: scale(0.95); opacity: 0.8; }
+    50% { transform: scale(1.1); opacity: 1; }
+    100% { transform: scale(0.95); opacity: 0.8; }
+}
+
+.visibility-label-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.visibility-icon-container {
+    padding: 6px;
+    background-color: rgba(66, 85, 255, 0.08);
+    border-radius: 8px;
+    color: var(--primary);
+    display: flex;
+}
+
+.visibility-text-container {
+    display: flex;
+    flex-direction: column;
+    text-align: left;
+}
+
+.visibility-title {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #0f172a;
+}
+
+.visibility-desc {
+    font-size: 11px;
+    color: #64748b;
+    font-weight: 400;
+}

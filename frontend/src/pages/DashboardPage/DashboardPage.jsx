@@ -203,7 +203,7 @@ const DashboardPage = () => {
                                     <p className="resource-card-description">{set.description || 'No description provided.'}</p>
                                 </div>
                                 <div className="resource-card-footer">
-                                    <span className="resource-card-owner">by {set.ownerDisplayName}</span>
+                                    <span className="resource-card-owner">by {user?.userId === set.ownerId ? 'You' : set.ownerDisplayName}</span>
                                     <span className={`resource-card-visibility ${set.visibility?.toLowerCase()}`}>
                                         {set.visibility === 'PUBLIC' ? '🌐 Public' : '🔒 Private'}
                                     </span>
@@ -263,7 +263,7 @@ const DashboardPage = () => {
                                     <p className="resource-card-description">{set.description || 'No description provided.'}</p>
                                 </div>
                                 <div className="resource-card-footer">
-                                    <span className="resource-card-owner">by {set.ownerDisplayName}</span>
+                                    <span className="resource-card-owner">by {user?.userId === set.ownerId ? 'You' : set.ownerDisplayName}</span>
                                     <span className="resource-card-visibility public">🌐 Public</span>
                                 </div>
                             </Card>
@@ -303,7 +303,7 @@ const DashboardPage = () => {
                                     <p className="resource-card-description">{folder.description || 'No description provided.'}</p>
                                 </div>
                                 <div className="resource-card-footer">
-                                    <span className="resource-card-owner">by {folder.ownerDisplayName}</span>
+                                    <span className="resource-card-owner">by {user?.userId === folder.ownerId ? 'You' : folder.ownerDisplayName}</span>
                                     <span className={`resource-card-visibility ${folder.visibility?.toLowerCase()}`}>
                                         {folder.visibility === 'PUBLIC' ? '🌐 Public' : '🔒 Private'}
                                     </span>

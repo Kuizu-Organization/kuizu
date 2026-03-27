@@ -145,6 +145,8 @@
     -webkit-line-clamp: 2 !important;
     -webkit-box-orient: vertical !important;
     overflow: hidden !important;
+    overflow-wrap: break-word !important;
+    word-break: normal !important;
 }
 
 .set-status-badges {
@@ -243,6 +245,8 @@
     -webkit-line-clamp: 2 !important;
     -webkit-box-orient: vertical !important;
     overflow: hidden !important;
+    overflow-wrap: break-word !important;
+    word-break: normal !important;
 }
 
 .set-card .card-footer,

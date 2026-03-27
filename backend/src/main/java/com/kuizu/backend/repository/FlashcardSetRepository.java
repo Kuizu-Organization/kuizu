@@ -21,6 +21,8 @@ public interface FlashcardSetRepository extends JpaRepository<FlashcardSet, Long
     java.util.Optional<FlashcardSet> findByTitle(String title);
     List<FlashcardSet> findByStatus(String status);
     List<FlashcardSet> findByTitleContainingIgnoreCaseAndVisibilityAndIsDeletedFalse(String title, Visibility visibility);
+    boolean existsByTitleAndOwnerAndIsDeletedFalse(String title, User owner);
+    boolean existsByTitleAndOwnerAndSetIdNotAndIsDeletedFalse(String title, User owner, Long setId);
 
     @Query("SELECT s FROM FlashcardSet s WHERE (s.owner = :owner OR s.visibility = com.kuizu.backend.entity.enumeration.Visibility.PUBLIC) AND (s.isDeleted = false OR s.isDeleted IS NULL)")
     List<FlashcardSet> findAllAvailableForUser(@Param("owner") User owner);
